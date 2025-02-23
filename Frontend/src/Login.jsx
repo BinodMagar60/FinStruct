@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FaEyeSlash, FaEye } from "react-icons/fa";
 import Popup from "./Components/Popup"
 import "./login.css"
+import Loading from "./Components/Loading";
 
 const Login = () => {
   const [login, setLogin] = useState(false)
@@ -43,7 +44,8 @@ const Login = () => {
 
   return (
     <>
-      <Popup message="Successful" status="success"/>
+      {/* <Loading /> */}
+      {/* <Popup message="Successful" status="success"/> */}
     <div
       className="w-screen h-screen bg-red-200 bg-cover bg-center pt-12 fixed"
       style={{ backgroundImage: "url('/login/background.jpg'" }}
@@ -94,10 +96,10 @@ const Login = () => {
               onChange={(e)=>setLpassword(e.target.value)}
             />
             <FaEyeSlash
-              className={`absolute right-2 top-2 ${LPassword? "":"hidden"}`}
+              className={`absolute right-2 top-2 ${LPassword? "hidden":""}`}
               onClick={() => setLPassword(!LPassword)}
             />
-            <FaEye className={`absolute right-2 top-2 ${LPassword? "hidden":""}`} onClick={() => setLPassword(!LPassword)}/>
+            <FaEye className={`absolute right-2 top-2 ${LPassword? "":"hidden"}`} onClick={() => setLPassword(!LPassword)}/>
           </div>
 
           <button
@@ -185,10 +187,10 @@ const Login = () => {
               onChange={(e)=>setSnpassword(e.target.value)}
             />
             <FaEyeSlash
-              className={`absolute right-2 top-2 ${SNPassword? "":"hidden"}`}
+              className={`absolute right-2 top-2 ${SNPassword? "hidden":""}`}
               onClick={() => setSNPassword(!SNPassword)}
             />
-            <FaEye className={`absolute right-2 top-2 ${SNPassword? "hidden":""}`} onClick={() => setSNPassword(!SNPassword)}/>
+            <FaEye className={`absolute right-2 top-2 ${SNPassword? "":"hidden"}`} onClick={() => setSNPassword(!SNPassword)}/>
           </div>
 
           <div className="mb-1.5">
@@ -206,10 +208,10 @@ const Login = () => {
               onChange={(e)=>{setScpassword(e.target.value)}}
             />
             <FaEyeSlash
-              className={`absolute right-2 top-2 ${SCPassword? "":"hidden"}`}
+              className={`absolute right-2 top-2 ${SCPassword? "hidden":""}`}
               onClick={() => setSCPassword(!SCPassword)}
             />
-            <FaEye className={`absolute right-2 top-2 ${SCPassword? "hidden":""}`} onClick={() => setSCPassword(!SCPassword)}/>
+            <FaEye className={`absolute right-2 top-2 ${SCPassword? "":"hidden"}`} onClick={() => setSCPassword(!SCPassword)}/>
           </div>
 
           <button
