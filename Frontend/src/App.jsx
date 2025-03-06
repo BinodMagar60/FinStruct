@@ -5,11 +5,11 @@ import Navbar from './Components/NavBar'
 
 const App = () => {
   return (
-    <>
+    <div className='bg-[#efefef] h-screen'>
     {/* <Loading/> */}
     <Navbar/>
-    <Login/>
-    </>
+    {/* <Login/> */}
+    </div>
   )
 }
 
