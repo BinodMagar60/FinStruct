@@ -7,32 +7,13 @@ import {
   Clock, 
   LogOut
 } from 'lucide-react';
+import { CgLaptop } from 'react-icons/cg';
 
 const Navbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const profileRef = useRef(null);
-  const notificationRef = useRef(null);
-
-//   dropdown
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (profileRef.current && !profileRef.current.contains(event.target)) {
-        setIsProfileOpen(false);
-      }
-      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
-        setIsNotificationOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  
-  const notifications = [
+  const [notificationSignChecker, setnotificationSignChecker] = useState(false);
+  const [notifications, setNotifications] = useState([
     {
       id: 1,
       title: 'New message received',
@@ -82,7 +63,32 @@ const Navbar = () => {
       time: '2 days ago',
       read: true
     }
-  ];
+  ])
+  const profileRef = useRef(null);
+  const notificationRef = useRef(null);
+
+//   dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
+      }
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setIsNotificationOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+
+
+
+  }, []);
+
+  
+  
 
   return (
     <nav className="flex items-center justify-between bg-white shadow-md px-6 py-3">
@@ -119,16 +125,28 @@ const Navbar = () => {
             <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg py-1 z-10 ">
               <div className="px-4 py-2 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-20">
                 <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
-                <button className="text-sm text-blue-600 hover:text-blue-800">
+                <button className="text-sm cursor-pointer text-blue-600 hover:text-blue-800" onClick={()=>setNotifications((prv)=>{
+                  const newArr=[...prv]
+                   newArr.forEach((obj)=>(
+                    obj.read=true
+                  ))
+                  return newArr
+                })}>
                   Mark all as read
                 </button>
               </div>
               
-              <div className="max-h-64 overflow-y-auto scrollbar-none ">
-                {notifications.map(notification => (
+              <div className="max-h-64 overflow-y-auto scroll cursor-pointer " >
+                {notifications.map((notification,index) => (
                   <div 
+                  onClick={()=>setNotifications((prv)=>{
+                    const newArr=[...prv]
+                    newArr[notification.id-1].read=true
+                    return newArr
+                  })}
                     key={notification.id} 
                     className={`px-4 py-3 border-b border-gray-100 hover:bg-gray-50 ${!notification.read ? 'bg-blue-50' : ''}`}
+                    // onClick={()=>notification.read=true}
                   >
                     <div className="flex justify-between">
                       <p className="text-sm font-medium text-gray-900">{notification.title}</p>

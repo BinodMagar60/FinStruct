@@ -10,3 +10,12 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+
+.scroll{
+  scrollbar-width: none;
+}
+
+*{
+  outline: none;
+}
