@@ -19,3 +19,8 @@
 *{
   outline: none;
 }
+
+
+.notesShow{
+  scrollbar-width: none;
+}

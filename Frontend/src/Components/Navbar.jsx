@@ -8,6 +8,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { CgLaptop } from 'react-icons/cg';
+import Notes from './Notes';
 
 const Navbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -87,6 +88,13 @@ const Navbar = () => {
 
   }, []);
 
+
+  useEffect(() => {
+    const hasUnread = notifications.some((notification) => !notification.read);
+    setnotificationSignChecker(hasUnread);
+  }, [notifications]);
+  
+
   
   
 
@@ -106,14 +114,14 @@ const Navbar = () => {
 
 
       {/* Right side tools and profile*/}
-      <div className="flex items-center gap-2 space-x-4 outline-none">
+      <div className="flex items-center gap-1 space-x-4 outline-none">
         {/* Notifications */}
         <div className="relative" ref={notificationRef}>
           <button 
             className="relative p-2 rounded-full hover:bg-gray-100 cursor-pointer"
             onClick={() => setIsNotificationOpen(!isNotificationOpen)}
           >
-            <div className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+            {notificationSignChecker? <div className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></div>: ""}
             <Bell className="h-7 w-7 text-gray-600" />
           </button>
           
@@ -170,6 +178,13 @@ const Navbar = () => {
             </div>
           )}
         </div>
+
+
+
+          <Notes />
+
+
+
         
         {/* Profile*/}
         <div className="relative" ref={profileRef}>
