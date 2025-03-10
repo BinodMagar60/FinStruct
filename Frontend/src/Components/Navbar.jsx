@@ -99,7 +99,7 @@ const Navbar = () => {
   
 
   return (
-    <nav className="flex items-center justify-between bg-white shadow-md px-6 py-3">
+    <nav className="flex items-center justify-between bg-white shadow-md px-6 py-3 relative z-10">
         {/* logo */}
       <div className="flex items-center">
         <img 

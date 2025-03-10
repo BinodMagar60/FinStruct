@@ -1,14 +1,11 @@
 import React from 'react'
-import Login from './Login'
-import Navbar from './Components/NavBar'
-// import Loading from './Components/Loading'
+import Admin from './Pages/admin/Admin'
+
 
 const App = () => {
   return (
     <div className='bg-[#efefef] h-screen'>
-    {/* <Loading/> */}
-    <Navbar/>
-    {/* <Login/> */}
+    <Admin />
     </div>
   )
 }

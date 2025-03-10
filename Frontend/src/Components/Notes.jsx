@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FileText, Edit, Save, Plus } from 'lucide-react';
+import { FileText, Edit, Save, Plus, Trash2 } from 'lucide-react'; 
 
 const Notes = () => {
   const [isNotesOpen, setIsNotesOpen] = useState(false);
@@ -7,13 +7,13 @@ const Notes = () => {
     {
       id: 1,
       date: new Date(2025, 2, 8),
-      content: 'hello world my name is binod kaucha magar'
+      content: 'hello world my name is binod kaucha magar',
     },
     {
       id: 2,
       date: new Date(2025, 2, 7),
-      content: 'binod magar adsad'
-    }
+      content: 'binod magar adsad',
+    },
   ]);
   const [newNoteContent, setNewNoteContent] = useState('');
   const [isAddingNote, setIsAddingNote] = useState(false);
@@ -26,6 +26,8 @@ const Notes = () => {
     const handleClickOutside = (event) => {
       if (notesRef.current && !notesRef.current.contains(event.target)) {
         setIsNotesOpen(false);
+        setEditingNoteId(null);
+        setEditingContent('');
       }
     };
 
@@ -37,7 +39,7 @@ const Notes = () => {
 
   const formatDate = (date) => {
     const months = [
-      'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
+      'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December',
     ];
     return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
   };
@@ -47,7 +49,7 @@ const Notes = () => {
       const newNote = {
         id: Date.now(),
         date: new Date(),
-        content: newNoteContent
+        content: newNoteContent,
       };
       setNotes([newNote, ...notes]);
       setNewNoteContent('');
@@ -62,15 +64,23 @@ const Notes = () => {
 
   const saveEdit = () => {
     if (editingContent.trim()) {
-      setNotes(notes.map((note) =>
-        note.id === editingNoteId ? { ...note, content: editingContent, date: new Date() } : note
-      ));
+      setNotes(
+        notes.map((note) =>
+          note.id === editingNoteId ? { ...note, content: editingContent, date: new Date() } : note
+        )
+      );
       setEditingNoteId(null);
       setEditingContent('');
     }
   };
 
   const cancelEdit = () => {
+    setEditingNoteId(null);
+    setEditingContent('');
+  };
+
+  const deleteNote = (id) => {
+    setNotes(notes.filter((note) => note.id !== id));
     setEditingNoteId(null);
     setEditingContent('');
   };
@@ -108,13 +118,13 @@ const Notes = () => {
         </button>
 
         {isNotesOpen && (
-          <div className="absolute right-0 mt-2 w-80 h-96 bg-white rounded-lg shadow-lg p-4 z-50 flex flex-col">
-            <div className="flex justify-between items-center px-4 py-3 border-b border-gray-300">
+          <div className="absolute right-0 mt-2 w-120 h-96 bg-white rounded-lg shadow-lg py-4 z-50 flex flex-col">
+            <div className="flex justify-between items-center px-5 py-3 border-b border-gray-300">
               <h2 className="text-xl font-bold">Notepad</h2>
             </div>
 
             {/* Notes List */}
-            <div className="flex-1 overflow-y-auto p-2">
+            <div className="flex-1 overflow-y-auto p-2 notesShow">
               {notes.map((note) => (
                 <div key={note.id} className="p-3 border-b border-gray-300">
                   <div className="text-xs text-gray-500 font-medium">{formatDate(note.date)}</div>
@@ -132,15 +142,21 @@ const Notes = () => {
                       <div className="flex justify-end space-x-2 mt-2">
                         <button
                           onClick={cancelEdit}
-                          className="px-2 py-1 bg-gray-300 hover:bg-gray-400 rounded-md text-gray-800 text-sm"
+                          className="px-2 py-1 bg-gray-300 hover:bg-gray-400 rounded-md text-gray-800 text-sm cursor-pointer"
                         >
                           Cancel
                         </button>
                         <button
                           onClick={saveEdit}
-                          className="px-2 py-1 bg-blue-500 hover:bg-blue-600 rounded-md text-white flex items-center text-sm"
+                          className="px-2 py-1 bg-blue-500 hover:bg-blue-600 rounded-md text-white flex items-center text-sm cursor-pointer"
                         >
                           <Save size={12} className="mr-1" /> Save
+                        </button>
+                        <button
+                          onClick={() => deleteNote(note.id)}
+                          className="px-2 py-1 bg-red-500 hover:bg-red-600 rounded-md text-white flex items-center text-sm cursor-pointer"
+                        >
+                          <Trash2 size={12} className="mr-1" /> Delete
                         </button>
                       </div>
                     </div>
@@ -151,7 +167,7 @@ const Notes = () => {
                         className="ml-2 text-gray-500 hover:text-blue-500 flex-shrink-0"
                         onClick={() => startEditing(note)}
                       >
-                        <Edit size={14} />
+                        <Edit size={18} className='cursor-pointer hover:text-black'/>
                       </button>
                     </div>
                   )}
@@ -160,7 +176,7 @@ const Notes = () => {
             </div>
 
             {/* Add Note Section */}
-            <div className="p-3 border-t border-gray-300 mt-auto">
+            <div className="px-3 pt-2 border-t border-gray-300 mt-auto">
               {isAddingNote ? (
                 <div className="flex flex-col space-y-2">
                   <textarea
@@ -175,13 +191,13 @@ const Notes = () => {
                   <div className="flex justify-end space-x-2">
                     <button
                       onClick={() => setIsAddingNote(false)}
-                      className="px-3 py-1 bg-gray-300 hover:bg-gray-400 rounded"
+                      className="px-3 py-1 bg-gray-300 hover:bg-gray-400 rounded cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleAddNote}
-                      className="px-3 py-1 bg-blue-500 hover:bg-blue-600 rounded text-white"
+                      className="px-3 py-1 bg-blue-500 hover:bg-blue-600 rounded text-white cursor-pointer"
                     >
                       Add
                     </button>
@@ -190,9 +206,9 @@ const Notes = () => {
               ) : (
                 <button
                   onClick={() => setIsAddingNote(true)}
-                  className="flex items-center text-gray-600 hover:text-black"
+                  className="flex items-center text-gray-600 hover:text-black cursor-pointer"
                 >
-                  <Plus size={18} className="mr-2" /> New note
+                  <Plus size={18} className="mr-2 " /> New note
                 </button>
               )}
             </div>
