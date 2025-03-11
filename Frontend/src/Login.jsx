@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaEyeSlash, FaEye } from "react-icons/fa";
-import Popup from "./Components/Popup"
+
 import "./login.css"
 import Loading from "./Components/Loading";
 
@@ -9,7 +9,18 @@ const Login = () => {
   const [LPassword, setLPassword] = useState(false);
   const [SNPassword, setSNPassword] = useState(false);
   const [SCPassword, setSCPassword] = useState(false);
-  const [alert, setAlert] = useState(false);
+  const [loginError, setLoginError] = useState({
+    e1: false,
+    e2: false,
+  })
+
+  const [signupError, setSignupError] = useState({
+    e1: false,
+    e2: false,
+    e3: false,
+    e4: false,
+    e5: false,
+  })
 
 
   const [Lemail, setLemail] = useState("");
@@ -22,6 +33,9 @@ const Login = () => {
 
 
   const resetFields = () => {
+    setSignupError({ e1: false, e2: false, e3: false, e4: false, e5: false });
+    setLoginError({ e1: false, e2: false });
+
     setLemail("");
     setLpassword("");
     setSfname("");
@@ -36,22 +50,111 @@ const Login = () => {
   }
 
 
-  const showAlert = () =>{
-    
-  }
+
+  const loginValidation = (e) => {
+    let errors = { e1: false, e2: false };
+    const emailRegex = /^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9-]+\.com$/;
   
+    if (!Lemail) {
+      errors.e1 = "Email is required";
+      e.preventDefault();
+    }
+    else if(!Lemail.match(emailRegex)){
+      errors.e1 = "Invalid Email"
+      e.preventDefault();
+    }
+  
+    if (!Lpassowrd) {
+      errors.e2 = "Password is required";
+      e.preventDefault();
+    }
+    else if(Lpassowrd.length < 8){
+      errors.e2 = "Incorrect Password"
+      e.preventDefault();
+    }
+  
+    setLoginError(errors);
+  };
+  
+
+
+
+  const signupValidation = (e) => {
+    let errors = { e1: false, e2: false, e3: false, e4: false, e5: false };
+    const emailRegex = /^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9-]+\.com$/;
+    const nameRegex = /^[a-zA-Z]+(?: [a-zA-Z]+)*$/;
+    const companyRegex = /^[a-zA-Z][a-zA-Z0-9 &-]*$/;
+
+
+
+    if(!Sfname){
+      errors.e1 = "Name is required";
+      e.preventDefault();
+    }
+    else if(!Sfname.match(nameRegex)){
+      errors.e1 = "Invalid name";
+      e.preventDefault();
+    }
+
+    if(!Scompanyname){
+      errors.e2 = "Company name is required";
+      e.preventDefault();
+    }
+    if(!Scompanyname.match(companyRegex)){
+      errors.e2 = "Invalid company name";
+      e.preventDefault();
+    }
+
+    if(!Swemail){
+      errors.e3 = "Email is required";
+      e.preventDefault();
+    }
+    else if(!Swemail.match(emailRegex)){
+      errors.e3 = "Invalid email";
+      e.preventDefault();
+    }
+
+    if(!Snpassword){
+      errors.e4 = "New password is requred";
+      e.preventDefault();
+    }
+    else if (Snpassword.length < 8){
+      errors.e4 = "Password must be atleast 8 character";
+      e.preventDefault();
+    }
+
+    if(!Scpassword){
+      errors.e5 = "Confirm password is required";
+      e.preventDefault();
+    }
+    else if(!Scpassword.match(Snpassword)){
+      errors.e5 = "Password doesn't match"
+      e.preventDefault();
+    }
+    
+    
+  
+    setSignupError(errors);
+  };
+
+
+
+
+
+
+
+
 
   const showBox = {
     transition: "ease-in-out all 300ms",
     
     display: "none"
-    // translate: 
+    
   }
 
   return (
     <>
       
-      {/* <Popup message="Successful" status="success"/> */}
       
       
     <div
@@ -60,7 +163,7 @@ const Login = () => {
     >
       <div
         id="loginSingupBOx"
-        className="w-[606px] h-fit bg-white b-rounded m-auto rounded-xl py-14 px-32 flex gap-5"
+        className="w-[606px] h-fit bg-white b-rounded m-auto rounded-xl py-12 px-32 flex gap-5"
       style={{
         position: "absolute",
         top: "50%",
@@ -73,6 +176,9 @@ const Login = () => {
 
 
         <div id="loginBox" className="flex flex-col text-xl" style={login? showBox: {}}>
+        
+
+        <form onSubmit={loginValidation}>
         <div id="title" className="text-center text-4xl font-extrabold mb-10">
             Login
           </div>
@@ -88,6 +194,7 @@ const Login = () => {
               value={Lemail}
               onChange={(e)=>setLemail(e.target.value)}
             />
+            {loginError.e1 && <div className="text-red-500 italic font-light text-[16px]">{loginError.e1}</div>}
           </div>
           <div className="mb-1.5">
             <label htmlFor="Lpassword" className="mb-1">
@@ -108,11 +215,13 @@ const Login = () => {
               onClick={() => setLPassword(!LPassword)}
             />
             <FaEye className={`absolute right-2 top-2 ${LPassword? "":"hidden"}`} onClick={() => setLPassword(!LPassword)}/>
+            {loginError.e2 && <div className="text-red-500 italic font-light text-[16px]">{loginError.e2}</div>}
           </div>
 
           <button
-            type="button"
+            type="submit"
             className="w-full bg-black text-white py-3 font-bold rounded-xl cursor-pointer"
+            
           >
             Login
           </button>
@@ -129,6 +238,10 @@ const Login = () => {
               Click Here.
             </span>
           </div>
+        </form>
+
+
+
         </div>
 
 
@@ -136,6 +249,12 @@ const Login = () => {
 
 
         <div id="Signupbox" className="flex flex-col text-xl" style={!login? showBox: {}}>
+
+
+
+        <form onSubmit={signupValidation}>
+
+
         <div id="title" className="text-center text-4xl font-extrabold mb-10">
             Singup
           </div>
@@ -151,6 +270,7 @@ const Login = () => {
               value={Sfname}
               onChange={(e)=>setSfname(e.target.value)}
             />
+            {signupError.e1 && <div className="text-red-500 italic font-light text-[16px]">{signupError.e1}</div>}
           </div>
           <div className="mb-1.5">
             <label htmlFor="SCompany">Company Name</label>
@@ -165,6 +285,8 @@ const Login = () => {
               onChange={(e)=>setScompanyname(e.target.value)}
 
             />
+            {signupError.e2 && <div className="text-red-500 italic font-light text-[16px]">{signupError.e2}</div>}
+
           </div>
           <div className="mb-1.5">
             <label htmlFor="Semail">Email</label>
@@ -178,6 +300,8 @@ const Login = () => {
               value={Swemail}
               onChange={(e)=>setSwemail(e.target.value)}
             />
+            {signupError.e3 && <div className="text-red-500 italic font-light text-[16px]">{signupError.e3}</div>}
+
           </div>
 
           <div className="mb-1.5">
@@ -199,6 +323,8 @@ const Login = () => {
               onClick={() => setSNPassword(!SNPassword)}
             />
             <FaEye className={`absolute right-2 top-2 ${SNPassword? "":"hidden"}`} onClick={() => setSNPassword(!SNPassword)}/>
+            {signupError.e4 && <div className="text-red-500 italic font-light text-[16px]">{signupError.e4}</div>}
+
           </div>
 
           <div className="mb-1.5">
@@ -220,10 +346,12 @@ const Login = () => {
               onClick={() => setSCPassword(!SCPassword)}
             />
             <FaEye className={`absolute right-2 top-2 ${SCPassword? "":"hidden"}`} onClick={() => setSCPassword(!SCPassword)}/>
+            {signupError.e5 && <div className="text-red-500 italic font-light text-[16px]">{signupError.e5}</div>}
+
           </div>
 
           <button
-            type="button"
+            type="Submit"
             className="w-full bg-black text-white py-3 font-bold rounded-xl cursor-pointer"
           >
             Signup
@@ -241,7 +369,16 @@ const Login = () => {
               Click Here.
             </span>
             
-          </div>
+          </div>  
+
+        </form>
+
+        
+
+
+
+
+
         </div>
       </div>
     </div>
