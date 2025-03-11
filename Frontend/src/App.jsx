@@ -6,8 +6,8 @@ import Login from './Login'
 const App = () => {
   return (
     <div className='bg-[#efefef] h-screen'>
-    {/* <Admin /> */}
-    <Login/>
+    <Admin />
+    {/* <Login/> */}
     </div>
   )
 }
