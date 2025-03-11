@@ -9,6 +9,7 @@ const Login = () => {
   const [LPassword, setLPassword] = useState(false);
   const [SNPassword, setSNPassword] = useState(false);
   const [SCPassword, setSCPassword] = useState(false);
+  const [alert, setAlert] = useState(false);
 
 
   const [Lemail, setLemail] = useState("");
@@ -35,6 +36,11 @@ const Login = () => {
   }
 
 
+  const showAlert = () =>{
+    
+  }
+  
+
   const showBox = {
     transition: "ease-in-out all 300ms",
     
@@ -44,8 +50,10 @@ const Login = () => {
 
   return (
     <>
-      {/* <Loading /> */}
+      
       {/* <Popup message="Successful" status="success"/> */}
+      
+      
     <div
       className="w-screen h-screen bg-red-200 bg-cover bg-center pt-12 fixed"
       style={{ backgroundImage: "url('/login/background.jpg'" }}
@@ -232,6 +240,7 @@ const Login = () => {
             }}>
               Click Here.
             </span>
+            
           </div>
         </div>
       </div>

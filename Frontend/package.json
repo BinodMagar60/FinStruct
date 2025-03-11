@@ -11,10 +11,17 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.7",
+<<<<<<< HEAD
     "frontend": "file:",
+=======
+    "lucide-react": "^0.477.0",
+>>>>>>> 4771ae3187228681019166b4aec44b5f5d4d539f
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
+    "react-redux": "^9.2.0",
+    "react-spinners": "^0.15.0",
+    "react-toastify": "^11.0.5",
     "tailwindcss": "^4.0.7"
   },
   "devDependencies": {
