@@ -7,8 +7,8 @@ const router = express.Router();
 // Register User
 router.post("/signup", async (req, res) => {
     try {
-        const { username, email, password } = req.body;
-        const user = new User({ username, email, password });
+        const { username, email, password, companyname } = req.body;
+        const user = new User({ username, email, password, companyname });
         await user.save();
         res.status(201).json({ message: "User registered successfully" });
     } catch (error) {
