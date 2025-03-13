@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import { LayoutDashboard, User, FileText, Inbox, Plus, Dot, ChevronsUpDown } from "lucide-react";
+import { LayoutDashboard, User, FileText, Inbox, Plus, ChevronsUpDown, Target, ListTodo, CircleCheckBig, ClipboardList, ClipboardCheck, Loader, Trash2 } from "lucide-react";
 
 
 
@@ -14,7 +14,7 @@ const Sidebar = () => {
   const admin = true;
 
   const dummyData = [
-    { name: 'Task 1 asdasdasdassd', status: 'complete' },
+    { name: 'Task 1 asdasdasdassdaaa', status: 'complete' },
     { name: 'Task 2', status: 'incomplete' },
     { name: 'Task 3', status: 'incomplete' },
     { name: 'Task 4', status: 'complete' },
@@ -41,25 +41,57 @@ const Sidebar = () => {
       },
       {
         name: "Users",
-        url: "/Users",
+        url: "/users",
         logo: <User />,
       },
       {
         name: "Docs",
-        url: "/Docs",
+        url: "/docs",
         logo: <FileText />,
       },
       {
         name: "Mail",
-        url: "/Mail",
+        url: "/mail",
         logo: <Inbox />,
       },
     ],
+    [
+      {
+        name: "Overview",
+        url: "/overview",
+        logo: <Target />
+      },
+      {
+        name: "Tasks",
+        url: "/tasks",
+        logo: <ClipboardList />,
+      },
+      {
+        name: "To Do",
+        url: "/todo",
+        logo: <ListTodo />,
+      },
+      {
+        name: "In Progress",
+        url: "/inprogress",
+        logo: <Loader />,
+      },
+      {
+        name: "Completed",
+        url: "/completed",
+        logo: <ClipboardCheck />,
+      },
+      {
+        name: "Trash",
+        url: "/trash",
+        logo: <Trash2 />,
+      }
+    ]
   ];
 
   return (
     <>
-      <div className="fixed top-0 left-0 h-screen w-60 bg-white pt-24">
+      <div className="fixed top-0 left-0 h-screen w-64 bg-white pt-24">
         {admin ? (
           <>
             <ul className="flex flex-col justify-center select-none text-gray-900 text-xl">
@@ -67,7 +99,7 @@ const Sidebar = () => {
                 return (
                   <li
                     key={index}
-                    className="flex w-full pl-10 cursor-pointer py-5 hover:bg-[#e4e4e488] active:bg-black active:text-white transition-all"
+                    className="flex w-full pl-10 cursor-pointer py-4 hover:bg-[#e4e4e488] active:bg-black active:text-white transition-all"
                   >
                     <span className="mr-3">{items.logo}</span>
                     <span>{items.name}</span>
@@ -83,32 +115,31 @@ const Sidebar = () => {
                   <span className="mr-1 flex  items-center">
                     <Plus size={22} />
                   </span>
-                  <span>Add Project</span>
+                  <span>Create Project</span>
                 </button>
                 
               </div>
-              <div className="w-full  hover:bg-[#e4e4e488] active:bg-black active:text-white transition-all relative">
-                <select name="" id="" className="w-full appearance-none py-5 pl-15 pr-10 cursor-pointer" onChange={handleChange}
-              value={selectedTask.name}>
+              <div className="relative w-full py-3 mt-1 hover:bg-[#e4e4e488] active:bg-black active:text-white transition-all">
+                <select name="" id="" className="pl-9 pr-7 w-full appearance-none">
                   {
                     dummyData.map((item, index)=>{
-                      return <option value={item.name} key={index}
-                      style={{
-                      
-                      }}>{item.name}</option>
+                      return <option value={item.name} key={index}>{item.name}</option>
                     })
                   }
-                  
                 </select>
-                  <span className="absolute top-[50%] right-4 translate-y-[-50%]"><ChevronsUpDown size={24} strokeWidth={1.5} /></span>
-                  <span className="absolute left-3 top-[50%] translate-y-[-50%]">
-              <Dot
-                size={66}
-                strokeWidth={1.5}
-                color={selectedTask.status === "complete" ? "#9DFF64" : "#FF4141"}
-              />
-            </span>
+                <span className="absolute right-1 top-1/2 translate-y-[-50%]"><ChevronsUpDown /></span>
               </div>
+              {adminLists[1].map((items, index) => {
+                return (
+                  <li
+                    key={index}
+                    className="flex w-full pl-10 cursor-pointer py-4 hover:bg-[#e4e4e488] active:bg-black active:text-white transition-all"
+                  >
+                    <span className="mr-3">{items.logo}</span>
+                    <span>{items.name}</span>
+                  </li>
+                );
+              })}
             </ul>
           </>
         ) : (

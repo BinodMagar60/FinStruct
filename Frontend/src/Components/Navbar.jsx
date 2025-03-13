@@ -99,7 +99,8 @@ const Navbar = () => {
   
 
   return (
-    <nav className="flex items-center justify-between bg-white shadow-md px-6 py-3 relative z-10">
+    <div className='w-full fixed top-0 z-100'>
+      <nav className="flex items-center justify-between bg-white shadow-md px-6 py-3 relative ">
         {/* logo */}
       <div className="flex items-center">
         <img 
@@ -246,6 +247,7 @@ const Navbar = () => {
         </div>
       </div>
     </nav>
+    </div>
   );
 };
 
