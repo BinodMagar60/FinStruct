@@ -6,6 +6,7 @@ import App from "./App";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import NotFound from "./Pages/NotFound";
 import Admin from "./Pages/admin/Admin";
+import Profile from "./Pages/admin/Profile";
 
 const router = createBrowserRouter([
   {
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
     path: "/admin",
     element: <Admin />,
   },
+  {
+    path: "/admin/profile",
+    element: <Profile />
+  }
 ]);
 
 createRoot(document.getElementById("root")).render(

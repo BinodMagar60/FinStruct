@@ -5,9 +5,10 @@ import {
   User, 
   Settings, 
   Clock, 
-  LogOut
+  LogOut,
+  Router
 } from 'lucide-react';
-import { CgLaptop } from 'react-icons/cg';
+import {Link} from "react-router-dom"
 import Notes from './Notes';
 
 const Navbar = () => {
@@ -213,12 +214,14 @@ const Navbar = () => {
                 <p className="text-xs leading-4 font-medium text-gray-500 truncate">kauchabinod88@gmail.com</p>
               </div>
               
-              <a href="#profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <Link to="/admin/profile">
+              <div className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 <div className="flex items-center">
                   <User className="h-4 w-4 mr-2 text-gray-500" />
                   Your Profile
                 </div>
-              </a>
+              </div>
+              </Link>
               
               <a href="#settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 <div className="flex items-center">
