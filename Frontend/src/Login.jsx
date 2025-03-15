@@ -151,7 +151,7 @@ const Login = () => {
             translate: "-50% -50%",
           }}
         >
-          ``
+          
           {/* Login box */}
           <div
             id="loginBox"
@@ -245,7 +245,7 @@ const Login = () => {
             className="flex flex-col text-xl"
             style={!login ? showBox : {}}
           >
-            <form onSubmit={signupValidation}>
+            
               <div
                 id="title"
                 className="text-center text-4xl font-extrabold mb-10"
@@ -376,8 +376,9 @@ const Login = () => {
               </div>
 
               <button
-                type="Submit"
+                type="button"
                 className="w-full bg-black text-white py-3 font-bold rounded-xl cursor-pointer"
+                onClick={signupValidation}
               >
                 Signup
               </button>
@@ -397,7 +398,7 @@ const Login = () => {
                   Click Here.
                 </span>
               </div>
-            </form>
+            
           </div>
         </div>
       </div>

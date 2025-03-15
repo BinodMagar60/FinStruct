@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import React, { useState } from 'react';
 
 const ProfileNavbar = () => {
@@ -5,9 +6,10 @@ const ProfileNavbar = () => {
 
   return (
     <>
-      <div className='w-full fixed top-0 z-50'>
-        <nav className="flex items-center justify-between bg-white shadow-md px-6 py-3 pr-4 relative">
+      <div className='w-full fixed top-0 z-50 '>
+        <nav className="flex items-center justify-between bg-white shadow-md px-6 py-3 pr-4 relative h-[72px]">
           {/* Logo */}
+          <Link to="/admin">
           <div className="flex items-center">
             <img 
               src="/logo.png" 
@@ -15,6 +17,7 @@ const ProfileNavbar = () => {
               className="h-10 w-auto"
             />
           </div>
+          </Link>
 
           {/* Right Side - Profile */}
           <div className="flex items-center gap-1 space-x-4 outline-none relative">
