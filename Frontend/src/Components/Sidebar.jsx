@@ -11,12 +11,18 @@ import {
   ClipboardList,
   ClipboardCheck,
   Loader,
+  
 } from "lucide-react";
 import { RiMoneyDollarCircleLine } from "react-icons/ri";
 import { PiMoneyWavyBold } from "react-icons/pi";
+import { Dashboard } from "../Pages/admin/Dashboard";
+import Salary from "../Pages/admin/Salary";
+import {Link, useNavigate, useLocation} from "react-router-dom"
 
 const Sidebar = () => {
   const admin = true;
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const dummyData = [
     { name: "Task 1", status: "complete" },
@@ -31,21 +37,31 @@ const Sidebar = () => {
     if (dummyData.length > 0) {
       setSelectedTask(dummyData[0]);
       setActiveTab("Overview");
+      navigate("/admin/overview");
+      // location("/admin/overview")
     }
   }, []);
+
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const foundTab = [...adminLists[0], ...adminLists[1]].find((item) => item.url === currentPath);
+    if (foundTab) {
+      setActiveTab(foundTab.name);
+    }
+  }, [location.pathname]);
 
   const handleTabClick = (tabName) => setActiveTab(tabName);
 
   const adminLists = [
     [
-      { name: "Dashboard", url: "/mainDashboard", logo: <LayoutDashboard /> },
-      { name: "Users", url: "/users", logo: <User /> },
-      { name: "Salary", url: "/salary", logo: <RiMoneyDollarCircleLine size={24} /> },
-      { name: "Docs", url: "/docs", logo: <FileText /> },
-      { name: "Mail", url: "/mail", logo: <Inbox /> },
+      { name: "Dashboard", url: "/admin/dashboard", logo: <LayoutDashboard /> },
+      { name: "Users", url: "/admin/user", logo: <User />},
+      { name: "Salary", url: "/admin/salary", logo: <RiMoneyDollarCircleLine size={24} />},
+      { name: "Docs", url: "/admin/docs", logo: <FileText />},
+      { name: "Mail", url: "/admin/mail", logo: <Inbox />},
     ],
     [
-      { name: "Overview", url: "/overview", logo: <Target /> },
+      { name: "Overview", url: "/admin/overview", logo: <Target /> },
       { name: "Tasks", url: "/tasks", logo: <ClipboardList /> },
       { name: "To Do", url: "/todo", logo: <ListTodo /> },
       { name: "In Progress", url: "/inprogress", logo: <Loader /> },
@@ -55,14 +71,15 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="fixed top-0 left-0 h-screen w-64 bg-white pt-24 overflow-y-auto max-h-screen" style={{
+    <div className="h-screen w-64 bg-white pt-24 overflow-y-auto max-h-screen" style={{
       scrollbarWidth: "none"}}>
       <div className="h-full">
         {admin && (
           <ul className="flex flex-col select-none text-gray-900 text-xl">
             {adminLists[0].map((item) => (
+             <Link to={item.url} key={item.name}>
               <li
-                key={item.name}
+                
                 className={`flex w-full pl-10 cursor-pointer py-4 hover:bg-[#6e6e6e88] transition-all ${
                   activeTab === item.name ? "bg-black text-white hover:text-black" : ""
                 }`}
@@ -71,6 +88,7 @@ const Sidebar = () => {
                 <span className="mr-3">{item.logo}</span>
                 <span>{item.name}</span>
               </li>
+             </Link>
             ))}
 
             <div className="h-[3px] w-full bg-[#efefef] my-3"></div>
@@ -104,8 +122,9 @@ const Sidebar = () => {
 
             {dummyData.length > 0 &&
               adminLists[1].map((item) => (
+                <Link to={item.url} key={item.name}>
                 <li
-                  key={item.name}
+                  
                   className={`flex w-full pl-10 cursor-pointer py-4 hover:bg-[#6e6e6e88] transition-all ${
                     activeTab === item.name ? "bg-black text-white hover:bg-black" : ""
                   }`}
@@ -114,6 +133,7 @@ const Sidebar = () => {
                   <span className="mr-3">{item.logo}</span>
                   <span>{item.name}</span>
                 </li>
+                </Link>
               ))}
           </ul>
         )}

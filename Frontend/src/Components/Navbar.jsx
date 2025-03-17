@@ -198,7 +198,7 @@ const Navbar = () => {
           >
             <div className="h-10 w-10 rounded-full bg-gray-300 overflow-hidden">
               <img 
-                src="profilePic.png" 
+                src="/profilePic.png" 
                 alt="User Avatar" 
                 className="h-full w-full object-cover"
               />
@@ -216,7 +216,7 @@ const Navbar = () => {
                 <p className="text-xs leading-4 font-medium text-gray-500 truncate">kauchabinod88@gmail.com</p>
               </div>
               
-              <Link to="/admin/profile">
+              <Link to="/admin/profile/profileuser">
               <div className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 <div className="flex items-center">
                   <User className="h-4 w-4 mr-2 text-gray-500" />
@@ -224,20 +224,24 @@ const Navbar = () => {
                 </div>
               </div>
               </Link>
-              
-              <a href="#settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+
+              <Link to="/admin/profile/setting">
+              <div className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 <div className="flex items-center">
-                  <Settings className="h-4 w-4 mr-2 text-gray-500" />
-                  Settings
+                <Settings className="h-4 w-4 mr-2 text-gray-500" />
+                Settings
                 </div>
-              </a>
+              </div>
+              </Link>
               
-              <a href="#activity" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                 
+              
+              <Link to="/admin/profile/activity" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 <div className="flex items-center">
                   <Clock className="h-4 w-4 mr-2 text-gray-500" />
                   Activity Log
                 </div>
-              </a>
+              </Link>
               
               <div className="border-t border-gray-100"></div>
               
