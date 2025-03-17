@@ -5,6 +5,7 @@ import "./login.css";
 import Loading from "./Components/Loading";
 import { useNavigate } from "react-router-dom";
 import { toast, Bounce, Flip } from "react-toastify";
+import { AlertCircle } from "lucide-react";
 
 const Login = () => {
   const [login, setLogin] = useState(false);
@@ -177,7 +178,8 @@ const Login = () => {
                 onChange={(e) => setLemail(e.target.value)}
               />
               {loginError.e1 && (
-                <div className="text-red-500 italic font-light text-[16px]">
+                <div className="mt-1 text-sm text-red-600 flex items-center">
+                  <AlertCircle size={14} className="mr-1" />
                   {loginError.e1}
                 </div>
               )}
@@ -209,9 +211,10 @@ const Login = () => {
                 onClick={() => setLPassword(!LPassword)}
               />
               {loginError.e2 && (
-                <div className="text-red-500 italic font-light text-[16px]">
-                  {loginError.e2}
-                </div>
+                <div className="mt-1 text-sm text-red-600 flex items-center">
+                <AlertCircle size={14} className="mr-1" />
+                {loginError.e2}
+              </div>
               )}
             </div>
 
@@ -252,7 +255,7 @@ const Login = () => {
               >
                 Singup
               </div>
-              <div className="mb-1.5">
+              <div className="mb-1">
                 <label htmlFor="SFName">Full Name</label>
               </div>
               <div className="mb-5">
@@ -265,12 +268,13 @@ const Login = () => {
                   onChange={(e) => setSfname(e.target.value)}
                 />
                 {signupError.e1 && (
-                  <div className="text-red-500 italic font-light text-[16px]">
-                    {signupError.e1}
-                  </div>
+                  <div className=" text-sm text-red-600 flex items-center">
+                  <AlertCircle size={14} className="mr-1" />
+                  {signupError.e1}
+                </div>
                 )}
               </div>
-              <div className="mb-1.5">
+              <div className="mb-1">
                 <label htmlFor="SCompany">Company Name</label>
               </div>
               <div className="mb-5">
@@ -283,12 +287,13 @@ const Login = () => {
                   onChange={(e) => setScompanyname(e.target.value)}
                 />
                 {signupError.e2 && (
-                  <div className="text-red-500 italic font-light text-[16px]">
-                    {signupError.e2}
-                  </div>
+                  <div className=" text-sm text-red-600 flex items-center">
+                  <AlertCircle size={14} className="mr-1" />
+                  {signupError.e2}
+                </div>
                 )}
               </div>
-              <div className="mb-1.5">
+              <div className="mb-1">
                 <label htmlFor="Semail">Email</label>
               </div>
               <div className="mb-5">
@@ -301,13 +306,14 @@ const Login = () => {
                   onChange={(e) => setSwemail(e.target.value)}
                 />
                 {signupError.e3 && (
-                  <div className="text-red-500 italic font-light text-[16px]">
-                    {signupError.e3}
-                  </div>
+                  <div className=" text-sm text-red-600 flex items-center">
+                  <AlertCircle size={14} className="mr-1" />
+                  {signupError.e3}
+                </div>
                 )}
               </div>
 
-              <div className="mb-1.5">
+              <div className="mb-1">
                 <label htmlFor="SNpassword" className="mb-1">
                   New Password
                 </label>
@@ -334,13 +340,14 @@ const Login = () => {
                   onClick={() => setSNPassword(!SNPassword)}
                 />
                 {signupError.e4 && (
-                  <div className="text-red-500 italic font-light text-[16px]">
-                    {signupError.e4}
-                  </div>
+                  <div className=" text-sm text-red-600 flex items-center">
+                  <AlertCircle size={14} className="mr-1" />
+                  {signupError.e4}
+                </div>
                 )}
               </div>
 
-              <div className="mb-1.5">
+              <div className="mb-1">
                 <label htmlFor="SCpassword" className="mb-1">
                   Confirm Password
                 </label>
@@ -369,9 +376,10 @@ const Login = () => {
                   onClick={() => setSCPassword(!SCPassword)}
                 />
                 {signupError.e5 && (
-                  <div className="text-red-500 italic font-light text-[16px]">
-                    {signupError.e5}
-                  </div>
+                  <div className=" text-sm text-red-600 flex items-center">
+                  <AlertCircle size={14} className="mr-1" />
+                  {signupError.e5}
+                </div>
                 )}
               </div>
 
