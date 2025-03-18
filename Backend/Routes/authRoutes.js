@@ -33,7 +33,7 @@ router.post("/signup", validateSignup, async (req, res) => {
             return res.status(400).json({ message: "Email already in use" });
         }
 
-        // Save user with plain password (you'll replace this with your own hashing later)
+        
         const user = new User({ username, email, password, companyname });
         await user.save();
         res.status(201).json({ message: "User registered successfully" });
