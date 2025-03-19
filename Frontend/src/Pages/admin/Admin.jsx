@@ -9,7 +9,7 @@ const Admin = () => {
       <Navbar/>
       <div className="flex">
       <Sidebar/>
-      <span className="pt-24 w-full h-screen bg-red-300 mx-15 overflow-x-auto p-5" style={{
+      <span className='pt-24 w-full h-screen mx-15 overflow-x-auto p-5' style={{
         scrollbarWidth: "none"
       }}><Outlet/></span>
       </div>

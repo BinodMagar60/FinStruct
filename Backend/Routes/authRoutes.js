@@ -1,8 +1,9 @@
 const express = require("express");
 const { body, validationResult } = require("express-validator");
 const User = require("../User/User");
-
+const jwt = require("jsonwebtoken")
 const router = express.Router();
+const key = "fjslkf sfjksfjsfofdsjflsjfi"
 
 // Validation  for signup and login
 const validateSignup = [
@@ -32,8 +33,8 @@ router.post("/signup", validateSignup, async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ message: "Email already in use" });
         }
-
-        
+        const data={ username, email, password, companyname }
+        console.log("signup data:  "+data)
         const user = new User({ username, email, password, companyname });
         await user.save();
         res.status(201).json({ message: "User registered successfully" });
@@ -57,7 +58,11 @@ router.post("/login", validateLogin, async (req, res) => {
         if (!user) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
-
+        const token  = jwt.sign({
+            email:user.email,
+            id:user.id,
+        },key)
+        res.cookie("token",token)
         res.status(200).json({ message: "Login successful", user });
 
     } catch (error) {

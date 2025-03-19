@@ -71,7 +71,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="h-screen w-64 bg-white pt-24 overflow-y-auto max-h-screen" style={{
+    <div className="h-screen w-72 bg-white pt-24 overflow-y-auto max-h-screen" style={{
       scrollbarWidth: "none"}}>
       <div className="h-full">
         {admin && (

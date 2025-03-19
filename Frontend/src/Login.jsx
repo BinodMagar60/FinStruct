@@ -2,11 +2,10 @@ import React, { useEffect, useState } from "react";
 import { FaEyeSlash, FaEye } from "react-icons/fa";
 import axios from "axios";
 import "./login.css";
-import Loading from "./Components/Loading";
 import { useNavigate } from "react-router-dom";
 import { toast, Bounce, Flip } from "react-toastify";
-import { AlertCircle } from "lucide-react";
-
+import { AlertCircle, ChevronsRightLeft } from "lucide-react";
+import { apiCall } from "./api/api";
 const Login = () => {
   const [login, setLogin] = useState(false);
   const [LPassword, setLPassword] = useState(false);
@@ -33,6 +32,7 @@ const Login = () => {
   const [Snpassword, setSnpassword] = useState("");
   const [Scpassword, setScpassword] = useState("");
 
+  
   const navigate = useNavigate();
 
   const resetFields = () => {
@@ -87,7 +87,7 @@ const Login = () => {
     }
   };
 
-  const signupValidation = (e) => {
+  const signupValidation = async(e) => {
     let errors = { e1: false, e2: false, e3: false, e4: false, e5: false };
     const emailRegex = /^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9-]+\.com$/;
     const nameRegex = /^[a-zA-Z]+(?: [a-zA-Z]+)*$/;
@@ -123,7 +123,11 @@ const Login = () => {
     } else if (!Scpassword.match(Snpassword)) {
       errors.e5 = "Password doesn't match";
     }
-
+    if(!(errors.e1&&errors.e2&&errors.e3&&errors.e4&&errors.e5))
+    {
+      const data={ username:Sfname, email:Swemail, password:SCPassword, companyname:Scompanyname }
+      await apiCall("/signup",data);
+    }
     setSignupError(errors);
     navigate("/");
   };

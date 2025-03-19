@@ -39,7 +39,7 @@ const AdminProfileSidebar = () => {
   }, []);
 
   return (
-    <div className="h-screen w-64 bg-white pt-24 shadow-lg">
+    <div className="h-screen w-74 bg-white pt-24 shadow-lg">
       <ul className="flex flex-col text-gray-900 text-xl">
         {sidebar.map((item) => {
           return (
