@@ -51,7 +51,7 @@ const Login = () => {
     setSCPassword(false);
   };
 
-  const loginValidation = (e) => {
+  const loginValidation = async(e) => {
     let errors = { e1: false, e2: false };
     const emailRegex = /^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9-]+\.com$/;
 
@@ -66,6 +66,12 @@ const Login = () => {
     } else if (Lpassowrd.length < 8) {
       errors.e2 = "Incorrect Password";
     }
+    
+      const data={ email:Lemail, password:Lpassowrd }
+      await apiCall("auth/login",data);
+
+      // await axios.post("http://localhost:5000/auth/signup",data)
+    
 
     setLoginError(errors);
     if (!errors.e1 && !errors.e2) {
@@ -125,8 +131,10 @@ const Login = () => {
     }
     if(!(errors.e1&&errors.e2&&errors.e3&&errors.e4&&errors.e5))
     {
-      const data={ username:Sfname, email:Swemail, password:SCPassword, companyname:Scompanyname }
-      await apiCall("/signup",data);
+      const data={ username:Sfname, email:Swemail, password:Scpassword, companyname:Scompanyname }
+      await apiCall("auth/signup",data);
+
+      // await axios.post("http://localhost:5000/auth/signup",data)
     }
     setSignupError(errors);
     navigate("/");

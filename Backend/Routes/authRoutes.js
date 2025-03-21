@@ -61,8 +61,12 @@ router.post("/login", validateLogin, async (req, res) => {
         const token  = jwt.sign({
             email:user.email,
             id:user.id,
-        },key)
-        res.cookie("token",token)
+        },key);
+        res.cookie("token",token,{
+            httpOnly: true, 
+            secure: false,  
+            sameSite: "none",
+          })
         res.status(200).json({ message: "Login successful", user });
 
     } catch (error) {

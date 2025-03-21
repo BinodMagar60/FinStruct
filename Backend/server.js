@@ -8,7 +8,10 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin:"http://localhost:5173",
+  credentials:true
+}));
 
 // Connect to MongoDB using the URI from the .env file
 mongoose.connect(process.env.MONGO_URI)
