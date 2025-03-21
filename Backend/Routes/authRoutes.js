@@ -50,6 +50,7 @@ router.post("/signup", validateSignup, async (req, res) => {
 });
 
 // Login User
+
 router.post("/login", validateLogin, async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -66,11 +67,16 @@ router.post("/login", validateLogin, async (req, res) => {
         const token = jwt.sign({
             email: user.email,
             id: user.id,
-        }, secretKey);
+            
+        }, secretKey, {
+            expiresIn: "30d"
+        });
         res.cookie("token", token, {
             httpOnly: true,
             secure: false,
             sameSite: "strict",
+            maxAge: 30 * 24 * 60 * 60 * 1000, 
+            
         })
         res.status(200).json({ message: "Login successful", user });
 
@@ -78,5 +84,13 @@ router.post("/login", validateLogin, async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+
+//Logout
+router.post("/logout", (req,res)=>{
+    res.clearCookie("token");
+    res.status(200).json({message: "logged out successfully"})
+})
+
 
 module.exports = router;

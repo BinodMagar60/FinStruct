@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { toast, Bounce, Flip } from "react-toastify";
 import { AlertCircle, ChevronsRightLeft } from "lucide-react";
 import { apiCall } from "./api/api";
+import Cookies from 'js-cookie'
 const Login = () => {
   const [login, setLogin] = useState(false);
   const [LPassword, setLPassword] = useState(false);
@@ -67,29 +68,49 @@ const Login = () => {
       errors.e2 = "Incorrect Password";
     }
     
-      const data={ email:Lemail, password:Lpassowrd }
-      await apiCall("auth/login",data);
+      // const data={ email:Lemail, password:Lpassowrd }
+      // await apiCall("auth/login",data);
 
       // await axios.post("http://localhost:5000/auth/signup",data)
     
 
     setLoginError(errors);
     if (!errors.e1 && !errors.e2) {
-      toast.success("Login Successful", {
-        position: "top-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-        transition: Flip,
-      });
-      setTimeout(() => {
-        navigate("/admin");
-      }, 1000);
-      
+     
+      try{
+        const data = {email: Lemail, password: Lpassowrd};
+        const response = await apiCall("auth/login", data);
+        console.log(response)
+
+        // if(response === "successfull"){
+          // console.log(response.status)
+          const {token} = response.data;
+          Cookies.set("authToken", token, {expires: 30, path: "/"})
+
+          toast.success("Login Successful", {
+            position: "top-right",
+            autoClose: 1000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            theme: "light",
+            transition: Flip,
+          });
+
+          setTimeout(() => {
+            navigate("/admin");
+          }, 1000);
+        // }
+
+      }
+      catch (error){
+        toast.error("Login failed. Check your credentials.", {
+          position: "top-right",
+          autoClose: 1500,
+          theme: "light",
+        });
+      }
     }
   };
 
