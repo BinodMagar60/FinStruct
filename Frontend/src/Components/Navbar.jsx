@@ -11,7 +11,7 @@ import {
 import {Link} from "react-router-dom"
 import Notes from './Notes';
 
-const Navbar = () => {
+const Navbar = ({isLogout, setLogout}) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notificationSignChecker, setnotificationSignChecker] = useState(false);
@@ -89,6 +89,7 @@ const Navbar = () => {
 
   }, []);
 
+  
 
   useEffect(() => {
     const hasUnread = notifications.some((notification) => !notification.read);
@@ -96,7 +97,10 @@ const Navbar = () => {
   }, [notifications]);
   
 
-  
+  const handleLogout = () => {
+    setIsProfileOpen(!isProfileOpen)
+    setLogout(!isLogout)
+  }
   
 
   return (
@@ -245,12 +249,12 @@ const Navbar = () => {
               
               <div className="border-t border-gray-100"></div>
               
-              <a href="#logout" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <div className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer" onClick={handleLogout}>
                 <div className="flex items-center text-red-600">
                   <LogOut className="h-4 w-4 mr-2" />
                   Logout
                 </div>
-              </a>
+              </div>
             </div>
           )}
         </div>

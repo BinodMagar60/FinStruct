@@ -11,15 +11,12 @@ import {
   ClipboardList,
   ClipboardCheck,
   Loader,
-  
 } from "lucide-react";
 import { RiMoneyDollarCircleLine } from "react-icons/ri";
 import { PiMoneyWavyBold } from "react-icons/pi";
-import { Dashboard } from "../Pages/admin/Dashboard";
-import Salary from "../Pages/admin/Salary";
-import {Link, useNavigate, useLocation} from "react-router-dom"
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
-const Sidebar = () => {
+const Sidebar = ({ isLogout, setLogout }) => {
   const admin = true;
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,13 +35,28 @@ const Sidebar = () => {
       setSelectedTask(dummyData[0]);
       setActiveTab("Overview");
       navigate("/admin/overview");
-      // location("/admin/overview")
     }
   }, []);
 
   useEffect(() => {
+    const handleBackButton = (event) => {
+      event.preventDefault();
+      navigate(1); // Moves forward to prevent going back
+    };
+
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", handleBackButton);
+
+    return () => {
+      window.removeEventListener("popstate", handleBackButton);
+    };
+  }, [navigate]);
+
+  useEffect(() => {
     const currentPath = location.pathname;
-    const foundTab = [...adminLists[0], ...adminLists[1]].find((item) => item.url === currentPath);
+    const foundTab = [...adminLists[0], ...adminLists[1]].find(
+      (item) => item.url === currentPath
+    );
     if (foundTab) {
       setActiveTab(foundTab.name);
     }
@@ -55,10 +67,14 @@ const Sidebar = () => {
   const adminLists = [
     [
       { name: "Dashboard", url: "/admin/dashboard", logo: <LayoutDashboard /> },
-      { name: "Users", url: "/admin/user", logo: <User />},
-      { name: "Salary", url: "/admin/salary", logo: <RiMoneyDollarCircleLine size={24} />},
-      { name: "Docs", url: "/admin/docs", logo: <FileText />},
-      { name: "Mail", url: "/admin/mail", logo: <Inbox />},
+      { name: "Users", url: "/admin/user", logo: <User /> },
+      {
+        name: "Salary",
+        url: "/admin/salary",
+        logo: <RiMoneyDollarCircleLine size={24} />,
+      },
+      { name: "Docs", url: "/admin/docs", logo: <FileText /> },
+      { name: "Mail", url: "/admin/mail", logo: <Inbox /> },
     ],
     [
       { name: "Overview", url: "/admin/overview", logo: <Target /> },
@@ -66,29 +82,38 @@ const Sidebar = () => {
       { name: "To Do", url: "/todo", logo: <ListTodo /> },
       { name: "In Progress", url: "/inprogress", logo: <Loader /> },
       { name: "Completed", url: "/completed", logo: <ClipboardCheck /> },
-      { name: "Income/Expense", url: "/income-expense", logo: <PiMoneyWavyBold size={24} /> },
+      {
+        name: "Income/Expense",
+        url: "/income-expense",
+        logo: <PiMoneyWavyBold size={24} />,
+      },
     ],
   ];
 
   return (
-    <div className="h-screen w-72 bg-white pt-24 overflow-y-auto max-h-screen" style={{
-      scrollbarWidth: "none"}}>
+    <div
+      className="h-screen w-72 bg-white pt-24 overflow-y-auto max-h-screen"
+      style={{
+        scrollbarWidth: "none",
+      }}
+    >
       <div className="h-full">
         {admin && (
           <ul className="flex flex-col select-none text-gray-900 text-xl">
             {adminLists[0].map((item) => (
-             <Link to={item.url} key={item.name}>
-              <li
-                
-                className={`flex w-full pl-10 cursor-pointer py-4 hover:bg-[#6e6e6e88] transition-all ${
-                  activeTab === item.name ? "bg-black text-white hover:text-black" : ""
-                }`}
-                onClick={() => handleTabClick(item.name)}
-              >
-                <span className="mr-3">{item.logo}</span>
-                <span>{item.name}</span>
-              </li>
-             </Link>
+              <Link to={item.url} key={item.name}>
+                <li
+                  className={`flex w-full pl-10 cursor-pointer py-4 hover:bg-[#6e6e6e88] transition-all ${
+                    activeTab === item.name
+                      ? "bg-black text-white hover:text-black"
+                      : ""
+                  }`}
+                  onClick={() => handleTabClick(item.name)}
+                >
+                  <span className="mr-3">{item.logo}</span>
+                  <span>{item.name}</span>
+                </li>
+              </Link>
             ))}
 
             <div className="h-[3px] w-full bg-[#efefef] my-3"></div>
@@ -106,7 +131,11 @@ const Sidebar = () => {
                 <select
                   className="pl-9 pr-7 w-full appearance-none bg-transparent cursor-pointer"
                   value={selectedTask.name}
-                  onChange={(e) => setSelectedTask(dummyData.find((item) => item.name === e.target.value))}
+                  onChange={(e) =>
+                    setSelectedTask(
+                      dummyData.find((item) => item.name === e.target.value)
+                    )
+                  }
                 >
                   {dummyData.map((item) => (
                     <option key={item.name} value={item.name}>
@@ -123,16 +152,17 @@ const Sidebar = () => {
             {dummyData.length > 0 &&
               adminLists[1].map((item) => (
                 <Link to={item.url} key={item.name}>
-                <li
-                  
-                  className={`flex w-full pl-10 cursor-pointer py-4 hover:bg-[#6e6e6e88] transition-all ${
-                    activeTab === item.name ? "bg-black text-white hover:bg-black" : ""
-                  }`}
-                  onClick={() => handleTabClick(item.name)}
-                >
-                  <span className="mr-3">{item.logo}</span>
-                  <span>{item.name}</span>
-                </li>
+                  <li
+                    className={`flex w-full pl-10 cursor-pointer py-4 hover:bg-[#6e6e6e88] transition-all ${
+                      activeTab === item.name
+                        ? "bg-black text-white hover:bg-black"
+                        : ""
+                    }`}
+                    onClick={() => handleTabClick(item.name)}
+                  >
+                    <span className="mr-3">{item.logo}</span>
+                    <span>{item.name}</span>
+                  </li>
                 </Link>
               ))}
           </ul>
