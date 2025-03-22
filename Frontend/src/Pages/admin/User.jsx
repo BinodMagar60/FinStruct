@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import AddNewUser from './AddNewUser';
 
 const User = () => {
   const [activeTab, setActiveTab] = useState('users');
+  const [isAddUser, setIsAddUser] = useState(true)
   
   const users = [
     { id: 1, name: 'New User', initials: 'NU', email: 'user@email.com', role: 'Developer' },
@@ -95,6 +97,13 @@ const User = () => {
         </div>
       )}
     </div>
+
+      <div className='absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]'>
+      {
+        isAddUser && (<AddNewUser/>)
+      }
+      </div>
+
     </div>
   );
 };

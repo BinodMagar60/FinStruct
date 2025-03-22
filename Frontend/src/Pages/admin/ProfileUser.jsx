@@ -9,6 +9,7 @@ const ProfileUser = () => {
   const [userData, setUserData] = useState({
     name: "Binod Kaucha",
     title: "Owner",
+    personalEmail: "kauchabinod88@gmail.com",
     email: "binod.kaucha@finstruct.com",
     phone: "9812345678",
     company: "FinStruct Inc.",
@@ -51,7 +52,7 @@ const ProfileUser = () => {
       }
     }
   
-    if (name === "email") {
+    if (name === "personalEmail") {
       if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.com$/.test(value.trim())) {
         errorMsg = "Invalid Email";
       }
@@ -137,7 +138,7 @@ const ProfileUser = () => {
             <div className="grid grid-cols-2 gap-6">
               {[
                 { label: "Full Name", name: "name" },
-                { label: "Email Address", name: "email", type: "email" },
+                { label: "Email Address(Personal)", name: "personalEmail", type: "email" },
                 { label: "Phone Number", name: "phone", type: "tel" },
                 { label: "Location", name: "location" }
               ].map(({ label, name, type = "text" }) => (
@@ -147,7 +148,10 @@ const ProfileUser = () => {
                   {errors[name] && <p className="text-red-500 text-sm mt-1">{errors[name]}</p>}
                 </div>
               ))}
-
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email Address(Work)</label>
+                <input type="text" name="company" className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50" value={userData.email} readOnly />
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>
                 <input type="text" name="company" className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50" value={userData.company} readOnly />
