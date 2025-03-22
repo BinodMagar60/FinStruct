@@ -3,17 +3,29 @@ import Navbar from "../../Components/Navbar";
 import Sidebar from "../../Components/Sidebar";
 import { Outlet, useNavigate } from "react-router-dom";
 import { Home, LogOut } from "lucide-react";
+import { useCookies } from "react-cookie";
+import { apiCall } from "../../api/api";
 
 const Admin = () => {
-
+  const [cookies, setCookie, removeCookie] = useCookies(['authToken'])
   const [isLogout, setLogout] = useState(false);
   const navigate = useNavigate();
   const modalRef = useRef(null);
+  const [user, setUser] = useState(null);
   
   const handleLogout = () => {
+    removeCookie('authToken')
     navigate('/')
   }
   
+  useEffect(()=>{
+    apiCall.get('/auth', {withCredentials: true})
+    .then((res) => setUser(res.data))
+    .catch(()=>setUser(null))
+
+    console.log(cookies)
+  },[cookies])
+
     useEffect(() => {
       const handleClickOutside = (event) => {
         if (modalRef.current && !modalRef.current.contains(event.target)) {
