@@ -10,7 +10,7 @@ const validateSignup = [
     body("username").notEmpty().withMessage("Username is required"),
     body("email").isEmail().withMessage("Invalid email"),
     body("password").isLength({ min: 8 }).withMessage("Password must be at least 8 characters long"),
-    body("companyname").notEmpty().withMessage("Company name is required"),
+    body("company").notEmpty().withMessage("Company name is required"),
 ];
 
 const validateLogin = [
@@ -26,7 +26,7 @@ router.post("/signup", validateSignup, async (req, res) => {
     }
 
     try {
-        const { username, email, password, companyname } = req.body;
+        const { username, personalEmail, email, password, company, role, isOwner } = req.body;
 
         // Check if email already exists
         const existingUser = await User.findOne({ email });
@@ -35,14 +35,14 @@ router.post("/signup", validateSignup, async (req, res) => {
         }
 
         // Check if company name already exists
-        const existingCompany = await User.findOne({ companyname });
+        const existingCompany = await User.findOne({ company });
         if (existingCompany) {
             return res.status(400).json({ message: "Company name already in use" });
         }
 
-        const user = new User({ username, email, password, companyname });
+        const user = new User({ username, personalEmail, email, password, company, role, isOwner });
         await user.save();
-        res.status(201).json({ message: "User registered successfully" });
+        res.status(201).json({ message: "Signup Successful" });
 
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -78,7 +78,7 @@ router.post("/login", validateLogin, async (req, res) => {
             maxAge: 30 * 24 * 60 * 60 * 1000, 
             
         })
-        res.status(200).json({ message: "Login successful", user });
+        res.status(200).json({ message: "Login successful", user, token });
 
     } catch (error) {
         res.status(500).json({ error: error.message });

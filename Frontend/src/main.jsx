@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { Bounce, toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css'
 import App from "./App";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import NotFound from "./Pages/NotFound";
@@ -16,6 +17,7 @@ import Setting from "./Pages/admin/Setting";
 import ProfileUser from "./Pages/admin/ProfileUser";
 import Activity from "./Pages/admin/Activity";
 import Overview from "./Pages/admin/Overview";
+import { CookiesProvider } from "react-cookie";
 
 
 const router = createBrowserRouter([
@@ -80,19 +82,9 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <ToastContainer
-      position="top-right"
-      autoClose={5000}
-      hideProgressBar={false}
-      newestOnTop={false}
-      closeOnClick={false}
-      rtl={false}
-      pauseOnFocusLoss
-      draggable
-      pauseOnHover
-      theme="light"
-      transition={Bounce}
-    />
+    <CookiesProvider>
+    <ToastContainer />
     <RouterProvider router={router} />
+    </CookiesProvider>
   </StrictMode>
 );
