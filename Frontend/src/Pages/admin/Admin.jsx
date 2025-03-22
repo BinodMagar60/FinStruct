@@ -5,6 +5,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { Home, LogOut } from "lucide-react";
 import { useCookies } from "react-cookie";
 import { apiCall } from "../../api/api";
+import { PiCloudFogLight } from "react-icons/pi";
 
 const Admin = () => {
   const [cookies, setCookie, removeCookie] = useCookies(['authToken'])
@@ -19,12 +20,15 @@ const Admin = () => {
   }
   
   useEffect(()=>{
-    apiCall.get('/auth', {withCredentials: true})
-    .then((res) => setUser(res.data))
-    .catch(()=>setUser(null))
-
-    console.log(cookies)
-  },[cookies])
+    const token = cookies.authToken
+    if(token){
+      console.log(token)
+      apiCall.get("/auth")
+    }
+    else{
+      navigate('/')
+    }
+  },[])
 
     useEffect(() => {
       const handleClickOutside = (event) => {
