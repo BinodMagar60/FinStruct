@@ -3,7 +3,7 @@ const { body, validationResult } = require("express-validator");
 const User = require("../User/User");
 const jwt = require("jsonwebtoken")
 const router = express.Router();
-const key = "fjslkf sfjksfjsfofdsjflsjfi"
+const secretKey=process.env.JWT_SECRET;
 
 // Validation  for signup and login
 const validateSignup = [
@@ -61,11 +61,11 @@ router.post("/login", validateLogin, async (req, res) => {
         const token  = jwt.sign({
             email:user.email,
             id:user.id,
-        },key);
+        },secretKey);
         res.cookie("token",token,{
             httpOnly: true, 
             secure: false,  
-            sameSite: "none",
+            sameSite: "strict",
           })
         res.status(200).json({ message: "Login successful", user });
 
