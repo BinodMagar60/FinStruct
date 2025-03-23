@@ -1,13 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { User, Users } from "lucide-react";
 
-const UserFormBasic = () => {
+const AddNewUser = ({isAddUser, setIsAddUser}) => {
   const [activeTab, setActiveTab] = useState("user");
   const [isChecked, setIsChecked] = useState(false);
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
+    phone: "",
     role: "",
+    adminAccess: "",
   });
 
   const userRoles = ["Architect", "Structural Engineer", "Civil Engineer", "Site Manager", "Construction Supervisor", "Safety Officer", "Quality Control Inspector"];
@@ -25,6 +28,8 @@ const UserFormBasic = () => {
     // Reset form after submission
     setFormData({ fullName: "", email: "", phone: "", role: "" });
   };
+
+
 
   return (
     <div className="w-120 mx-auto border border-gray-200 rounded-lg shadow-md overflow-hidden bg-white">
@@ -95,7 +100,7 @@ const UserFormBasic = () => {
                 Phone no.
               </label>
               <input
-                type="numbere"
+                type="number"
                 id="phone"
                 name="phone"
                 placeholder="Enter contact number"
@@ -203,9 +208,29 @@ const UserFormBasic = () => {
                 value={formData.fullName}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
               />
             </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="w-email"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Phone no.
+              </label>
+              <input
+                type="number"
+                id="w-phone"
+                name="phone"
+                placeholder="Enter contact number"
+                value={formData.phone}
+                onChange={handleInputChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+              />
+            </div>
+
 
             <div className="space-y-2">
               <label
@@ -218,11 +243,11 @@ const UserFormBasic = () => {
                 type="email"
                 id="w-email"
                 name="email"
-                placeholder="worker@example.com"
+                placeholder="user@example.com"
                 value={formData.email}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
               />
             </div>
 
@@ -239,7 +264,7 @@ const UserFormBasic = () => {
                 value={formData.role}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
               >
                 <option value="" disabled>
                   Select a role
@@ -258,6 +283,7 @@ const UserFormBasic = () => {
           <button
             type="button"
             className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"
+            onClick={()=>setIsAddUser(!isAddUser)}
           >
             Cancel
           </button>
@@ -273,4 +299,4 @@ const UserFormBasic = () => {
   );
 };
 
-export default UserFormBasic;
+export default AddNewUser;
