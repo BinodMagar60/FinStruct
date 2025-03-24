@@ -16,7 +16,7 @@ import { RiMoneyDollarCircleLine } from "react-icons/ri";
 import { PiMoneyWavyBold } from "react-icons/pi";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
-const Sidebar = ({ isLogout, setLogout }) => {
+const Sidebar = () => {
   const admin = true;
   const navigate = useNavigate();
   const location = useLocation();
@@ -41,7 +41,7 @@ const Sidebar = ({ isLogout, setLogout }) => {
   useEffect(() => {
     const handleBackButton = (event) => {
       event.preventDefault();
-      navigate(1); // Moves forward to prevent going back
+      navigate(1); 
     };
 
     window.history.pushState(null, "", window.location.href);

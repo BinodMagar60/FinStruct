@@ -80,7 +80,27 @@ const router = createBrowserRouter([
   },
   {
     path: "/employee",
-    element: <Employee />
+    element: <Employee />,
+    errorElement: <NotFound />,
+    children:[
+      
+      {
+        path: "user",
+        element: <User/>
+      },
+      {
+        path: "mail",
+        element: <Mail/>
+      },
+      {
+        path: "docs",
+        element: <Docs/>
+      },
+      {
+        path: "overview",
+        element: <Overview/>
+      }
+    ]
   }
  
 ]);
