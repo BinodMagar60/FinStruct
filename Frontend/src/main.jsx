@@ -18,6 +18,7 @@ import ProfileUser from "./Pages/admin/ProfileUser";
 import Activity from "./Pages/admin/Activity";
 import Overview from "./Pages/admin/Overview";
 import { CookiesProvider } from "react-cookie";
+import Employee from "./Pages/users/Employee";
 
 
 const router = createBrowserRouter([
@@ -77,6 +78,10 @@ const router = createBrowserRouter([
       }
     ]
   },
+  {
+    path: "/employee",
+    element: <Employee />
+  }
  
 ]);
 
