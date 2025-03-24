@@ -23,7 +23,7 @@ const Admin = () => {
     const token = cookies.authToken
     if(token){
       console.log(token)
-      apiCall.get("/auth")
+      
     }
     else{
       navigate('/')
