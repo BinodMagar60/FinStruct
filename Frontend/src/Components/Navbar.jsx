@@ -12,10 +12,27 @@ import { Link } from "react-router-dom";
 import Notes from "./Notes";
 import Logout from "./Logout";
 
-const Navbar = ({ isLogout, setLogout, profile }) => {
+const Navbar = ({ isLogout, setLogout}) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(true)
   const [notificationSignChecker, setnotificationSignChecker] = useState(false);
+
+  const profileSidebarAdmin = [
+    "/admin/profile/profileuser",
+    "/admin/profile/setting",
+    "/admin/profile/activity"
+  ]
+
+  const profileSidebarEmployee = [
+    "/employee/profile/profileuser",
+    "/employee/profile/setting",
+    "/employee/profile/activity"
+  ]
+
+  const profile = isAdmin? profileSidebarAdmin : profileSidebarEmployee;
+
+
   const [notifications, setNotifications] = useState([
     {
       id: 1,

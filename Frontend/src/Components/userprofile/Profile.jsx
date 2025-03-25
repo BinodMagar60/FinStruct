@@ -1,6 +1,6 @@
 import React from 'react'
 import ProfileNavbar from '../ProfileNavbar'
-import AdminProfileSidebar from '../../Pages/admin/AdminProfileSidebar'
+import AdminProfileSidebar from './ProfileSidebar'
 import { Outlet } from 'react-router-dom'
 
 const Profile = () => {

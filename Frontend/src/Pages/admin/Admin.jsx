@@ -28,15 +28,11 @@ const Admin = () => {
   },[])
 
 
-  const profile = [
-    "/admin/profile/profileuser",
-    "/admin/profile/setting",
-    "/admin/profile/activity"
-  ]
+  
 
   return (
     <div className='bg-[#efefef] h-screen relative'>
-      <Navbar isLogout={isLogout} setLogout={setLogout}  profile={profile}/>
+      <Navbar isLogout={isLogout} setLogout={setLogout}  />
       <div className="flex">
       <Sidebar/>
       <span className='pt-24 w-full h-screen mx-15 overflow-x-auto p-5' style={{

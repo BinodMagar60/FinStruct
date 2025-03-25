@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import AddNewUser from './AddNewUser';
+import AddNewUser from "./AddNewUser"
 
 const User = () => {
   const [activeTab, setActiveTab] = useState('users');
@@ -131,7 +131,7 @@ const User = () => {
           ref={addNewUserRef}
           className='absolute z-[1000] top-[45%] left-[50%] translate-x-[-50%] translate-y-[-50%] rounded'
         >
-          <EmployeeAddNewUser isAddUser={isAddUser} setIsAddUser={setIsAddUser} />
+          <AddNewUser isAddUser={isAddUser} setIsAddUser={setIsAddUser} />
         </div>
       )}
     </div>

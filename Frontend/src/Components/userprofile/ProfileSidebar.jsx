@@ -2,15 +2,16 @@ import { Clock4, Settings, User } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
-const AdminProfileSidebar = () => {
+const ProfileSidebar = () => {
   const [activeTab, setActiveTab] = useState("Profile");
+  const [isAdmin, setIsAdmin] =useState(true);
   const navigate = useNavigate();
   const location = useLocation();
-  useEffect(() => {
-    if (activeTab === "Profile") {
-      // navigate("/admin/profile/profileuser");
-    }
-  }, [activeTab]);
+  // useEffect(() => {
+  //   if (activeTab === "Profile") {
+  //     // navigate("/admin/profile/profileuser");
+  //   }
+  // }, [activeTab]);
 
   useEffect(() => {
     const currentPath = location.pathname;
@@ -20,10 +21,11 @@ const AdminProfileSidebar = () => {
     }
   }, [location.pathname]);
 
+
   const sidebar = [
-    { name: "Profile", logo: <User />, url: "/admin/profile/profileuser" },
-    { name: "Setting", logo: <Settings />, url: "/admin/profile/setting" },
-    { name: "Activity log", logo: <Clock4 />, url: "/admin/profile/activity" },
+    { name: "Profile", logo: <User />, url: isAdmin? "/admin/profile/profileuser":"/employee/profile/profileuser" },
+    { name: "Setting", logo: <Settings />, url: isAdmin? "/admin/profile/setting": "/employee/profile/setting" },
+    { name: "Activity log", logo: <Clock4 />, url: isAdmin? "/admin/profile/activity":"/employee/profile/activity" },
   ];
 
 
@@ -31,7 +33,11 @@ const AdminProfileSidebar = () => {
 
   useEffect(() => {
     const handlePopState = () => {
-      navigate("/admin");
+      if(isAdmin){
+        navigate("/admin");
+      }else{
+        navigate("/employee")
+      }
     };
 
     window.addEventListener("popstate", handlePopState);
@@ -67,4 +73,4 @@ const AdminProfileSidebar = () => {
   );
 };
 
-export default AdminProfileSidebar;
+export default ProfileSidebar;

@@ -59,6 +59,26 @@ const router = createBrowserRouter([
       {
         path: "overview",
         element: <Overview/>
+      },
+      {
+        path: "tasks",
+        element: <div>tasks</div>
+      },
+      {
+        path: "todo",
+        element: <div>todo</div>
+      },
+      {
+        path: "inprogress",
+        element: <div>in progress</div>
+      },
+      {
+        path: "completed",
+        element: <div>competed</div>
+      },
+      {
+        path: "income-expense",
+        element: <div>income expense</div>
       }
     ]
   },

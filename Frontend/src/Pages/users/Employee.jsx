@@ -7,17 +7,13 @@ const Employee = () => {
     const [isLogout, setLogout] = useState(true);
     
 
-    const profile = [
-      "/employee/profile/profileuser",
-      "/employee/profile/setting",
-      "/employee/profile/activity"
-    ]
+    
   
 
   return (
     <>
     <div className='bg-[#efefef] h-screen relative'>
-        <Navbar isLogout={isLogout} setLogout={setLogout} profile={profile}/>
+        <Navbar isLogout={isLogout} setLogout={setLogout}/>
 
       <div className=' flex'>
         <span >

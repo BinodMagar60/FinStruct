@@ -78,13 +78,13 @@ const Sidebar = () => {
     ],
     [
       { name: "Overview", url: "/admin/overview", logo: <Target /> },
-      { name: "Tasks", url: "/tasks", logo: <ClipboardList /> },
-      { name: "To Do", url: "/todo", logo: <ListTodo /> },
-      { name: "In Progress", url: "/inprogress", logo: <Loader /> },
-      { name: "Completed", url: "/completed", logo: <ClipboardCheck /> },
+      { name: "Tasks", url: "/admin/tasks", logo: <ClipboardList /> },
+      { name: "To Do", url: "/admin/todo", logo: <ListTodo /> },
+      { name: "In Progress", url: "/admin/inprogress", logo: <Loader /> },
+      { name: "Completed", url: "/admin/completed", logo: <ClipboardCheck /> },
       {
         name: "Income/Expense",
-        url: "/income-expense",
+        url: "/admin/income-expense",
         logo: <PiMoneyWavyBold size={24} />,
       },
     ],
