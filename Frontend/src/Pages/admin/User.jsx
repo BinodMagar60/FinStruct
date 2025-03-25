@@ -131,7 +131,7 @@ const User = () => {
           ref={addNewUserRef}
           className='absolute z-[1000] top-[45%] left-[50%] translate-x-[-50%] translate-y-[-50%] rounded'
         >
-          <AddNewUser isAddUser={isAddUser} setIsAddUser={setIsAddUser} />
+          <EmployeeAddNewUser isAddUser={isAddUser} setIsAddUser={setIsAddUser} />
         </div>
       )}
     </div>

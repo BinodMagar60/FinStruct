@@ -7,18 +7,22 @@ import App from "./App";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import NotFound from "./Pages/NotFound";
 import Admin from "./Pages/admin/Admin";
-import Profile from "./Pages/admin/Profile";
+import Profile from "./Components/userprofile/Profile";
 import { Dashboard } from "./Pages/admin/Dashboard";
 import Salary from "./Pages/admin/Salary";
 import User from "./Pages/admin/User";
 import Mail from "./Pages/admin/Mail";
 import Docs from "./Pages/admin/Docs";
-import Setting from "./Pages/admin/Setting";
-import ProfileUser from "./Pages/admin/ProfileUser";
-import Activity from "./Pages/admin/Activity";
+import Setting from "./Components/userprofile/Setting";
+import ProfileUser from "./Components/userprofile/ProfileUser";
 import Overview from "./Pages/admin/Overview";
 import { CookiesProvider } from "react-cookie";
 import Employee from "./Pages/users/Employee";
+import EmployeeUser from "./Pages/users/SideBarLists/top/EmployeeUser";
+import EmployeeDocs from "./Pages/users/SideBarLists/top/EmployeeDocs";
+import EmployeeMail from "./Pages/users/SideBarLists/top/EmployeeMail";
+import Activity from "./Components/userprofile/Activity";
+
 
 
 const router = createBrowserRouter([
@@ -86,19 +90,59 @@ const router = createBrowserRouter([
       
       {
         path: "user",
-        element: <User/>
+        element: <EmployeeUser/>
       },
       {
         path: "mail",
-        element: <Mail/>
+        element: <EmployeeMail/>
       },
       {
         path: "docs",
-        element: <Docs/>
+        element: <EmployeeDocs/>
       },
       {
         path: "overview",
-        element: <Overview/>
+        element: <div>Overview</div>
+      },
+      {
+        path: "tasks",
+        element: <div>Tasks</div>
+      },
+      {
+        path: "todo",
+        element: <div>Todo</div>
+      },
+      {
+        path: "inprogress",
+        element: <div>inprogress</div>
+      },
+      {
+        path: "completed",
+        element: <div>completed</div>
+      },
+      {
+        path: "income-expense",
+        element: <div>income</div>
+      }
+    ]
+  },
+  {
+    path: "/employee/profile",
+    element: <Profile />,
+    errorElement: <NotFound />,
+
+    children:[
+      {
+        path: "setting",
+        element: <Setting/>
+      },
+      {
+        path: "profileuser",
+        element: <ProfileUser/>
+      },
+      {
+        path: "activity",
+        element: <Activity/>
       }
     ]
   }

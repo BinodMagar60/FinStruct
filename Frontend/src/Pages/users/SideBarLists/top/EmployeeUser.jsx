@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import AddNewUser from './AddNewUser';
+import EmployeeAddNewUser from './EmployeeAddNewUser';
 
-const User = () => {
+const EmployeeUser = () => {
   const [activeTab, setActiveTab] = useState('users');
   const [isAddUser, setIsAddUser] = useState(false);
   const addNewUserRef = useRef(null);
@@ -131,11 +131,11 @@ const User = () => {
           ref={addNewUserRef}
           className='absolute z-[1000] top-[45%] left-[50%] translate-x-[-50%] translate-y-[-50%] rounded'
         >
-          <AddNewUser isAddUser={isAddUser} setIsAddUser={setIsAddUser} />
+          <EmployeeAddNewUser isAddUser={isAddUser} setIsAddUser={setIsAddUser} />
         </div>
       )}
     </div>
   );
 };
 
-export default User;
+export default EmployeeUser;

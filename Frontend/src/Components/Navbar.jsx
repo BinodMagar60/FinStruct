@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import Notes from "./Notes";
 import Logout from "./Logout";
 
-const Navbar = ({ isLogout, setLogout }) => {
+const Navbar = ({ isLogout, setLogout, profile }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notificationSignChecker, setnotificationSignChecker] = useState(false);
@@ -70,6 +70,8 @@ const Navbar = ({ isLogout, setLogout }) => {
   const profileRef = useRef(null);
   const notificationRef = useRef(null);
 
+
+  
   //   dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -228,7 +230,7 @@ const Navbar = ({ isLogout, setLogout }) => {
                   </p>
                 </div>
 
-                <Link to="/admin/profile/profileuser">
+                <Link to={profile[0]}>
                   <div className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     <div className="flex items-center">
                       <User className="h-4 w-4 mr-2 text-gray-500" />
@@ -237,7 +239,7 @@ const Navbar = ({ isLogout, setLogout }) => {
                   </div>
                 </Link>
 
-                <Link to="/admin/profile/setting">
+                <Link to={profile[1]}>
                   <div className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     <div className="flex items-center">
                       <Settings className="h-4 w-4 mr-2 text-gray-500" />
@@ -247,7 +249,7 @@ const Navbar = ({ isLogout, setLogout }) => {
                 </Link>
 
                 <Link
-                  to="/admin/profile/activity"
+                  to={profile[2]}
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   <div className="flex items-center">

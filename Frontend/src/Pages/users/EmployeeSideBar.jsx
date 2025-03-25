@@ -12,7 +12,7 @@ import {
   ClipboardCheck,
   Loader,
 } from "lucide-react";
-import { RiMoneyDollarCircleLine } from "react-icons/ri";
+
 import { PiMoneyWavyBold } from "react-icons/pi";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
@@ -28,7 +28,7 @@ const EmployeeSidebar = () => {
   ];
 
   const [selectedTask, setSelectedTask] = useState(dummyData[0]);
-  const [activeTab, setActiveTab] = useState("Dashboard");
+  const [activeTab, setActiveTab] = useState("Users");
 
   useEffect(() => {
     if (dummyData.length > 0) {
@@ -66,21 +66,21 @@ const EmployeeSidebar = () => {
 
   const employeeSidebarList = [
     [
-      { name: "Dashboard", url: "/admin/dashboard", logo: <LayoutDashboard /> },
-      { name: "Users", url: "/admin/user", logo: <User /> },
       
-      { name: "Docs", url: "/admin/docs", logo: <FileText /> },
-      { name: "Mail", url: "/admin/mail", logo: <Inbox /> },
+      { name: "Users", url: "/employee/user", logo: <User /> },
+      
+      { name: "Docs", url: "/employee/docs", logo: <FileText /> },
+      { name: "Mail", url: "/employee/mail", logo: <Inbox /> },
     ],
     [
-      { name: "Overview", url: "/admin/overview", logo: <Target /> },
-      { name: "Tasks", url: "/tasks", logo: <ClipboardList /> },
-      { name: "To Do", url: "/todo", logo: <ListTodo /> },
-      { name: "In Progress", url: "/inprogress", logo: <Loader /> },
-      { name: "Completed", url: "/completed", logo: <ClipboardCheck /> },
+      { name: "Overview", url: "/employee/overview", logo: <Target /> },
+      { name: "Tasks", url: "/employee/tasks", logo: <ClipboardList /> },
+      { name: "To Do", url: "/employee/todo", logo: <ListTodo /> },
+      { name: "In Progress", url: "/employee/inprogress", logo: <Loader /> },
+      { name: "Completed", url: "/employee/completed", logo: <ClipboardCheck /> },
       {
         name: "Income/Expense",
-        url: "/income-expense",
+        url: "/employee/income-expense",
         logo: <PiMoneyWavyBold size={24} />,
       },
     ],
@@ -112,16 +112,8 @@ const EmployeeSidebar = () => {
               </Link>
             ))}
 
-            {/* <div className="h-[3px] w-full bg-[#efefef] my-3"></div>
-            <div className="flex justify-center">
-              <button className="flex shadow-md py-3 px-4 rounded-md border-r border-b border-gray-300 cursor-pointer transition-all hover:bg-[#e4e4e488]">
-                <span className="mr-1 flex items-center">
-                  <Plus size={22} />
-                </span>
-                <span>Create Project</span>
-              </button>
-            </div> */}
-
+            <div className="h-[3px] w-full bg-[#efefef] my-3"></div>
+            
             {dummyData.length > 0 && (
               <div className="relative w-full py-3 mt-1 hover:bg-[#e4e4e488] transition-all">
                 <select
@@ -139,11 +131,19 @@ const EmployeeSidebar = () => {
                     </option>
                   ))}
                 </select>
+
+
+
                 <span className="absolute right-3 top-1/2 translate-y-[-50%]">
                   <ChevronsUpDown />
                 </span>
               </div>
             )}
+
+
+
+
+
 
             {dummyData.length > 0 &&
               employeeSidebarList[1].map((item) => (

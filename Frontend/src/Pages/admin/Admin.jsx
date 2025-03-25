@@ -11,6 +11,7 @@ const Admin = () => {
   const [cookies, setCookie, removeCookie] = useCookies(['authToken'])
   const [isLogout, setLogout] = useState(false);
   const navigate = useNavigate();
+
   
   const [user, setUser] = useState(null);
   
@@ -19,16 +20,23 @@ const Admin = () => {
     const token = cookies.authToken
     if(token){
       console.log(token)
-      apiCall.get("/auth")
+      
     }
     else{
       navigate('/')
     }
   },[])
 
+
+  const profile = [
+    "/admin/profile/profileuser",
+    "/admin/profile/setting",
+    "/admin/profile/activity"
+  ]
+
   return (
     <div className='bg-[#efefef] h-screen relative'>
-      <Navbar isLogout={isLogout} setLogout={setLogout}/>
+      <Navbar isLogout={isLogout} setLogout={setLogout}  profile={profile}/>
       <div className="flex">
       <Sidebar/>
       <span className='pt-24 w-full h-screen mx-15 overflow-x-auto p-5' style={{
