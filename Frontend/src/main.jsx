@@ -6,22 +6,20 @@ import 'react-toastify/dist/ReactToastify.css'
 import App from "./App";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import NotFound from "./Pages/NotFound";
-import Admin from "./Pages/admin/Admin";
-import Profile from "./Components/userprofile/Profile";
-import { Dashboard } from "./Pages/admin/Dashboard";
-import Salary from "./Pages/admin/Salary";
-import User from "./Pages/admin/User";
-import Mail from "./Pages/admin/Mail";
-import Docs from "./Pages/admin/Docs";
-import Setting from "./Components/userprofile/Setting";
-import ProfileUser from "./Components/userprofile/ProfileUser";
-import Overview from "./Pages/admin/Overview";
 import { CookiesProvider } from "react-cookie";
-import Employee from "./Pages/users/Employee";
-import EmployeeUser from "./Pages/users/SideBarLists/top/EmployeeUser";
-import EmployeeDocs from "./Pages/users/SideBarLists/top/EmployeeDocs";
-import EmployeeMail from "./Pages/users/SideBarLists/top/EmployeeMail";
-import Activity from "./Components/userprofile/Activity";
+import Admin from "./Pages/admin/Admin"
+import Dashboard from "./Components/sidebar/Dashboard";
+import Salary from "./Components/sidebar/Salary";
+import User from "./Pages/admin/SideBarLists/User";
+import Mails from "./Components/sidebar/Mails"
+import Docs from "./Components/sidebar/Docs"
+import Profile from "./Components/userprofile/Profile"
+import Setting from "./Components/userprofile/Setting"
+import ProfileUser from "./Components/userprofile/ProfileUser"
+import Activity from "./Components/userprofile/Activity"
+import Employee from "./Pages/users/Employee"
+import Overview from "./Components/sidebar/Overview";
+import EmployeeUser from "./Pages/users/SideBarLists/EmployeeUser";
 
 
 
@@ -50,7 +48,7 @@ const router = createBrowserRouter([
       },
       {
         path: "mail",
-        element: <Mail/>
+        element: <Mails/>
       },
       {
         path: "docs",
@@ -114,15 +112,15 @@ const router = createBrowserRouter([
       },
       {
         path: "mail",
-        element: <EmployeeMail/>
+        element: <Mails/>
       },
       {
         path: "docs",
-        element: <EmployeeDocs/>
+        element: <Docs/>
       },
       {
         path: "overview",
-        element: <div>Overview</div>
+        element: <Overview/>
       },
       {
         path: "tasks",

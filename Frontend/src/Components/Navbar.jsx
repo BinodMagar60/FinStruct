@@ -36,53 +36,160 @@ const Navbar = ({ isLogout, setLogout}) => {
   const [notifications, setNotifications] = useState([
     {
       id: 1,
-      title: "New message received",
-      description: "You have a new message from Jane Smith",
+      title: "New project proposal",
+      description: "Detailed proposal for Q2 marketing strategy",
       time: "5 minutes ago",
       read: false,
+      sendBy: "Emily Johnson",
+      sendTo: "Marketing Team",
+      sender: {
+        email: "emily.j@company.com",
+        avatar: "/api/placeholder/40/40"
+      }
     },
     {
       id: 2,
-      title: "Project update",
-      description: 'Your project "Dashboard Redesign" has been updated',
+      title: "Budget Review Meeting",
+      description: "Agenda and financial reports for upcoming meeting",
       time: "1 hour ago",
       read: false,
+      sendBy: "Michael Chen",
+      sendTo: "Finance Department",
+      sender: {
+        email: "michael.c@company.com",
+        avatar: "/api/placeholder/40/40"
+      }
     },
     {
       id: 3,
-      title: "Task completed",
-      description: 'Task "Update user interface" has been marked as completed',
+      title: "Customer Feedback Report",
+      description: "Quarterly customer satisfaction analysis",
       time: "3 hours ago",
       read: true,
+      sendBy: "Sarah Rodriguez",
+      sendTo: "Customer Success Team",
+      sender: {
+        email: "sarah.r@company.com",
+        avatar: "/api/placeholder/40/40"
+      }
     },
     {
       id: 4,
-      title: "New comment",
-      description: "Alex commented on your recent post",
+      title: "Product Development Update",
+      description: "Sprint progress and upcoming feature roadmap",
       time: "5 hours ago",
       read: true,
+      sendBy: "Alex Kim",
+      sendTo: "Engineering Team",
+      sender: {
+        email: "alex.k@company.com",
+        avatar: "/api/placeholder/40/40"
+      }
     },
     {
       id: 5,
-      title: "Meeting reminder",
-      description: "Team standup meeting starts in 30 minutes",
+      title: "Training Session Invitation",
+      description: "Annual company-wide professional development workshop",
       time: "Yesterday",
       read: true,
+      sendBy: "HR Department",
+      sendTo: "All Employees",
+      sender: {
+        email: "hr@company.com",
+        avatar: "/api/placeholder/40/40"
+      }
     },
     {
       id: 6,
-      title: "System update",
-      description: "System maintenance scheduled for tonight",
+      title: "System Maintenance Notification",
+      description: "Scheduled downtime for system upgrades",
       time: "Yesterday",
       read: true,
+      sendBy: "IT Support",
+      sendTo: "All Users",
+      sender: {
+        email: "it-support@company.com",
+        avatar: "/api/placeholder/40/40"
+      }
     },
     {
       id: 7,
-      title: "New feature available",
-      description: "Check out the new dashboard analytics feature",
+      title: "New Client Onboarding",
+      description: "Welcome package and initial consultation details",
       time: "2 days ago",
       read: true,
+      sendBy: "David Thompson",
+      sendTo: "Sales Team",
+      sender: {
+        email: "david.t@company.com",
+        avatar: "/api/placeholder/40/40"
+      }
     },
+    {
+      id: 8,
+      title: "Quarterly Sales Report",
+      description: "Comprehensive analysis of Q1 sales performance",
+      time: "3 days ago",
+      read: false,
+      sendBy: "Rachel Green",
+      sendTo: "Executive Team",
+      sender: {
+        email: "rachel.g@company.com",
+        avatar: "/api/placeholder/40/40"
+      }
+    },
+    {
+      id: 9,
+      title: "Marketing Campaign Review",
+      description: "Preliminary results of recent digital marketing initiative",
+      time: "4 days ago",
+      read: false,
+      sendBy: "Tom Harris",
+      sendTo: "Marketing Strategy Team",
+      sender: {
+        email: "tom.h@company.com",
+        avatar: "/api/placeholder/40/40"
+      }
+    },
+    {
+      id: 10,
+      title: "Compliance Training Reminder",
+      description: "Annual mandatory compliance and ethics training",
+      time: "5 days ago",
+      read: true,
+      sendBy: "Legal Department",
+      sendTo: "All Staff",
+      sender: {
+        email: "legal@company.com",
+        avatar: "/api/placeholder/40/40"
+      }
+    },
+    {
+      id: 11,
+      title: "Performance Review Scheduling",
+      description: "Instructions for scheduling annual performance reviews",
+      time: "6 days ago",
+      read: true,
+      sendBy: "HR Management",
+      sendTo: "Department Managers",
+      sender: {
+        email: "hr-management@company.com",
+        avatar: "/api/placeholder/40/40"
+      }
+    },
+    {
+      id: 12,
+      title: "Product Feedback Collection",
+      description: "Request for input on upcoming product improvements",
+      time: "1 week ago",
+      read: true,
+      sendBy: "Product Team",
+      sendTo: "Beta Testers",
+      sender: {
+        email: "product@company.com",
+        avatar: "/api/placeholder/40/40"
+      }
+    }
   ]);
   const profileRef = useRef(null);
   const notificationRef = useRef(null);

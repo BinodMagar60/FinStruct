@@ -6,10 +6,13 @@ const dotenv = require("dotenv");
 dotenv.config(); // Load environment variables from .env
 const app = express();
 
+
+const servers = ["http://localhost:5173","http://localhost:5174","http://localhost:5175"]
+
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin:"http://localhost:5173",
+  origin: servers ,
   credentials:true
 }));
 

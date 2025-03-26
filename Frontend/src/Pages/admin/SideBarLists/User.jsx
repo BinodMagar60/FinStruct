@@ -41,8 +41,8 @@ const User = () => {
   }, [isAddUser]); // Dependency array ensures effect runs when isAddUser changes
 
   return (
-    <div className='p-6'>
-      <div className="container mx-auto p-4 bg-white pb-8">
+    <div className='p-6 '>
+      <div className="container mx-auto p-4 bg-white pb-8 rounded">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Team Members</h1>
           <button
