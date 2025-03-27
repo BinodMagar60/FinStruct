@@ -15,11 +15,13 @@ import {
 import { RiMoneyDollarCircleLine } from "react-icons/ri";
 import { PiMoneyWavyBold } from "react-icons/pi";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import CreateProject from "../../Components/sidebar/CreateProject";
 
 const Sidebar = () => {
   const admin = true;
   const navigate = useNavigate();
   const location = useLocation();
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const dummyData = [
     { name: "Task 1", status: "complete" },
@@ -118,7 +120,7 @@ const Sidebar = () => {
 
             <div className="h-[3px] w-full bg-[#efefef] my-3"></div>
             <div className="flex justify-center">
-              <button className="flex shadow-md py-3 px-4 rounded-md border-r border-b border-gray-300 cursor-pointer transition-all hover:bg-[#e4e4e488]">
+              <button className="flex shadow-md py-3 px-4 rounded-md border-r border-b border-gray-300 cursor-pointer transition-all hover:bg-[#e4e4e488]" onClick={()=>setIsCreateOpen(!isCreateOpen)}>
                 <span className="mr-1 flex items-center">
                   <Plus size={22} />
                 </span>
@@ -168,6 +170,7 @@ const Sidebar = () => {
           </ul>
         )}
       </div>
+      {isCreateOpen && <CreateProject isCreateOpen={isCreateOpen} setIsCreateOpen={setIsCreateOpen}/>}
     </div>
   );
 };
