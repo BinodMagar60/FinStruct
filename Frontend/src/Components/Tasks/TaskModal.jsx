@@ -66,7 +66,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task, mode, columns, users}) => 
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-[#7e7e7e50] bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg w-full max-w-md mx-4">
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-lg font-semibold">{mode === "add" ? "ADD TASK" : "EDIT TASK"}</h2>
@@ -194,7 +194,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task, mode, columns, users}) => 
             >
               Cancel
             </button>
-            <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+            <button type="submit" className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800">
               Submit
             </button>
           </div>
