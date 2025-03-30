@@ -20,6 +20,7 @@ import Activity from "./Components/userprofile/Activity"
 import Employee from "./Pages/users/Employee"
 import Overview from "./Components/sidebar/Overview";
 import EmployeeUser from "./Pages/users/SideBarLists/EmployeeUser";
+import Tasks from "./Components/sidebar/Tasks";
 
 
 
@@ -60,7 +61,7 @@ const router = createBrowserRouter([
       },
       {
         path: "tasks",
-        element: <div>tasks</div>
+        element: <Tasks/>
       },
       {
         path: "todo",

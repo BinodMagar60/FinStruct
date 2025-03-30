@@ -114,8 +114,8 @@ const Mails = () => {
   };
 
   return (
-    <div className='container p-6 '>
-      <div className="w-full relative h-screen flex flex-col p-4 pb-8 bg-white rounded">
+    <div className=' p-6'>
+      <div className="relative flex flex-col container mx-auto p-4 bg-white pb-8 rounded">
         <h1 className='text-2xl font-bold mb-5'>Mails</h1>
         {/* Tabs */}
         <div className="flex border-b border-gray-200">
