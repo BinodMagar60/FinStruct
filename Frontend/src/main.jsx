@@ -21,6 +21,7 @@ import Employee from "./Pages/users/Employee"
 import Overview from "./Components/sidebar/Overview";
 import EmployeeUser from "./Pages/users/SideBarLists/EmployeeUser";
 import Tasks from "./Components/sidebar/Tasks";
+import IncomeExpenses from "./Components/sidebar/IncomeExpenses";
 
 
 
@@ -77,7 +78,7 @@ const router = createBrowserRouter([
       },
       {
         path: "income-expense",
-        element: <div>income expense</div>
+        element: <IncomeExpenses/>
       }
     ]
   },
@@ -141,7 +142,7 @@ const router = createBrowserRouter([
       },
       {
         path: "income-expense",
-        element: <div>income</div>
+        element: <IncomeExpenses/>
       }
     ]
   },

@@ -88,7 +88,7 @@ const EmployeeSidebar = () => {
 
   return (
     <div
-      className="h-screen w-72 bg-white pt-24 overflow-y-auto max-h-screen"
+      className="h-screen w-75 bg-white pt-24 overflow-y-auto max-h-screen"
       style={{
         scrollbarWidth: "none",
       }}

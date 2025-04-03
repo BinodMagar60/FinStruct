@@ -21,9 +21,10 @@ const Tasks = () => {
           id: "task-1",
           title: "Research competitors",
           priority: "high",
+          startingDate: "2025-03-20",
           dueDate: "2025-04-15",
           assignees: [1, 2],
-          createdAt: "2025-03-20T10:00:00Z",
+          createdAt: "2025-03-20",
           dependencies: [],
           subtasks: [
             {
@@ -42,9 +43,10 @@ const Tasks = () => {
           id: "task-2",
           title: "User interviews",
           priority: "normal",
+          startingDate: "2025-03-20",
           dueDate: "2025-04-10",
           assignees: [3],
-          createdAt: "2025-03-22T14:30:00Z",
+          createdAt: "2025-03-22",
           dependencies: ["task-1"],
           subtasks: []
         }
@@ -59,9 +61,10 @@ const Tasks = () => {
           id: "task-3",
           title: "Create wireframes",
           priority: "high",
+          startingDate: "2025-03-20",
           dueDate: "2025-04-05",
           assignees: [2, 4],
-          createdAt: "2025-03-18T09:15:00Z",
+          createdAt: "2025-03-18",
           dependencies: [],
           subtasks: [
             {
@@ -92,9 +95,10 @@ const Tasks = () => {
           id: "task-4",
           title: "Project kickoff meeting",
           priority: "normal",
+          startingDate: "2025-03-20",
           dueDate: "2025-03-15",
           assignees: [1, 2, 3, 4],
-          createdAt: "2025-03-10T11:00:00Z",
+          createdAt: "2025-03-10",
           dependencies: [],
           subtasks: [
             {

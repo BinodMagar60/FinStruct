@@ -4,6 +4,9 @@ import AddNewUser from "./AddNewUser"
 const User = () => {
   const [activeTab, setActiveTab] = useState('users');
   const [isAddUser, setIsAddUser] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [filteredWorkers, setFilteredWorkers] = useState([]);
   const addNewUserRef = useRef(null);
 
   const users = [
@@ -17,6 +20,30 @@ const User = () => {
     { id: 5, name: 'Codewave Asante', initials: 'CA', email: 'codewave@email.com', supervisedBy: 'Security Team' }
   ];
 
+  useEffect(() => {
+    // Initialize filtered arrays with all users/workers
+    setFilteredUsers(users);
+    setFilteredWorkers(workers);
+  }, []);
+
+  useEffect(() => {
+    // Filter users based on search term
+    const filtered = users.filter(user => 
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.role.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredUsers(filtered);
+    
+    // Filter workers based on search term
+    const filteredWork = workers.filter(worker => 
+      worker.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      worker.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      worker.supervisedBy.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredWorkers(filteredWork);
+  }, [searchTerm]);
+
   const addMember = () => {
     setIsAddUser(true);
   };
@@ -26,6 +53,15 @@ const User = () => {
     if (addNewUserRef.current && !addNewUserRef.current.contains(event.target)) {
       setIsAddUser(false);
     }
+  };
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    // Search is already handled by the useEffect
   };
 
   useEffect(() => {
@@ -45,25 +81,42 @@ const User = () => {
       <div className="container mx-auto p-4 bg-white pb-8 rounded">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Team Members</h1>
-          <button
-            className="bg-black text-white py-2 px-4 rounded-md flex items-center cursor-pointer hover:bg-gray-800"
-            onClick={addMember}
-          >
-            <span className="mr-1">+</span> Add New User
-          </button>
+          <div className="flex items-center space-x-4 gap-18">
+            <form onSubmit={handleSearchSubmit} className="flex w-64">
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={handleSearch}
+                className="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none"
+              />
+              <button 
+                type="submit" 
+                className="bg-black text-white cursor-pointer hover:bg-gray-800 py-2 px-4 rounded-r-md  focus:outline-none"
+              >
+                Search
+              </button>
+            </form>
+            <button
+              className="bg-black text-white py-2 px-4 rounded-md flex items-center cursor-pointer hover:bg-gray-800 focus:outline-none"
+              onClick={addMember}
+            >
+              <span className="mr-1">+</span> Add New User
+            </button>
+          </div>
         </div>
 
         {/* User and Worker Tabs */}
         <div className="mb-6">
           <div className="flex border-b border-gray-200">
             <button
-              className={`py-2 px-6 ${activeTab === 'users' ? 'border-b-2 text-black font-medium shadow-inner bg-gray-50' : 'text-gray-500'}`}
+              className={`py-2 px-6 ${activeTab === 'users' ? 'border-b-2 text-black font-medium shadow-inner bg-gray-50' : 'text-gray-500'} focus:outline-none`}
               onClick={() => setActiveTab('users')}
             >
               Users
             </button>
             <button
-              className={`py-2 px-6 ${activeTab === 'workers' ? 'border-b-2 text-black font-medium shadow-inner bg-gray-50' : 'text-gray-500'}`}
+              className={`py-2 px-6 ${activeTab === 'workers' ? 'border-b-2 text-black font-medium shadow-inner bg-gray-50' : 'text-gray-500'} focus:outline-none`}
               onClick={() => setActiveTab('workers')}
             >
               Workers
@@ -80,22 +133,26 @@ const User = () => {
               <div className="col-span-1">Role</div>
               <div className="col-span-1 text-right">Actions</div>
             </div>
-            {users.map(user => (
-              <div key={user.id} className="grid grid-cols-4 gap-4 p-4 border-b border-gray-200 items-center hover:bg-gray-50 transition-all">
-                <div className="col-span-1 flex items-center">
-                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center mr-3">
-                    {user.initials}
+            {filteredUsers.length > 0 ? (
+              filteredUsers.map(user => (
+                <div key={user.id} className="grid grid-cols-4 gap-4 p-4 border-b border-gray-200 items-center hover:bg-gray-50 transition-all">
+                  <div className="col-span-1 flex items-center">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center mr-3">
+                      {user.initials}
+                    </div>
+                    {user.name}
                   </div>
-                  {user.name}
+                  <div className="col-span-1">{user.email}</div>
+                  <div className="col-span-1">{user.role}</div>
+                  <div className="col-span-1 text-right">
+                    <button className="text-blue-600 mr-3 cursor-pointer focus:outline-none">Edit</button>
+                    <button className="text-red-600 cursor-pointer focus:outline-none">Delete</button>
+                  </div>
                 </div>
-                <div className="col-span-1">{user.email}</div>
-                <div className="col-span-1">{user.role}</div>
-                <div className="col-span-1 text-right">
-                  <button className="text-blue-600 mr-3 cursor-pointer">Edit</button>
-                  <button className="text-red-600 cursor-pointer">Delete</button>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <div className="p-4 text-center text-gray-500">No users found</div>
+            )}
           </div>
         ) : (
           <div className="bg-white shadow-md rounded-md overflow-hidden">
@@ -105,22 +162,26 @@ const User = () => {
               <div className="col-span-1">Supervised By</div>
               <div className="col-span-1 text-right">Actions</div>
             </div>
-            {workers.map(worker => (
-              <div key={worker.id} className="grid grid-cols-4 gap-4 p-4 border-b items-center border-gray-200 hover:bg-gray-50 transition-all">
-                <div className="col-span-1 flex items-center">
-                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center mr-3">
-                    {worker.initials}
+            {filteredWorkers.length > 0 ? (
+              filteredWorkers.map(worker => (
+                <div key={worker.id} className="grid grid-cols-4 gap-4 p-4 border-b items-center border-gray-200 hover:bg-gray-50 transition-all">
+                  <div className="col-span-1 flex items-center">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center mr-3">
+                      {worker.initials}
+                    </div>
+                    {worker.name}
                   </div>
-                  {worker.name}
+                  <div className="col-span-1">{worker.email}</div>
+                  <div className="col-span-1">{worker.supervisedBy}</div>
+                  <div className="col-span-1 text-right">
+                    <button className="text-blue-600 mr-3 cursor-pointer focus:outline-none">Edit</button>
+                    <button className="text-red-600 cursor-pointer focus:outline-none">Delete</button>
+                  </div>
                 </div>
-                <div className="col-span-1">{worker.email}</div>
-                <div className="col-span-1">{worker.supervisedBy}</div>
-                <div className="col-span-1 text-right">
-                  <button className="text-blue-600 mr-3 cursor-pointer">Edit</button>
-                  <button className="text-red-600 cursor-pointer">Delete</button>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <div className="p-4 text-center text-gray-500">No workers found</div>
+            )}
           </div>
         )}
       </div>
