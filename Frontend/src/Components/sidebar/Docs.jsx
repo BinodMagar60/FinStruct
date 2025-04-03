@@ -239,7 +239,7 @@ const Docs = () => {
                 <th className="py-3 px-6 text-center">Actions</th>
               </tr>
             </thead>
-            <tbody className="text-gray-600 text-sm">
+            <tbody className="text-gray-600 text-base">
               {sortedDocuments.map(doc => (
                 <tr key={doc.id} className="border-b border-gray-200 hover:bg-gray-50 text-md">
                   <td className="py-3 px-6 text-left whitespace-nowrap">
