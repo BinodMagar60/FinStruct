@@ -7,6 +7,8 @@ const User = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [filteredWorkers, setFilteredWorkers] = useState([]);
+  const [sortBy, setSortBy] = useState('name');
+  const [sortOrder, setSortOrder] = useState('asc');
   const addNewUserRef = useRef(null);
 
   const users = [
@@ -22,9 +24,9 @@ const User = () => {
 
   useEffect(() => {
     // Initialize filtered arrays with all users/workers
-    setFilteredUsers(users);
-    setFilteredWorkers(workers);
-  }, []);
+    setFilteredUsers(sortData([...users]));
+    setFilteredWorkers(sortData([...workers]));
+  }, [sortBy, sortOrder]);
 
   useEffect(() => {
     // Filter users based on search term
@@ -33,7 +35,7 @@ const User = () => {
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.role.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    setFilteredUsers(filtered);
+    setFilteredUsers(sortData([...filtered]));
     
     // Filter workers based on search term
     const filteredWork = workers.filter(worker => 
@@ -41,8 +43,55 @@ const User = () => {
       worker.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       worker.supervisedBy.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    setFilteredWorkers(filteredWork);
-  }, [searchTerm]);
+    setFilteredWorkers(sortData([...filteredWork]));
+  }, [searchTerm, sortBy, sortOrder]);
+
+  // Handle sorting
+  const handleSort = (column) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(column);
+      setSortOrder('asc');
+    }
+  };
+
+  // Sorting icon component
+  const SortIcon = ({ column }) => {
+    if (sortBy === column) {
+      return (
+        <span className="ml-1 inline-block">
+          {sortOrder === 'asc' ? '↑' : '↓'}
+        </span>
+      );
+    }
+    return null;
+  };
+
+  // Sort data based on current sort settings
+  const sortData = (data) => {
+    return data.sort((a, b) => {
+      let aValue = a[sortBy];
+      let bValue = b[sortBy];
+      
+      // Handle special case for supervisedBy which only exists in workers
+      if (sortBy === 'supervisedBy' && activeTab === 'users') {
+        aValue = a.role || '';
+        bValue = b.role || '';
+      } else if (sortBy === 'role' && activeTab === 'workers') {
+        aValue = a.supervisedBy || '';
+        bValue = b.supervisedBy || '';
+      }
+      
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return sortOrder === 'asc' 
+          ? aValue.localeCompare(bValue) 
+          : bValue.localeCompare(aValue);
+      }
+      
+      return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+    });
+  };
 
   const addMember = () => {
     setIsAddUser(true);
@@ -92,7 +141,7 @@ const User = () => {
               />
               <button 
                 type="submit" 
-                className="bg-black text-white cursor-pointer hover:bg-gray-800 py-2 px-4 rounded-r-md  focus:outline-none"
+                className="bg-black text-white cursor-pointer hover:bg-gray-800 py-2 px-4 rounded-r-md focus:outline-none"
               >
                 Search
               </button>
@@ -128,9 +177,24 @@ const User = () => {
         {activeTab === 'users' ? (
           <div className="bg-white shadow-md rounded-md overflow-hidden">
             <div className="grid grid-cols-4 gap-4 p-4 border-b border-gray-200 font-medium">
-              <div className="col-span-1">Full Name</div>
-              <div className="col-span-1">Email</div>
-              <div className="col-span-1">Role</div>
+              <div 
+                className="col-span-1 cursor-pointer flex items-center" 
+                onClick={() => handleSort('name')}
+              >
+                Full Name <SortIcon column="name" />
+              </div>
+              <div 
+                className="col-span-1 cursor-pointer flex items-center" 
+                onClick={() => handleSort('email')}
+              >
+                Email <SortIcon column="email" />
+              </div>
+              <div 
+                className="col-span-1 cursor-pointer flex items-center" 
+                onClick={() => handleSort('role')}
+              >
+                Role <SortIcon column="role" />
+              </div>
               <div className="col-span-1 text-right">Actions</div>
             </div>
             {filteredUsers.length > 0 ? (
@@ -157,9 +221,24 @@ const User = () => {
         ) : (
           <div className="bg-white shadow-md rounded-md overflow-hidden">
             <div className="grid grid-cols-4 gap-4 p-4 border-b border-gray-200 font-medium">
-              <div className="col-span-1">Full Name</div>
-              <div className="col-span-1">Email</div>
-              <div className="col-span-1">Supervised By</div>
+              <div 
+                className="col-span-1 cursor-pointer flex items-center" 
+                onClick={() => handleSort('name')}
+              >
+                Full Name <SortIcon column="name" />
+              </div>
+              <div 
+                className="col-span-1 cursor-pointer flex items-center" 
+                onClick={() => handleSort('email')}
+              >
+                Email <SortIcon column="email" />
+              </div>
+              <div 
+                className="col-span-1 cursor-pointer flex items-center" 
+                onClick={() => handleSort('supervisedBy')}
+              >
+                Supervised By <SortIcon column="supervisedBy" />
+              </div>
               <div className="col-span-1 text-right">Actions</div>
             </div>
             {filteredWorkers.length > 0 ? (
