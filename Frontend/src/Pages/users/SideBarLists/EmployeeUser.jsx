@@ -81,7 +81,7 @@ const EmployeeUser = () => {
       <div className="container mx-auto p-4 bg-white pb-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Team Members</h1>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 gap-18">
             <form onSubmit={handleSearchSubmit} className="flex w-64">
               <input
                 type="text"

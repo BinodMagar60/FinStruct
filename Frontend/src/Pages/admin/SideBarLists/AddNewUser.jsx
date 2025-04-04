@@ -33,7 +33,7 @@ const AddNewUser = ({isAddUser, setIsAddUser}) => {
 
   return (
     <div className="w-120 mx-auto border border-gray-200 rounded-lg shadow-md overflow-hidden bg-white">
-      <div className="bg-gray-50 border-b p-4">
+      <div className="bg-gray-50 border-b p-4 border-gray-200">
         <h2 className="text-xl font-bold">Add New Team Member</h2>
       </div>
 
@@ -279,7 +279,7 @@ const AddNewUser = ({isAddUser, setIsAddUser}) => {
           </div>
         </div>
 
-        <div className="flex justify-end space-x-2 bg-gray-50 border-t p-4">
+        <div className="flex justify-end space-x-2 bg-gray-50 border-t p-4 border-gray-200">
           <button
             type="button"
             className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"
