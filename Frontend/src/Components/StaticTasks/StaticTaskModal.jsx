@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { X, Calendar, Paperclip, ChevronDown } from "lucide-react"
 
-const TaskModal = ({ isOpen, onClose, onSubmit, task, mode, columns, users}) => {
+const StaticTaskModal = ({ isOpen, onClose, onSubmit, task, mode, columns, users}) => {
   const [formData, setFormData] = useState({
     title: "",
     assignees: [],
@@ -68,7 +68,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task, mode, columns, users}) => 
   return (
     <div className="fixed inset-0 bg-[#7e7e7e50] bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg w-full max-w-md mx-4">
-        <div className="flex justify-between items-center p-4 border-b border-gray-300">
+        <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-lg font-semibold">{mode === "add" ? "ADD TASK" : "EDIT TASK"}</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <X size={20} />
@@ -204,5 +204,5 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task, mode, columns, users}) => 
   )
 }
 
-export default TaskModal
+export default StaticTaskModal
 

@@ -85,8 +85,8 @@ const Sidebar = () => {
       { name: "In Progress", url: "/admin/inprogress", logo: <Loader /> },
       { name: "Completed", url: "/admin/completed", logo: <ClipboardCheck /> },
       {
-        name: "Income/Expense",
-        url: "/admin/income-expense",
+        name: "Transaction",
+        url: "/admin/transaction",
         logo: <PiMoneyWavyBold size={24} />,
       },
     ],

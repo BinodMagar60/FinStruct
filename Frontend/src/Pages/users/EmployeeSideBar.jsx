@@ -80,7 +80,7 @@ const EmployeeSidebar = () => {
       { name: "Completed", url: "/employee/completed", logo: <ClipboardCheck /> },
       {
         name: "Income/Expense",
-        url: "/employee/income-expense",
+        url: "/employee/transaction",
         logo: <PiMoneyWavyBold size={24} />,
       },
     ],

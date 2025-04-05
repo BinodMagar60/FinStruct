@@ -1,26 +1,24 @@
 import { ChevronDown, FileText, Paperclip, CheckSquare } from "lucide-react"
 
-const ListView = ({ columns, onEditTask, onDeleteTask, onOpenTask, users }) => {
-  // Flatten all tasks from all columns
-  const allTasks = columns.reduce((acc, column) => {
-    return [
-      ...acc,
-      ...column.tasks.map((task) => ({
-        ...task,
-        columnId: column.id,
-        status: column.title,
-      })),
-    ]
-  }, [])
+const StaticListView = ({ taskType, columns, onEditTask, onDeleteTask, users }) => {
+  // Find the selected column
+  const selectedColumn = columns.find(column => column.id === taskType);
+  
+  // Get tasks only from the selected column
+  const filteredTasks = selectedColumn ? selectedColumn.tasks.map(task => ({
+    ...task,
+    columnId: selectedColumn.id,
+    status: selectedColumn.title,
+  })) : [];
 
   // Check if there are no tasks to display
-  const noTasksToShow = allTasks.length === 0;
+  const noTasksToShow = filteredTasks.length === 0;
 
   return (
     <div className="overflow-x-auto pt-4">
       {noTasksToShow ? (
         <div className="flex flex-col items-center justify-center py-8">
-          <p className="text-gray-500 text-lg">No tasks found</p>
+          <p className="text-gray-500 text-lg">No tasks found in this category</p>
           <p className="text-gray-400 text-sm mt-2">Add a new task to get started</p>
         </div>
       ) : (
@@ -52,7 +50,7 @@ const ListView = ({ columns, onEditTask, onDeleteTask, onOpenTask, users }) => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {allTasks.map((task) => {
+            {filteredTasks.map((task) => {
               // Find assigned users
               const assignedUsers = task.assignees ? users.filter((user) => task.assignees.includes(user.id)) : []
 
@@ -144,4 +142,4 @@ const ListView = ({ columns, onEditTask, onDeleteTask, onOpenTask, users }) => {
   )
 }
 
-export default ListView
+export default StaticListView

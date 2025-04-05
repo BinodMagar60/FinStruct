@@ -22,6 +22,9 @@ import Overview from "./Components/sidebar/Overview";
 import EmployeeUser from "./Pages/users/SideBarLists/EmployeeUser";
 import Tasks from "./Components/sidebar/Tasks";
 import IncomeExpenses from "./Components/sidebar/IncomeExpenses";
+import TodoList from "./Components/sidebar/TodoList";
+import CompletedList from "./Components/sidebar/CompletedList";
+import InprogreeList from "./Components/sidebar/InprogreeList";
 
 
 
@@ -66,18 +69,18 @@ const router = createBrowserRouter([
       },
       {
         path: "todo",
-        element: <div>todo</div>
+        element: <TodoList/>
       },
       {
         path: "inprogress",
-        element: <div>in progress</div>
+        element: <InprogreeList/>
       },
       {
         path: "completed",
-        element: <div>competed</div>
+        element: <CompletedList/>
       },
       {
-        path: "income-expense",
+        path: "transaction",
         element: <IncomeExpenses/>
       }
     ]
@@ -126,22 +129,22 @@ const router = createBrowserRouter([
       },
       {
         path: "tasks",
-        element: <div>Tasks</div>
+        element: <Tasks/>
       },
       {
         path: "todo",
-        element: <div>Todo</div>
+        element: <TodoList/>
       },
       {
         path: "inprogress",
-        element: <div>inprogress</div>
+        element: <InprogreeList/>
       },
       {
         path: "completed",
-        element: <div>completed</div>
+        element: <CompletedList/>
       },
       {
-        path: "income-expense",
+        path: "transaction",
         element: <IncomeExpenses/>
       }
     ]
