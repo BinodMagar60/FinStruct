@@ -25,6 +25,7 @@ import IncomeExpenses from "./Components/sidebar/IncomeExpenses";
 import TodoList from "./Components/sidebar/TodoList";
 import CompletedList from "./Components/sidebar/CompletedList";
 import InprogreeList from "./Components/sidebar/InprogreeList";
+import TaskDetail from "./Components/TaskDetails/TaskDetail";
 
 
 
@@ -82,6 +83,10 @@ const router = createBrowserRouter([
       {
         path: "transaction",
         element: <IncomeExpenses/>
+      },
+      {
+        path: "details",
+        element: <TaskDetail/>
       }
     ]
   },
@@ -146,6 +151,10 @@ const router = createBrowserRouter([
       {
         path: "transaction",
         element: <IncomeExpenses/>
+      },
+      {
+        path: "details",
+        element: <TaskDetail/>
       }
     ]
   },

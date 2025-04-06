@@ -207,7 +207,7 @@ const TodoList = () => {
             {
               id: "subtask-4-2",
               title: "Send invites",
-              completed: true
+              completed: false
             }
           ]
         }
