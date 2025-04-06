@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Edit2, Trash2, ArrowUp, ArrowDown, X, Save, Users, User } from 'lucide-react';
+import { Search, Edit2, Trash2, ArrowUp, ArrowDown, X, Save, Users, User } from 'lucide-react';
 
 const Salary = () => {
   // State for roles and default salaries
@@ -99,33 +99,22 @@ const Salary = () => {
     return null;
   };
 
-  // Open role modal for add/edit
-  const handleRoleModal = (role = null) => {
+  // Open role modal for edit only
+  const handleRoleModal = (role) => {
     if (role) {
       setCurrentRole(role);
       setEditedRole({ ...role });
-    } else {
-      setCurrentRole(null);
-      setEditedRole({ title: '', defaultSalary: 0 });
+      setShowRoleModal(true);
     }
-    setShowRoleModal(true);
   };
 
-  // Open employee modal for add/edit
-  const handleEmployeeModal = (employee = null) => {
+  // Open employee modal for edit only
+  const handleEmployeeModal = (employee) => {
     if (employee) {
       setCurrentEmployee(employee);
       setEditedEmployee({ ...employee });
-    } else {
-      setCurrentEmployee(null);
-      setEditedEmployee({ 
-        name: '', 
-        email: '', 
-        role: roles[0]?.title || '', 
-        salary: roles[0]?.defaultSalary || 0 
-      });
+      setShowEmployeeModal(true);
     }
-    setShowEmployeeModal(true);
   };
 
   // Handle role changes
@@ -163,24 +152,18 @@ const Salary = () => {
   const saveRole = () => {
     if (!editedRole.title) return;
     
-    if (currentRole) {
-      // Update existing role
-      setRoles(roles.map(r => r.id === currentRole.id ? { ...editedRole, id: currentRole.id } : r));
-      
-      // Update employees with this role to use the new default salary
-      // Only if their salary matches the old default (hasn't been customized)
-      const oldDefaultSalary = currentRole.defaultSalary;
-      setEmployees(employees.map(emp => {
-        if (emp.role === currentRole.title && emp.salary === oldDefaultSalary) {
-          return { ...emp, salary: editedRole.defaultSalary };
-        }
-        return emp;
-      }));
-    } else {
-      // Add new role
-      const newId = Math.max(0, ...roles.map(r => r.id)) + 1;
-      setRoles([...roles, { ...editedRole, id: newId }]);
-    }
+    // Update existing role
+    setRoles(roles.map(r => r.id === currentRole.id ? { ...editedRole, id: currentRole.id } : r));
+    
+    // Update employees with this role to use the new default salary
+    // Only if their salary matches the old default (hasn't been customized)
+    const oldDefaultSalary = currentRole.defaultSalary;
+    setEmployees(employees.map(emp => {
+      if (emp.role === currentRole.title && emp.salary === oldDefaultSalary) {
+        return { ...emp, salary: editedRole.defaultSalary };
+      }
+      return emp;
+    }));
     
     setShowRoleModal(false);
   };
@@ -189,16 +172,10 @@ const Salary = () => {
   const saveEmployee = () => {
     if (!editedEmployee.name || !editedEmployee.role) return;
     
-    if (currentEmployee) {
-      // Update existing employee
-      setEmployees(employees.map(emp => 
-        emp.id === currentEmployee.id ? { ...editedEmployee, id: currentEmployee.id } : emp
-      ));
-    } else {
-      // Add new employee
-      const newId = Math.max(0, ...employees.map(emp => emp.id)) + 1;
-      setEmployees([...employees, { ...editedEmployee, id: newId }]);
-    }
+    // Update existing employee
+    setEmployees(employees.map(emp => 
+      emp.id === currentEmployee.id ? { ...editedEmployee, id: currentEmployee.id } : emp
+    ));
     
     setShowEmployeeModal(false);
   };
@@ -233,7 +210,8 @@ const Salary = () => {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Salary Management</h1>
           
-          <div className="flex items-center space-x-4 gap-10">
+          {activeTab === "employees" && (
+            <div className="flex items-center space-x-4 mr-10">
             <form className="flex w-64">
               <input
                 type="text"
@@ -249,24 +227,11 @@ const Salary = () => {
                 <Search size={18} />
               </button>
             </form>
-            
-            {activeTab === 'roles' ? (
-              <button
-                className="bg-black text-white py-2 px-4 rounded-md flex items-center cursor-pointer hover:bg-gray-800 focus:outline-none"
-                onClick={() => handleRoleModal()}
-              >
-                <Plus size={18} className="mr-2" /> Add Role
-              </button>
-            ) : (
-              <button
-                className="bg-black text-white py-2 px-4 rounded-md flex items-center cursor-pointer hover:bg-gray-800 focus:outline-none"
-                onClick={() => handleEmployeeModal()}
-              >
-                <Plus size={18} className="mr-2" /> Add Employee
-              </button>
-            )}
           </div>
-        </div>
+        
+          )}
+
+          </div>
 
         {/* Tabs */}
         <div className="mb-6">
@@ -405,9 +370,7 @@ const Salary = () => {
         <div className="fixed inset-0 bg-[#7e7e7e50] bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-96">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">
-                {currentRole ? 'Edit Role' : 'Add New Role'}
-              </h2>
+              <h2 className="text-lg font-semibold">Edit Role</h2>
               <button onClick={() => setShowRoleModal(false)} className="text-gray-500 hover:text-gray-700">
                 <X size={20} />
               </button>
@@ -462,9 +425,7 @@ const Salary = () => {
         <div className="fixed inset-0 bg-[#7e7e7e50] bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-96">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">
-                {currentEmployee ? 'Edit Employee' : 'Add New Employee'}
-              </h2>
+              <h2 className="text-lg font-semibold">Edit Employee</h2>
               <button onClick={() => setShowEmployeeModal(false)} className="text-gray-500 hover:text-gray-700">
                 <X size={20} />
               </button>
@@ -521,11 +482,6 @@ const Salary = () => {
                 min="0"
                 step="1000"
               />
-              {!currentEmployee && roles.find(r => r.title === editedEmployee.role) && (
-                <p className="text-sm text-gray-500 mt-1">
-                  Default for {editedEmployee.role}: {formatCurrency(roles.find(r => r.title === editedEmployee.role).defaultSalary)}
-                </p>
-              )}
             </div>
             
             <div className="flex justify-end space-x-2">

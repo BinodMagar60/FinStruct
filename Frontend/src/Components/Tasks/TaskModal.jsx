@@ -145,16 +145,16 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task, mode, columns, users}) => 
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Task Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Starting Date</label>
               <div className="relative">
                 <input
                   type="date"
                   name="dueDate"
+                  
                   value={formData.dueDate}
                   onChange={handleChange}
                   className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <Calendar size={16} className="absolute right-3 top-3 text-gray-400" />
               </div>
             </div>
           </div>

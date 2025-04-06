@@ -17,7 +17,7 @@ const TaskCard = ({
   onDeleteTask,
   onAddSubtask,
   users,
-  setIsModalOpen
+  setIsModalOpen,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showSubtaskForm, setShowSubtaskForm] = useState(false);
@@ -179,7 +179,7 @@ const TaskCard = ({
             {task.subtasks.map((subtask) => (
               <div
                 key={subtask.id}
-                className="flex items-center gap-2 mt-1 py-1 border-t border-gray-100 " 
+                className="flex items-center gap-2 mt-1 py-1 border-t border-gray-100 "
               >
                 <input
                   type="checkbox"
@@ -187,21 +187,21 @@ const TaskCard = ({
                   id={subtask.id}
                   onChange={() => {
                     subtask.completed = !subtask.completed; // Directly update the subtask state
-                     onEditTask({ ...task }, columnId); // Update the task with modified subtasks
-                    setIsModalOpen(false)
+                    onEditTask({ ...task }, columnId); // Update the task with modified subtasks
+                    setIsModalOpen(false);
                   }}
                   className="rounded text-blue-500 cursor-pointer"
                 />
                 <label htmlFor={subtask.id}>
-                <span
-                  className={`text-sm cursor-pointer ${
-                    subtask.completed
-                      ? "line-through text-gray-400"
-                      : "text-gray-700"
-                  }`}
-                >
-                  {subtask.title}
-                </span>
+                  <span
+                    className={`text-sm cursor-pointer ${
+                      subtask.completed
+                        ? "line-through text-gray-400"
+                        : "text-gray-700"
+                    }`}
+                  >
+                    {subtask.title}
+                  </span>
                 </label>
               </div>
             ))}
@@ -237,24 +237,22 @@ const TaskCard = ({
             )}
           </div> */}
           <div className="flex -space-x-2">
-  {assignedUsers.slice(0, 2).map((user) => (
-    <div
-      key={user.id}
-      className={`w-6 h-6 rounded-full ${user.color} text-white text-xs flex items-center justify-center border-2 border-white`}
-      title={user.name}
-    >
-      {user.initials}
-    </div>
-  ))}
-  
-  {assignedUsers.length > 2 && (
-    <div className="w-6 h-6 rounded-full bg-gray-500 text-white text-xs flex items-center justify-center border-2 border-white">
-      +{assignedUsers.length - 2}
-    </div>
-  )}
-</div>
+            {assignedUsers.slice(0, 2).map((user) => (
+              <div
+                key={user.id}
+                className={`w-6 h-6 rounded-full ${user.color} text-white text-xs flex items-center justify-center border-2 border-white`}
+                title={user.name}
+              >
+                {user.initials}
+              </div>
+            ))}
 
-
+            {assignedUsers.length > 2 && (
+              <div className="w-6 h-6 rounded-full bg-gray-500 text-white text-xs flex items-center justify-center border-2 border-white">
+                +{assignedUsers.length - 2}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

@@ -5,6 +5,7 @@ import { PlusCircle } from "lucide-react"
 import BoardView from "../Tasks/BoardView"
 import ListView from "../Tasks/ListView"
 import TaskModal from "../Tasks/TaskModal"
+import ChartView from "../Tasks/ChartView"
 
 
 
@@ -386,6 +387,12 @@ const Tasks = () => {
                 >
                   List View
                 </button>
+                <button
+                  className={`py-2 px-6 font-medium ${viewMode === "chart" ? "border-b-2 border-black shadow-inner" : ""}`}
+                  onClick={() => setViewMode("chart")}
+                >
+                  Gantt Chart View
+                </button>
               </div>
             </div>
 
@@ -401,7 +408,7 @@ const Tasks = () => {
                 users={users}
                 setIsModalOpen={setIsModalOpen}
               />
-            ) : (
+            ) : viewMode === "list"? (
               <ListView 
                 columns={columns} 
                 onEditTask={handleEditTask} 
@@ -411,6 +418,9 @@ const Tasks = () => {
                 onDeleteSubtask={deleteSubtask}
                 users={users} 
               />
+            ) : (
+              <ChartView 
+                columns={columns}/>
             )}
           </div>
         </div>
