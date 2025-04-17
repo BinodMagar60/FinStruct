@@ -1,7 +1,7 @@
 import { AlertCircle } from "lucide-react";
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { apiCall } from "../api/api";
+import { signupUser } from "../api/LoginSignup";
 import { toast, Flip } from "react-toastify";
 
 const Signup = ({ isSignin, setSignin }) => {
@@ -72,33 +72,28 @@ const Signup = ({ isSignin, setSignin }) => {
     } else if (!formData.confirm.match(formData.password)) {
       errors.e5 = "Password doesn't match";
     }
-
+   
     setSignupError(errors);
     if (!(errors.e1 || errors.e2 || errors.e3 || errors.e4 || errors.e5)) {
+
+
       try {
         const data = {
           username: formData.name,
-          personalEmail: "",
           email: formData.email,
           password: formData.password,
           company: formData.company,
-          role: "admin",
-          isOwner: true,
         };
 
-        const response = await apiCall("auth/signup", data, {
-          headers: { "Content-Type": "application/json" },
-        });
+        console.log("done 3rd")
 
-        toast.success(response.data.message, {
-          position: "top-right",
+        const response = await signupUser('auth/signup', data)
+        // console.log(response)
+
+        toast[response.show](response.message, {
           autoClose: 1000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
           theme: "light",
-          transition: Flip,
+          
         });
         setTimeout(() => {
           setSignin(!isSignin);
@@ -106,16 +101,17 @@ const Signup = ({ isSignin, setSignin }) => {
       } catch (err) {
       if (err.response) {
         if (err.response.status === 400) {
-          if (err.response.data.message === "Email already in use") {
-            setSignupError((prev) => ({ ...prev, e3: "Email already in use" }));
-          }
-          if (err.response.data.message === "Company name already in use") {
+          if (err.response.data.message === "Company already registered"){
             setSignupError((prev) => ({ ...prev, e2: "Company name already in use" }));
           }
+          if (err.response.data.message === "Email Already Exist"){
+            setSignupError((prev) => ({ ...prev, e3: "Email already in use" }));
+          }
+          
         } else {
           toast.error("Something went wrong. Please try again.", {
             position: "top-right",
-            autoClose: 3000,
+            autoClose: 1000,
           });
         }
       }

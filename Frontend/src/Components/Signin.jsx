@@ -2,7 +2,7 @@ import { AlertCircle } from "lucide-react";
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast, Flip } from "react-toastify";
-import { apiCall } from "../api/api";
+import { loginUser } from "../api/LoginSignup";
 import { useCookies } from "react-cookie";  
 import { useNavigate } from "react-router-dom";
 
@@ -35,60 +35,52 @@ const Signin = () => {
     e.preventDefault();
     let errors = { e1: false, e2: false };
     const emailRegex = /^[a-zA-Z][a-zA-Z0-9._%+-]*@[a-zA-Z0-9-]+\.com$/;
-
+  
     if (!formData.email) {
       errors.e1 = "Email is required";
-    } else if (!formData.email.match(emailRegex)) {
+    } else if (!emailRegex.test(formData.email)) {
       errors.e1 = "Invalid Email";
     }
-
+  
     if (!formData.password) {
       errors.e2 = "Password is required";
     } else if (formData.password.length < 8) {
-      errors.e2 = "Incorrect Password";
+      errors.e2 = "Password must be at least 8 characters";
     }
-
+  
     setLoginError(errors);
     if (!errors.e1 && !errors.e2) {
       try {
         const data = { email: formData.email, password: formData.password };
-        const response = await apiCall("auth/login", data);
-        const { token } = response.data;
-
-        setCookie("authToken", token, { path: "/", maxAge: 30 * 24 * 60 * 60 });
-
-        toast.success(response.data.message, {
+        const response = await loginUser("auth/login", data);
+  
+        if (response.status === 200) {
+          const { token, message } = response.data;
+          setCookie("authToken", token, { path: "/", maxAge: 30 * 24 * 60 * 60 });
+  
+          toast.success(message || "Login successful", {
+            theme: "light",
+            autoClose: 1000
+          });
+  
+          setTimeout(() => {
+            navigate("/admin");
+          }, 1000);
+        } else {
+          // Should not hit here normally as axios throws on non-2xx
+          throw new Error("Unexpected error");
+        }
+      } catch (err) {
+        const errorMsg = err.response?.data?.error || "Something went wrong. Please try again.";
+        toast.error(errorMsg, {
           position: "top-right",
           autoClose: 1000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
           theme: "light",
-          transition: Flip,
         });
-
-        setTimeout(() => {
-          navigate("/admin");
-        }, 1000);
-      } catch (err) {
-        if (err.response) {
-          if (err.response.status === 401) {
-            toast.error("Invalid Email or Password", {
-              position: "top-right",
-              autoClose: 1500,
-              theme: "light",
-            });
-          } else {
-            toast.error("Something went wrong. Please try again.", {
-              position: "top-right",
-              autoClose: 1500,
-            });
-          }
-        }
       }
     }
   };
+  
 
   return (
     <>
