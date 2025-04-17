@@ -67,13 +67,13 @@ const Signin = () => {
             autoClose: 1000
           });
   
-          setTimeout(() => {
-            if(safeUser.role === 'admin'){
-              navigate("/admin")
-            }else{
-              navigate("/employee")
-            }
-          }, 1000);
+          // setTimeout(() => {
+          //   if(safeUser.role === 'admin'){
+          //     navigate("/admin")
+          //   }else{
+          //     navigate("/employee")
+          //   }
+          // }, 1000);
         } else {
           throw new Error("Unexpected error");
         }
