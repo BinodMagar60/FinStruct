@@ -34,7 +34,7 @@ const EmployeeSidebar = () => {
     if (dummyData.length > 0) {
       setSelectedTask(dummyData[0]);
       setActiveTab("Overview");
-      // navigate("/admin/overview");
+      navigate("/employee/overview");
     }
   }, []);
 

@@ -2,9 +2,10 @@ import React, {useState, useRef} from 'react'
 import Navbar from '../../Components/Navbar'
 import EmployeeSidebar from './EmployeeSideBar';
 import { Outlet } from 'react-router-dom';
+import Logout from '../../Components/Logout';
 
 const Employee = () => {
-    const [isLogout, setLogout] = useState(true);
+    const [isLogout, setLogout] = useState(false);
     
 
     
@@ -26,6 +27,7 @@ const Employee = () => {
         </span>
       </div>
 
+      {isLogout && <Logout isLogout={isLogout} setLogout={setLogout} />} 
 
     </div>
     </>

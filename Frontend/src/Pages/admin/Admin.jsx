@@ -8,28 +8,11 @@ import Logout from "../../Components/Logout";
 
 
 const Admin = () => {
-  const [cookies, setCookie, removeCookie] = useCookies(['authToken'])
+
   const [isLogout, setLogout] = useState(false);
   const navigate = useNavigate();
 
-  
-  const [user, setUser] = useState(null);
-  
-  
-  useEffect(()=>{
-    const token = cookies.authToken
-    if(token){
-      console.log(token)
-      
-    }
-    else{
-      navigate('/')
-    }
-  },[])
-
-
-  
-
+ 
   return (
     <div className='bg-[#efefef] h-screen relative'>
       <Navbar isLogout={isLogout} setLogout={setLogout}  />
