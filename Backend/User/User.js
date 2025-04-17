@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
     company: String,
     role: {
         type: String,
-        enum: ["admin", "user", "worker"]
+        enum: ["admin", "employee", "worker"]
     },
     isOwner: {
         type: Boolean,

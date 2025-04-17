@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast, Flip } from "react-toastify";
 import { loginUser } from "../api/LoginSignup";
-import { useCookies } from "react-cookie";  
+
 import { useNavigate } from "react-router-dom";
 
 const Signin = () => {
@@ -18,7 +18,7 @@ const Signin = () => {
   });
 
   const [show, setShow] = useState(false);
-  const [cookies, setCookie] = useCookies(["authToken"]);
+
   const navigate = useNavigate();
   
 
@@ -55,8 +55,12 @@ const Signin = () => {
         const response = await loginUser("auth/login", data);
   
         if (response.status === 200) {
-          const { token, message } = response.data;
-          setCookie("authToken", token, { path: "/", maxAge: 30 * 24 * 60 * 60 });
+          const { token, message, safeUser } = response.data;
+          
+
+          localStorage.setItem('token', token)
+          localStorage.setItem('userDetails', JSON.stringify(safeUser));
+
   
           toast.success(message || "Login successful", {
             theme: "light",
@@ -64,10 +68,13 @@ const Signin = () => {
           });
   
           setTimeout(() => {
-            navigate("/admin");
+            if(safeUser.role === 'admin'){
+              navigate("/admin")
+            }else{
+              navigate("/employee")
+            }
           }, 1000);
         } else {
-          // Should not hit here normally as axios throws on non-2xx
           throw new Error("Unexpected error");
         }
       } catch (err) {

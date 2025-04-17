@@ -83,12 +83,13 @@ const Signup = ({ isSignin, setSignin }) => {
           email: formData.email,
           password: formData.password,
           company: formData.company,
+          role: "admin",
+          isOwner: true
         };
 
-        console.log("done 3rd")
-
+      
         const response = await signupUser('auth/signup', data)
-        // console.log(response)
+      
 
         toast[response.show](response.message, {
           autoClose: 1000,

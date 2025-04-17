@@ -26,7 +26,7 @@ export const signupUser = async(route, data) => {
             withCredentials: true
         });
 
-        console.log(response.data)
+        // console.log(response.data)
         return response.data
         
     
@@ -38,6 +38,7 @@ export const loginUser = async (route, data) => {
     const response = await axios.post(URL, data, {
       withCredentials: true
     });
+    // console.log(response.data)
     return response;
   };
   

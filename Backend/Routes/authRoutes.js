@@ -27,7 +27,7 @@ router.post("/signup", validateSignup, async (req, res) => {
     }
 
     try {
-        const { username, email, password, company } = req.body;
+        const { username, email, password, company, role, isOwner } = req.body;
 
         // Check if email already exists
         const existingUser = await User.findOne({ email });
@@ -56,8 +56,8 @@ router.post("/signup", validateSignup, async (req, res) => {
             password: encryptedPassword,
             salt: salt,
             company: company,
-            role: "admin",
-            isOwner: true
+            role: role,
+            isOwner: isOwner
         }
 
         const user = new User(userData);
@@ -93,23 +93,20 @@ router.post("/login", validateLogin, async (req, res) => {
         }
 
         const token = jwt.sign({ email: user.email, id: user.id }, secretKey, {
-            expiresIn: "30d"
+            expiresIn: "1h"
         });
 
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: false,
-            sameSite: "strict",
-            maxAge: 30 * 24 * 60 * 60 * 1000
-        });
+        // res.cookie("token", token, {
+        //     httpOnly: true,
+        //     secure: false,
+        //     sameSite: "strict",
+        //     maxAge: 30 * 24 * 60 * 60 * 1000
+        // });
 
         const safeUser = {
+            id: user._id,
             username: user.username,
-            personalEmail: user.personalEmail,
-            phoneNumber: user.phoneNumber,
-            location: user.location,
             email: user.email,
-            company: user.company,
             role: user.role,
             isOwner: user.isOwner
         };
