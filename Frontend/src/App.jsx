@@ -9,7 +9,7 @@ const App = () => {
   const userDetails = JSON.parse(localStorage.getItem("userDetails"));
   const navigate = useNavigate();
 
-  // 🔁 Redirect if user is already authenticated
+ 
   useEffect(() => {
     if (token && userDetails) {
       if (userDetails.role === "admin") {
