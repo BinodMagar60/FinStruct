@@ -1,6 +1,6 @@
 import React from 'react';
 
-const UnauthorizedAccess = () => {
+const Unauthorized = () => {
   return (
     <div className="min-h-screen w-full bg-white flex flex-col items-center justify-center">
       <div className="w-full max-w-4xl px-4">
@@ -65,4 +65,4 @@ const UnauthorizedAccess = () => {
 
 
 
-export default UnauthorizedAccess
+export default Unauthorized

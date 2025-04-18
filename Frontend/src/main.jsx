@@ -26,6 +26,10 @@ import TodoList from "./Components/sidebar/TodoList";
 import CompletedList from "./Components/sidebar/CompletedList";
 import InprogreeList from "./Components/sidebar/InprogreeList";
 import TaskDetail from "./Components/TaskDetails/TaskDetail";
+import ProtectedRoute from "./utils/ProtectedRoute";
+import Unauthorized from './Pages/Unauthorized'
+
+
 
 
 
@@ -37,146 +41,173 @@ const router = createBrowserRouter([
   },
   {
     path: "/admin",
-    element: <Admin />,
+    element: <ProtectedRoute allowedRoles={['admin']}/>,
     errorElement: <NotFound />,
     children:[
       {
-        path:'dashboard',
-        element:<Dashboard/>
-      },
-      {
-        path: "salary",
-        element: <Salary/>
-      },
-      {
-        path: "user",
-        element: <User/>
-      },
-      {
-        path: "mail",
-        element: <Mails/>
-      },
-      {
-        path: "docs",
-        element: <Docs/>
-      },
-      {
-        path: "overview",
-        element: <Overview/>
-      },
-      {
-        path: "tasks",
-        element: <Tasks/>
-      },
-      {
-        path: "todo",
-        element: <TodoList/>
-      },
-      {
-        path: "inprogress",
-        element: <InprogreeList/>
-      },
-      {
-        path: "completed",
-        element: <CompletedList/>
-      },
-      {
-        path: "transaction",
-        element: <IncomeExpenses/>
-      },
-      {
-        path: "details",
-        element: <TaskDetail/>
+        path: "",
+        element: <Admin/>,
+        children: [
+          {
+            path:'dashboard',
+            element:<Dashboard/>
+          },
+          {
+            path: "salary",
+            element: <Salary/>
+          },
+          {
+            path: "user",
+            element: <User/>
+          },
+          {
+            path: "mail",
+            element: <Mails/>
+          },
+          {
+            path: "docs",
+            element: <Docs/>
+          },
+          {
+            path: "overview",
+            element: <Overview/>
+          },
+          {
+            path: "tasks",
+            element: <Tasks/>
+          },
+          {
+            path: "todo",
+            element: <TodoList/>
+          },
+          {
+            path: "inprogress",
+            element: <InprogreeList/>
+          },
+          {
+            path: "completed",
+            element: <CompletedList/>
+          },
+          {
+            path: "transaction",
+            element: <IncomeExpenses/>
+          },
+          {
+            path: "details",
+            element: <TaskDetail/>
+          }
+        ]
       }
+      
     ]
   },
   {
     path: "/admin/profile",
-    element: <Profile />,
+    element: <ProtectedRoute allowedRoles={['admin']}/>,
     errorElement: <NotFound />,
 
     children:[
       {
-        path: "setting",
-        element: <Setting/>
-      },
-      {
-        path: "profileuser",
-        element: <ProfileUser/>
-      },
-      {
-        path: "activity",
-        element: <Activity/>
+        path: "",
+        element: <Profile/>,
+        children: [
+          {
+            path: "setting",
+            element: <Setting/>
+          },
+          {
+            path: "profileuser",
+            element: <ProfileUser/>
+          },
+          {
+            path: "activity",
+            element: <Activity/>
+          }
+        ]
       }
     ]
   },
   {
     path: "/employee",
-    element: <Employee />,
+    element: <ProtectedRoute allowedRoles={['employee']}/>,
     errorElement: <NotFound />,
     children:[
-      
       {
-        path: "user",
-        element: <EmployeeUser/>
-      },
-      {
-        path: "mail",
-        element: <Mails/>
-      },
-      {
-        path: "docs",
-        element: <Docs/>
-      },
-      {
-        path: "overview",
-        element: <Overview/>
-      },
-      {
-        path: "tasks",
-        element: <Tasks/>
-      },
-      {
-        path: "todo",
-        element: <TodoList/>
-      },
-      {
-        path: "inprogress",
-        element: <InprogreeList/>
-      },
-      {
-        path: "completed",
-        element: <CompletedList/>
-      },
-      {
-        path: "transaction",
-        element: <IncomeExpenses/>
-      },
-      {
-        path: "details",
-        element: <TaskDetail/>
-      }
+        path: "",
+        element: <Employee/>,
+        children: [
+          {
+            path: "user",
+            element: <EmployeeUser/>
+          },
+          {
+            path: "mail",
+            element: <Mails/>
+          },
+          {
+            path: "docs",
+            element: <Docs/>
+          },
+          {
+            path: "overview",
+            element: <Overview/>
+          },
+          {
+            path: "tasks",
+            element: <Tasks/>
+          },
+          {
+            path: "todo",
+            element: <TodoList/>
+          },
+          {
+            path: "inprogress",
+            element: <InprogreeList/>
+          },
+          {
+            path: "completed",
+            element: <CompletedList/>
+          },
+          {
+            path: "transaction",
+            element: <IncomeExpenses/>
+          },
+          {
+            path: "details",
+            element: <TaskDetail/>
+          }
+        ]
+      } 
     ]
   },
   {
     path: "/employee/profile",
-    element: <Profile />,
+    element: <ProtectedRoute allowedRoles={['employee']}/>,
     errorElement: <NotFound />,
 
     children:[
       {
-        path: "setting",
-        element: <Setting/>
-      },
-      {
-        path: "profileuser",
-        element: <ProfileUser/>
-      },
-      {
-        path: "activity",
-        element: <Activity/>
+        path: "",
+        element: <Profile/>,
+        children: [
+          {
+            path: "setting",
+            element: <Setting/>
+          },
+          {
+            path: "profileuser",
+            element: <ProfileUser/>
+          },
+          {
+            path: "activity",
+            element: <Activity/>
+          }
+        ]
       }
     ]
+  },{
+    path: "/unauthorized",
+    element: <Unauthorized/>
   }
  
 ]);
