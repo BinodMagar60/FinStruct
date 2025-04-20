@@ -45,8 +45,8 @@ export default function Overview() {
       onHold: 4,
       toDo: 12,
       priority: {
-        high: 8,
-        medium: 14,
+        high: 37,
+        medium: 25,
         low: 17,
       },
     },
@@ -72,6 +72,23 @@ export default function Overview() {
         { month: "Apr", income: 7000, expenses: 2000 },
         { month: "May", income: 7500, expenses: 1800 },
         { month: "Jun", income: 8000, expenses: 1250 },
+        { month: "Jun", income: 8000, expenses: 1250 },
+        { month: "Jun", income: 8000, expenses: 1250 },
+        { month: "Jun", income: 8000, expenses: 1250 },
+        { month: "Jun", income: 8000, expenses: 1250 },
+        { month: "Jun", income: 8000, expenses: 1250 },
+        { month: "Jun", income: 8000, expenses: 1250 },
+        { month: "Jun", income: 8000, expenses: 1250 },
+        { month: "Jun", income: 8000, expenses: 1250 },
+        { month: "Jun", income: 8000, expenses: 1250 },
+        { month: "Jun", income: 8000, expenses: 1250 },
+        { month: "Jun", income: 8000, expenses: 1250 },
+        { month: "Jun", income: 8000, expenses: 1250 },
+        { month: "Jun", income: 8000, expenses: 1250 },
+        { month: "Jun", income: 8000, expenses: 1250 },
+        { month: "Jun", income: 8000, expenses: 1250 },
+        { month: "Jun", income: 8000, expenses: 1250 },
+
       ],
       expenseCategories: [
         { name: "Materials", value: 2800, color: "#4285F4" },
@@ -135,33 +152,34 @@ export default function Overview() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+   <div className="p-6">
+     <div className="container mx-auto p-4 bg-white pb-8 rounded">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Project Overview</h1>
-        <p className="text-gray-500">Dashboard and statistics</p>
+        <h1 className="text-2xl font-bold ">Project Overview</h1>
+       
       </div>
 
       {/* Task Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <div className="rounded-xl border border-gray-100 shadow-md p-6 transition-all hover:shadow-lg bg-blue-50">
+        <div className="rounded-xl border border-gray-100 p-6 transition-all bg-blue-50">
           <p className="text-blue-600 text-sm font-medium mb-3">Total Tasks</p>
           <h2 className="text-4xl font-bold text-gray-800 mb-1">{data.tasks.total}</h2>
           <p className="text-gray-500 text-xs">All project tasks</p>
         </div>
 
-        <div className="rounded-xl border border-gray-100 shadow-md p-6 transition-all hover:shadow-lg bg-green-50">
+        <div className="rounded-xl border border-gray-100 p-6 transition-all bg-green-50">
           <p className="text-green-600 text-sm font-medium mb-3">Completed Tasks</p>
           <h2 className="text-4xl font-bold text-gray-800 mb-1">{data.tasks.completed}</h2>
           <p className="text-gray-500 text-xs">Tasks finished successfully</p>
         </div>
 
-        <div className="rounded-xl border border-gray-100 shadow-md p-6 transition-all hover:shadow-lg bg-orange-50">
+        <div className="rounded-xl border border-gray-100 p-6 transition-all bg-orange-50">
           <p className="text-orange-600 text-sm font-medium mb-3">In Progress</p>
           <h2 className="text-4xl font-bold text-gray-800 mb-1">{data.tasks.inProgress}</h2>
           <p className="text-gray-500 text-xs">Tasks currently active</p>
         </div>
 
-        <div className="rounded-xl border border-gray-100 shadow-md p-6 transition-all hover:shadow-lg bg-red-50">
+        <div className="rounded-xl border border-gray-100 p-6 transition-all bg-red-50">
           <p className="text-red-600 text-sm font-medium mb-3">On Hold</p>
           <h2 className="text-4xl font-bold text-gray-800 mb-1">{data.tasks.onHold}</h2>
           <p className="text-gray-500 text-xs">Tasks temporarily paused</p>
@@ -172,7 +190,7 @@ export default function Overview() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Task Distribution Chart */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold mb-4">Task Distribution</h2>
+          <h2 className="text-lg font-semibold mb-4">Task Status</h2>
           <div className="h-64 flex items-center">
             <div style={chartContainerStyle}>
               <ResponsiveContainer width="100%" height="100%">
@@ -225,17 +243,17 @@ export default function Overview() {
               <span className="text-sm font-medium text-gray-700">{data.projects.completion}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2.5">
-              <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${data.projects.completion}%` }}></div>
+              <div className="bg-black h-2.5 rounded-full" style={{ width: `${data.projects.completion}%` }}></div>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 mt-6">
             <div className="border border-gray-200 rounded-lg p-4">
               <p className="text-gray-500 text-sm">Status</p>
-              <p className="font-semibold text-blue-600">{data.projects.status}</p>
+              <p className="font-semibold text-black">{data.projects.status}</p>
             </div>
             <div className="border border-gray-200 rounded-lg p-4">
               <p className="text-gray-500 text-sm">Days Left</p>
-              <p className="font-semibold text-blue-600">{data.projects.daysLeft}</p>
+              <p className="font-semibold text-black">{data.projects.daysLeft}</p>
             </div>
           </div>
         </div>
@@ -285,77 +303,22 @@ export default function Overview() {
             <div className="bg-blue-50 rounded-lg p-4">
               <p className="text-blue-600 text-sm font-medium">Total Income</p>
               <p className="text-3xl font-bold text-gray-800 mt-1">${data.finances.totalIncome.toLocaleString()}</p>
-              <div className="flex items-center text-sm mt-1">
-                <span
-                  className={`flex items-center ${data.finances.incomeGrowth >= 0 ? "text-green-500" : "text-red-500"}`}
-                >
-                  {data.finances.incomeGrowth >= 0 ? (
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                  ) : (
-                    <TrendingDown className="h-3 w-3 mr-1" />
-                  )}
-                  {data.finances.incomeGrowth >= 0 ? "+" : ""}
-                  {data.finances.incomeGrowth}%
-                </span>
-                <span className="text-gray-500 ml-1">from last month</span>
-              </div>
+              
             </div>
 
             <div className="bg-red-50 rounded-lg p-4">
               <p className="text-red-500 text-sm font-medium">Total Expenses</p>
               <p className="text-3xl font-bold text-gray-800 mt-1">${data.finances.totalExpenses.toLocaleString()}</p>
-              <div className="flex items-center text-sm mt-1">
-                <span
-                  className={`flex items-center ${data.finances.expensesGrowth <= 0 ? "text-green-500" : "text-red-500"}`}
-                >
-                  {data.finances.expensesGrowth <= 0 ? (
-                    <TrendingDown className="h-3 w-3 mr-1" />
-                  ) : (
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                  )}
-                  {data.finances.expensesGrowth >= 0 ? "+" : ""}
-                  {data.finances.expensesGrowth}%
-                </span>
-                <span className="text-gray-500 ml-1">from last month</span>
-              </div>
             </div>
 
             <div className="bg-green-50 rounded-lg p-4">
               <p className="text-green-600 text-sm font-medium">Balance</p>
               <p className="text-3xl font-bold text-gray-800 mt-1">${data.finances.balance.toLocaleString()}</p>
-              <div className="flex items-center text-sm mt-1">
-                <span
-                  className={`flex items-center ${data.finances.balanceGrowth >= 0 ? "text-green-500" : "text-red-500"}`}
-                >
-                  {data.finances.balanceGrowth >= 0 ? (
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                  ) : (
-                    <TrendingDown className="h-3 w-3 mr-1" />
-                  )}
-                  {data.finances.balanceGrowth >= 0 ? "+" : ""}
-                  {data.finances.balanceGrowth}%
-                </span>
-                <span className="text-gray-500 ml-1">from last month</span>
-              </div>
             </div>
 
             <div className="bg-purple-50 rounded-lg p-4">
               <p className="text-purple-600 text-sm font-medium">Profit Margin</p>
               <p className="text-3xl font-bold text-gray-800 mt-1">{data.finances.profitMargin}%</p>
-              <div className="flex items-center text-sm mt-1">
-                <span
-                  className={`flex items-center ${data.finances.profitMarginGrowth >= 0 ? "text-green-500" : "text-red-500"}`}
-                >
-                  {data.finances.profitMarginGrowth >= 0 ? (
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                  ) : (
-                    <TrendingDown className="h-3 w-3 mr-1" />
-                  )}
-                  {data.finances.profitMarginGrowth >= 0 ? "+" : ""}
-                  {data.finances.profitMarginGrowth}%
-                </span>
-                <span className="text-gray-500 ml-1">from last month</span>
-              </div>
             </div>
           </div>
 
@@ -575,5 +538,6 @@ export default function Overview() {
         </div>
       </div>
     </div>
+   </div>
   )
 }
