@@ -33,6 +33,19 @@ const Navbar = ({ isLogout, setLogout}) => {
   const profile = isAdmin? profileSidebarAdmin : profileSidebarEmployee;
 
 
+  useEffect(()=> {
+    
+    const user = JSON.parse(localStorage.getItem("userDetails"));
+
+    if(user.role === "admin"){
+      setIsAdmin(true)
+    }
+    else{
+      setIsAdmin(false)
+    }
+
+  })
+
   const [notifications, setNotifications] = useState([
     {
       id: 1,
