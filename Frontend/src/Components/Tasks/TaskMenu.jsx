@@ -1,10 +1,14 @@
 import { useEffect, useRef } from "react"
 import { Edit, Plus, Copy, Trash2, ExternalLink } from "lucide-react"
+import { Link } from "react-router-dom"
 
 const TaskMenu = ({ onEdit, onDelete, onClose }) => {
   const menuRef = useRef(null)
-
+  const user = JSON.parse(localStorage.getItem("userDetails"));
   useEffect(() => {
+
+  
+
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         onClose()
@@ -25,17 +29,19 @@ const TaskMenu = ({ onEdit, onDelete, onClose }) => {
     >
       <ul className="py-1">
         <li>
+        <Link to={user.role=== 'admin'? '/admin/details': "/employee/details"}>
           <button
-            onClick={(e) => {
-              e.stopPropagation()
-              onClose()
-              // Open task implementation would go here
-            }}
+            // onClick={(e) => {
+            //   e.stopPropagation()
+            //   onClose()
+            //   // Open task implementation would go here
+            // }}
             className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
           >
             <ExternalLink size={14} />
             Open Task
           </button>
+          </Link>
         </li>
         <li>
           <button

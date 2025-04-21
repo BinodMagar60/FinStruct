@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 
 const IncomeExpenses = () => {
+
+  const user = JSON.parse(localStorage.getItem("userDetails"));
+
   const [transactions, setTransactions] = useState([
     { id: 1, type: 'income', category: 'Client Payment', amount: 25000, date: '2025-03-15', description: 'First milestone payment', status: 'approved', requestedBy: 'Default User', approvedBy: 'Default Admin' },
     { id: 2, type: 'expense', category: 'Materials', amount: 8750, date: '2025-03-18', description: 'Concrete and steel', status: 'approved', requestedBy: 'Default User', approvedBy: 'Default Admin' },
@@ -144,7 +147,9 @@ const IncomeExpenses = () => {
       <h1 className="text-2xl font-bold mb-6">Income/Expenses</h1>
       
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      {
+        user.role === 'admin' && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-blue-50 p-4 rounded-lg">
           <h3 className="text-sm font-medium text-blue-600 mb-1">Total Income</h3>
           <p className="text-2xl font-bold text-blue-700">{formatCurrency(getTotalIncome())}</p>
@@ -160,6 +165,8 @@ const IncomeExpenses = () => {
           </p>
         </div>
       </div>
+        )
+      }
       
       {/* Transaction Form */}
       <div className="bg-gray-50 p-4 rounded-lg mb-6">
@@ -247,6 +254,7 @@ const IncomeExpenses = () => {
                 onChange={handleChange}
                 placeholder="Add a description"
                 className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm outline-none"
+                required
               />
             </div>
           </div>
@@ -261,7 +269,8 @@ const IncomeExpenses = () => {
       </div>
       
       {/* Pending Approval Transactions */}
-      <div className="bg-gray-50 p-4 rounded-lg mb-6">
+      {
+        user.role === 'admin' && <div className="bg-gray-50 p-4 rounded-lg mb-6">
         <h2 className="text-lg font-semibold mb-4">Transactions Pending Approval</h2>
         {getPendingTransactions().length === 0 ? (
           <p className="text-gray-500 text-center py-4">No transactions pending approval.</p>
@@ -318,6 +327,7 @@ const IncomeExpenses = () => {
         )}
       </div>
       
+      }
       {/* Transaction List */}
       <div>
         <h2 className="text-lg font-semibold mb-4">Recent Transactions</h2>
