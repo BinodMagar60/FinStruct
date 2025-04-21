@@ -14,7 +14,6 @@ import {
   AreaChart,
   Area,
 } from "./ui/chart"
-import { TrendingUp, TrendingDown } from "lucide-react"
 
 // Add this after the imports
 const chartContainerStyle = {
@@ -23,9 +22,9 @@ const chartContainerStyle = {
   height: "100%",
 }
 
-// Add CSS to prevent focus/active styling on chart elements
+//stylin for piechart (css)
 const pieChartStyle = {
-  pointerEvents: "all", // Allow tooltip interactions
+  pointerEvents: "all", 
   outline: "none",
   userSelect: "none",
 }
@@ -36,7 +35,7 @@ const calculateTotal = (data) => {
 }
 
 export default function Overview() {
-  // Sample data - in a real app, this would come from an API
+  //sample data for noww
   const [data, setData] = useState({
     tasks: {
       total: 39,
@@ -51,8 +50,8 @@ export default function Overview() {
       },
     },
     projects: {
-      status: "In Progress", // "Not Started", "In Progress", "Completed"
-      completion: 65, // percentage
+      status: "In Progress", 
+      completion: 65, // in percentage
       deadline: "2023-12-31",
       daysLeft: 45,
     },
@@ -118,7 +117,7 @@ export default function Overview() {
     },
   })
 
-  // Task status data for pie chart
+  // pie chart status datas
   const taskStatusData = [
     { name: "To Do", value: data.tasks.toDo, color: "#4285F4" },
     { name: "In Progress", value: data.tasks.inProgress, color: "#FF6D01" },
@@ -126,7 +125,7 @@ export default function Overview() {
     { name: "On Hold", value: data.tasks.onHold, color: "#EA4335" },
   ]
 
-  // Task priority data for bar chart
+  // for priority chart
   const taskPriorityData = [
     { priority: "High", tasks: data.tasks.priority.high, color: "#EA4335" },
     { priority: "Medium", tasks: data.tasks.priority.medium, color: "#FF6D01" },
@@ -143,7 +142,7 @@ export default function Overview() {
           <li key={`item-${index}`} className="flex items-center">
             <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: entry.color }} />
             <span className="text-sm">
-              {entry.payload.name} {entry.payload.value}
+              {entry.payload.name}: ${entry.payload.value}
             </span>
           </li>
         ))}
@@ -159,7 +158,7 @@ export default function Overview() {
        
       </div>
 
-      {/* Task Statistics */}
+      {/* Top part */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <div className="rounded-xl border border-gray-100 p-6 transition-all bg-blue-50">
           <p className="text-blue-600 text-sm font-medium mb-3">Total Tasks</p>
@@ -186,9 +185,8 @@ export default function Overview() {
         </div>
       </div>
 
-      {/* Charts Row */}
+        {/* Task Status */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* Task Distribution Chart */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold mb-4">Task Status</h2>
           <div className="h-64 flex items-center">
@@ -294,9 +292,9 @@ export default function Overview() {
         </div>
       </div>
 
-      {/* Financial Summary */}
+      {/* Financial Part*/}
       <div className="flex flex-col gap-6 mb-6">
-        {/* Budget Overview */}
+        {/* Budget Part*/}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold mb-4">Financial Summary</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -323,7 +321,7 @@ export default function Overview() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Expense Categories */}
+            {/* Expense Pie chart*/}
             <div className="bg-white rounded-lg shadow border border-gray-100 p-6">
               <h3 className="text-md font-semibold mb-4">Expense Categories</h3>
               <div className="h-80">
@@ -362,33 +360,14 @@ export default function Overview() {
                           />
                         ))}
                       </Pie>
-                      <Legend
-                        layout="vertical"
-                        verticalAlign="middle"
-                        align="right"
-                        content={(props) => {
-                          const { payload } = props
-                          return (
-                            <ul className="flex flex-col gap-1 list-none pl-0 text-xs">
-                              {payload.map((entry, index) => (
-                                <li key={`item-${index}`} className="flex items-center">
-                                  <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: entry.color }} />
-                                  <span>
-                                    {entry.payload.name} ${entry.payload.value}
-                                  </span>
-                                </li>
-                              ))}
-                            </ul>
-                          )
-                        }}
-                      />
+                      <Legend layout="vertical" verticalAlign="middle" align="right" content={renderCustomLegend} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
               </div>
             </div>
 
-            {/* Income Categories */}
+            {/* Income pie chart*/}
             <div className="bg-white rounded-lg shadow border border-gray-100 p-6">
               <h3 className="text-md font-semibold mb-4">Income Categories</h3>
               <div className="h-80">
@@ -427,26 +406,7 @@ export default function Overview() {
                           />
                         ))}
                       </Pie>
-                      <Legend
-                        layout="vertical"
-                        verticalAlign="middle"
-                        align="right"
-                        content={(props) => {
-                          const { payload } = props
-                          return (
-                            <ul className="flex flex-col gap-1 list-none pl-0 text-xs">
-                              {payload.map((entry, index) => (
-                                <li key={`item-${index}`} className="flex items-center">
-                                  <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: entry.color }} />
-                                  <span>
-                                    {entry.payload.name} ${entry.payload.value}
-                                  </span>
-                                </li>
-                              ))}
-                            </ul>
-                          )
-                        }}
-                      />
+                    <Legend layout="vertical" verticalAlign="middle" align="right" content={renderCustomLegend} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
@@ -455,7 +415,7 @@ export default function Overview() {
           </div>
         </div>
 
-        {/* Monthly Income & Expenses */}
+        {/* Monthly Income/Expenses bargraph*/}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold mb-4">Monthly Income & Expenses</h2>
           <div className="h-64">
@@ -489,7 +449,7 @@ export default function Overview() {
         </div>
       </div>
 
-      {/* Income & Expenses Trend */}
+      {/* Income/expense graph chart*/}
       <div className="bg-white rounded-lg shadow p-6 mb-6">
         <h2 className="text-lg font-semibold mb-4">Income & Expenses Trend</h2>
         <div className="h-64">
