@@ -33,3 +33,12 @@ app.use("/auth", authRoutes);
 // Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
+
+// for the user and the worker
+const userRoutes = require("./Routes/userRoutes");
+const workerRoutes = require("./Routes/workerRoutes");
+
+app.use("/api/users", userRoutes);
+app.use("/api/workers", workerRoutes);
