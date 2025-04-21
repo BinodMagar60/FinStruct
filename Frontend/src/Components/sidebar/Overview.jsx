@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   BarChart,
   Bar,
@@ -35,6 +35,8 @@ const calculateTotal = (data) => {
 }
 
 export default function Overview() {
+
+    const user = JSON.parse(localStorage.getItem("userDetails"));
   //sample data for noww
   const [data, setData] = useState({
     tasks: {
@@ -293,7 +295,9 @@ export default function Overview() {
       </div>
 
       {/* Financial Part*/}
-      <div className="flex flex-col gap-6 mb-6">
+      {
+        user.role === 'admin' && (
+            <div className="flex flex-col gap-6 mb-6">
         {/* Budget Part*/}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold mb-4">Financial Summary</h2>
@@ -448,9 +452,13 @@ export default function Overview() {
           </div>
         </div>
       </div>
+        )
+      }
 
       {/* Income/expense graph chart*/}
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
+      {
+        user.role === 'admin' && (
+            <div className="bg-white rounded-lg shadow p-6 mb-6">
         <h2 className="text-lg font-semibold mb-4">Income & Expenses Trend</h2>
         <div className="h-64">
           <div style={chartContainerStyle}>
@@ -497,6 +505,8 @@ export default function Overview() {
           </div>
         </div>
       </div>
+        )
+      }
     </div>
    </div>
   )

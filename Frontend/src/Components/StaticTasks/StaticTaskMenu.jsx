@@ -1,10 +1,11 @@
 import { useEffect, useRef } from "react"
-import { Edit, Plus, Copy, Trash2, ExternalLink} from "lucide-react"
+import { Edit, Trash2, ExternalLink} from "lucide-react"
 import { Link } from "react-router-dom"
 
 const StaticTaskMenu = ({ onEdit, onDelete, onClose }) => {
   const menuRef = useRef(null)
-
+  const user = JSON.parse(localStorage.getItem("userDetails"));
+  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -26,7 +27,7 @@ const StaticTaskMenu = ({ onEdit, onDelete, onClose }) => {
     >
       <ul className="py-1">
         <li>
-          <Link to="/admin/details">
+          <Link to={user.role=== 'admin'? '/admin/details': "/employee/details"}>
           <button
             // onClick={(e) => {
             //   e.stopPropagation()
