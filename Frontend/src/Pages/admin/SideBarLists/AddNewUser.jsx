@@ -62,7 +62,7 @@ const AddNewUser = ({ isAddUser, setIsAddUser }) => {
       const data = await response.json();
       console.log("Response:", data);
 
-      // Clear the form after submission
+      // Clears the form
       setFormData({ fullName: "", email: "", phone: "", role: "" });
       setIsChecked(false);
     } catch (error) {
