@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Edit2, Trash2, ArrowUp, ArrowDown, X, Save, Users, User } from 'lucide-react';
+import { Search, Edit2, Trash2, ArrowUp, ArrowDown, X, Save, Users, User, PlusCircle } from 'lucide-react';
 
 const Salary = () => {
   // State for roles and default salaries
   const [roles, setRoles] = useState([
-    { id: 1, title: 'Developer', defaultSalary: 85000 },
-    { id: 2, title: 'Designer', defaultSalary: 75000 },
-    { id: 3, title: 'Analyst', defaultSalary: 70000 },
-    { id: 4, title: 'Manager', defaultSalary: 95000 }
+    { id: 1, title: 'Developer', defaultSalary: 85000, type: 'Worker' },
+    { id: 2, title: 'Designer', defaultSalary: 75000, type: 'Worker' },
+    { id: 3, title: 'Analyst', defaultSalary: 70000, type: 'Worker' },
+    { id: 4, title: 'Manager', defaultSalary: 95000, type: 'User' }
   ]);
 
   // State for employees with individual salaries
@@ -29,9 +29,11 @@ const Salary = () => {
   const [currentRole, setCurrentRole] = useState(null);
   const [currentEmployee, setCurrentEmployee] = useState(null);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
+  const [filteredRoles, setFilteredRoles] = useState([]);
+  const [activeRoleType, setActiveRoleType] = useState('User');
 
   // State for new/edited role and employee
-  const [editedRole, setEditedRole] = useState({ title: '', defaultSalary: 0 });
+  const [editedRole, setEditedRole] = useState({ title: '', defaultSalary: 0, type: 'User' });
   const [editedEmployee, setEditedEmployee] = useState({ 
     name: '', 
     role: '', 
@@ -77,6 +79,35 @@ const Salary = () => {
     setFilteredEmployees(filtered);
   }, [employees, searchTerm, sortBy, sortOrder]);
 
+  // Filter and sort roles
+  useEffect(() => {
+    let filtered = [...roles];
+    
+    // Apply sorting to roles
+    filtered.sort((a, b) => {
+      let aValue = a[sortBy === 'title' ? 'title' : 'defaultSalary'];
+      let bValue = b[sortBy === 'title' ? 'title' : 'defaultSalary'];
+      
+      // Special case for defaultSalary - parse as number
+      if (sortBy === 'defaultSalary') {
+        aValue = parseFloat(aValue);
+        bValue = parseFloat(bValue);
+      }
+      
+      // Sort string values
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return sortOrder === 'asc' 
+          ? aValue.localeCompare(bValue) 
+          : bValue.localeCompare(aValue);
+      }
+      
+      // Sort numeric values
+      return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+    });
+    
+    setFilteredRoles(filtered);
+  }, [roles, sortBy, sortOrder]);
+
   // Handle sort column click
   const handleSort = (column) => {
     if (sortBy === column) {
@@ -99,13 +130,20 @@ const Salary = () => {
     return null;
   };
 
-  // Open role modal for edit only
-  const handleRoleModal = (role) => {
+  // Open role modal for add or edit
+  const handleRoleModal = (role = null) => {
     if (role) {
+      // Edit existing role
       setCurrentRole(role);
       setEditedRole({ ...role });
-      setShowRoleModal(true);
+      setActiveRoleType(role.type);
+    } else {
+      // Add new role
+      setCurrentRole(null);
+      setEditedRole({ title: '', defaultSalary: 0, type: 'User' });
+      setActiveRoleType('User');
     }
+    setShowRoleModal(true);
   };
 
   // Open employee modal for edit only
@@ -148,22 +186,42 @@ const Salary = () => {
     }
   };
 
+  // Set role type based on tab selection
+  const handleRoleTypeChange = (type) => {
+    setActiveRoleType(type);
+    setEditedRole({
+      ...editedRole,
+      type: type
+    });
+  };
+
   // Save role changes
   const saveRole = () => {
     if (!editedRole.title) return;
     
-    // Update existing role
-    setRoles(roles.map(r => r.id === currentRole.id ? { ...editedRole, id: currentRole.id } : r));
+    const roleWithType = {
+      ...editedRole,
+      type: activeRoleType
+    };
     
-    // Update employees with this role to use the new default salary
-    // Only if their salary matches the old default (hasn't been customized)
-    const oldDefaultSalary = currentRole.defaultSalary;
-    setEmployees(employees.map(emp => {
-      if (emp.role === currentRole.title && emp.salary === oldDefaultSalary) {
-        return { ...emp, salary: editedRole.defaultSalary };
-      }
-      return emp;
-    }));
+    if (currentRole) {
+      // Update existing role
+      setRoles(roles.map(r => r.id === currentRole.id ? { ...roleWithType, id: currentRole.id } : r));
+      
+      // Update employees with this role to use the new default salary
+      // Only if their salary matches the old default (hasn't been customized)
+      const oldDefaultSalary = currentRole.defaultSalary;
+      setEmployees(employees.map(emp => {
+        if (emp.role === currentRole.title && emp.salary === oldDefaultSalary) {
+          return { ...emp, salary: roleWithType.defaultSalary };
+        }
+        return emp;
+      }));
+    } else {
+      // Add new role
+      const newRoleId = Math.max(...roles.map(r => r.id), 0) + 1;
+      setRoles([...roles, { ...roleWithType, id: newRoleId }]);
+    }
     
     setShowRoleModal(false);
   };
@@ -205,45 +263,52 @@ const Salary = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-gray-100">
       <div className="container mx-auto bg-white rounded shadow-md p-4 pb-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Salary Management</h1>
           
           {activeTab === "employees" && (
             <div className="flex items-center space-x-4 mr-10">
-            <form className="flex w-64">
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none"
-              />
-              <button 
-                type="button" 
-                className="bg-black text-white cursor-pointer hover:bg-gray-800 py-2 px-4 rounded-r-md focus:outline-none"
-              >
-                <Search size={18} />
-              </button>
-            </form>
-          </div>
-        
+              <form className="flex w-64">
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none"
+                />
+                <button 
+                  type="button" 
+                  className="bg-black text-white cursor-pointer hover:bg-gray-800 py-2 px-4 rounded-r-md focus:outline-none"
+                >
+                  <Search size={18} />
+                </button>
+              </form>
+            </div>
           )}
 
-          </div>
+          {activeTab === "roles" && (
+            <button 
+              onClick={() => handleRoleModal()}
+              className="flex items-center bg-black hover:bg-gray-800 text-white py-2 px-4 rounded-md"
+            >
+              <PlusCircle size={18} className="mr-2" /> Add New Role
+            </button>
+          )}
+        </div>
 
         {/* Tabs */}
         <div className="mb-6">
           <div className="flex border-b border-gray-200">
             <button
-              className={`py-2 px-6 flex items-center ${activeTab === 'employees' ? 'border-b-2 text-black font-medium shadow-inner bg-gray-50' : 'text-gray-500'} focus:outline-none`}
+              className={`py-2 px-6 flex items-center ${activeTab === 'employees' ? 'border-b-2 border-black text-black font-medium shadow-inner bg-gray-50' : 'text-gray-500'} focus:outline-none`}
               onClick={() => setActiveTab('employees')}
             >
               <User size={18} className="mr-2" /> Employees
             </button>
             <button
-              className={`py-2 px-6 flex items-center ${activeTab === 'roles' ? 'border-b-2 text-black font-medium shadow-inner bg-gray-50' : 'text-gray-500'} focus:outline-none`}
+              className={`py-2 px-6 flex items-center ${activeTab === 'roles' ? 'border-b-2 border-black text-black font-medium shadow-inner bg-gray-50' : 'text-gray-500'} focus:outline-none`}
               onClick={() => setActiveTab('roles')}
             >
               <Users size={18} className="mr-2" /> Roles & Default Salaries
@@ -301,13 +366,13 @@ const Salary = () => {
                     </div>
                     <div className="col-span-1 text-right flex justify-end gap-5">
                       <button
-                        className="text-blue-600 mr-3 cursor-pointer focus:outline-none"
+                        className="text-blue-700 mr-3 cursor-pointer focus:outline-none"
                         onClick={() => handleEmployeeModal(employee)}
                       >
                         <Edit2 size={16} />
                       </button>
                       <button
-                        className="text-red-600 cursor-pointer focus:outline-none"
+                        className="text-red-700 cursor-pointer focus:outline-none"
                         onClick={() => deleteEmployee(employee.id)}
                       >
                         <Trash2 size={16} />
@@ -325,7 +390,7 @@ const Salary = () => {
         {/* Roles Table */}
         {activeTab === 'roles' && (
           <div className="bg-white shadow-md rounded-md overflow-hidden">
-            <div className="grid grid-cols-4 gap-4 p-4 border-b border-gray-200 font-medium">
+            <div className="grid grid-cols-5 gap-4 p-4 border-b border-gray-200 font-medium">
               <div 
                 className="col-span-1 cursor-pointer flex items-center" 
                 onClick={() => handleSort('title')}
@@ -338,22 +403,28 @@ const Salary = () => {
               >
                 Default Salary <SortIcon column="defaultSalary" />
               </div>
+              <div className="col-span-1">Type</div>
               <div className="col-span-1 text-right">Actions</div>
             </div>
             
-            {roles.map(role => (
-              <div key={role.id} className="grid grid-cols-4 gap-4 p-4 border-b border-gray-200 hover:bg-gray-50">
+            {filteredRoles.map(role => (
+              <div key={role.id} className="grid grid-cols-5 gap-4 p-4 border-b border-gray-200 hover:bg-gray-50">
                 <div className="col-span-1">{role.title}</div>
                 <div className="col-span-2">{formatCurrency(role.defaultSalary)}</div>
-                <div className="col-span-1 text-right">
+                <div className="col-span-1">
+                  <span className={`px-2 py-1 text-xs font-medium rounded ${role.type === 'User' ? 'bg-gray-200' : 'bg-black text-white'}`}>
+                    {role.type}
+                  </span>
+                </div>
+                <div className="col-span-1 text-right flex justify-end gap-5">
                   <button
-                    className="text-blue-600 mr-3 cursor-pointer focus:outline-none"
+                    className="text-blue-700 mr-3 cursor-pointer focus:outline-none"
                     onClick={() => handleRoleModal(role)}
                   >
                     <Edit2 size={16} />
                   </button>
                   <button
-                    className="text-red-600 cursor-pointer focus:outline-none"
+                    className="text-red-700 cursor-pointer focus:outline-none"
                     onClick={() => deleteRole(role.id)}
                   >
                     <Trash2 size={16} />
@@ -370,9 +441,27 @@ const Salary = () => {
         <div className="fixed inset-0 bg-[#7e7e7e50] bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-96">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Edit Role</h2>
+              <h2 className="text-lg font-semibold">
+                {currentRole ? 'Edit Role' : 'Add New Role'}
+              </h2>
               <button onClick={() => setShowRoleModal(false)} className="text-gray-500 hover:text-gray-700">
                 <X size={20} />
+              </button>
+            </div>
+            
+            {/* Role Type Tabs */}
+            <div className="flex border-b border-gray-200 mb-4">
+              <button
+                className={`py-2 px-4 ${activeRoleType === 'User' ? 'border-b-2 border-black font-medium text-black' : 'text-gray-500'}`}
+                onClick={() => handleRoleTypeChange('User')}
+              >
+                User
+              </button>
+              <button
+                className={`py-2 px-4 ${activeRoleType === 'Worker' ? 'border-b-2 border-black font-medium text-black' : 'text-gray-500'}`}
+                onClick={() => handleRoleTypeChange('Worker')}
+              >
+                Worker
               </button>
             </div>
             
@@ -383,7 +472,7 @@ const Salary = () => {
                 name="title"
                 value={editedRole.title}
                 onChange={handleRoleChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-black"
                 placeholder="e.g. Developer"
               />
             </div>
@@ -395,7 +484,7 @@ const Salary = () => {
                 name="defaultSalary"
                 value={editedRole.defaultSalary}
                 onChange={handleRoleChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-black"
                 placeholder="e.g. 75000"
                 min="0"
                 step="1000"
@@ -410,10 +499,10 @@ const Salary = () => {
                 Cancel
               </button>
               <button 
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
+                className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 flex items-center"
                 onClick={saveRole}
               >
-                <Save size={16} className="mr-2" /> Save
+                Save
               </button>
             </div>
           </div>
@@ -438,7 +527,7 @@ const Salary = () => {
                 name="name"
                 value={editedEmployee.name}
                 onChange={handleEmployeeChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-black"
                 placeholder="e.g. John Doe"
               />
             </div>
@@ -450,7 +539,7 @@ const Salary = () => {
                 name="email"
                 value={editedEmployee.email}
                 onChange={handleEmployeeChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-black"
                 placeholder="e.g. john@finstruct.com"
               />
             </div>
@@ -461,11 +550,11 @@ const Salary = () => {
                 name="role"
                 value={editedEmployee.role}
                 onChange={handleEmployeeChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-black"
               >
                 {roles.map(role => (
                   <option key={role.id} value={role.title}>
-                    {role.title} ({formatCurrency(role.defaultSalary)})
+                    {role.title} ({formatCurrency(role.defaultSalary)}) - {role.type}
                   </option>
                 ))}
               </select>
@@ -478,7 +567,7 @@ const Salary = () => {
                 name="salary"
                 value={editedEmployee.salary}
                 onChange={handleEmployeeChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-black"
                 min="0"
                 step="1000"
               />
@@ -492,10 +581,10 @@ const Salary = () => {
                 Cancel
               </button>
               <button 
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
+                className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 flex items-center"
                 onClick={saveEmployee}
               >
-                <Save size={16} className="mr-2" /> Save
+                Save
               </button>
             </div>
           </div>
