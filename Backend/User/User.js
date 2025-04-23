@@ -11,11 +11,11 @@ const userSchema = new mongoose.Schema({
     company: String,
     role: {
         type: String,
-        enum: ["admin", "employee", "worker"]
+        enum: ["admin", "employee"]
     },
     isOwner: {
         type: Boolean,
-        default: false
+        default: `false`
     },
 },{
     timestamps: true

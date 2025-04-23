@@ -412,7 +412,7 @@ const Salary = () => {
                 <div className="col-span-1">{role.title}</div>
                 <div className="col-span-2">{formatCurrency(role.defaultSalary)}</div>
                 <div className="col-span-1">
-                  <span className={`px-2 py-1 text-xs font-medium rounded ${role.type === 'User' ? 'bg-gray-200' : 'bg-black text-white'}`}>
+                  <span className={`px-2 py-1 font-medium rounded `}>
                     {role.type}
                   </span>
                 </div>
