@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   Bar,
   XAxis,
@@ -15,14 +15,14 @@ import {
   BarChart,
   AreaChart,
   Area,
-} from "recharts"
+} from "recharts";
 
 export default function Dashboard() {
-  const [showExpenseDetails, setShowExpenseDetails] = useState(false)
-  const [showMonthlyDetails, setShowMonthlyDetails] = useState(false)
-  const [activeProjectView, setActiveProjectView] = useState(false)
-  const [activeTeamView, setActiveTeamView] = useState(false)
-  const [showIncomeDetails, setShowIncomeDetails] = useState(false)
+  const [showExpenseDetails, setShowExpenseDetails] = useState(false);
+  const [showMonthlyDetails, setShowMonthlyDetails] = useState(false);
+  const [activeProjectView, setActiveProjectView] = useState(false);
+  const [activeTeamView, setActiveTeamView] = useState(false);
+  const [showIncomeDetails, setShowIncomeDetails] = useState(false);
 
   // Construction-specific dashboard data
   const dashboardData = {
@@ -40,27 +40,50 @@ export default function Dashboard() {
     incompleteProjects: 9,
     totalIncome: 830000,
     totalExpenses: 580000,
-  }
+  };
 
   // Project completion data
   const projectCompletionData = [
-    { name: "Completed", value: dashboardData.completedProjects, color: "#4C51BF" },
-    { name: "Incomplete", value: dashboardData.incompleteProjects, color: "#F56565" },
-  ]
+    {
+      name: "Completed",
+      value: dashboardData.completedProjects,
+      color: "#4C51BF",
+    },
+    {
+      name: "Incomplete",
+      value: dashboardData.incompleteProjects,
+      color: "#F56565",
+    },
+  ];
 
   // Total income vs expenses data
   const totalFinancialData = [
     { name: "Income", value: dashboardData.totalIncome, color: "#4C51BF" },
     { name: "Expenses", value: dashboardData.totalExpenses, color: "#F56565" },
-  ]
+  ];
 
   // Construction income data
   const incomeData = [
-    { name: "Commercial Projects", value: 650000, percentage: 45, color: "#4C51BF" },
-    { name: "Residential Projects", value: 420000, percentage: 29, color: "#48BB78" },
-    { name: "Government Contracts", value: 230000, percentage: 16, color: "#F6AD55" },
+    {
+      name: "Commercial Projects",
+      value: 650000,
+      percentage: 45,
+      color: "#4C51BF",
+    },
+    {
+      name: "Residential Projects",
+      value: 420000,
+      percentage: 29,
+      color: "#48BB78",
+    },
+    {
+      name: "Government Contracts",
+      value: 230000,
+      percentage: 16,
+      color: "#F6AD55",
+    },
     { name: "Renovations", value: 150000, percentage: 10, color: "#F56565" },
-  ]
+  ];
 
   // Construction-specific expense data
   const expenseData = [
@@ -68,7 +91,7 @@ export default function Dashboard() {
     { name: "Materials", value: 320000, percentage: 25, color: "#82ca9d" },
     { name: "Equipment", value: 120000, percentage: 10, color: "#ffc658" },
     { name: "Permits", value: 90000, percentage: 7, color: "#ff8042" },
-  ]
+  ];
 
   // Monthly data with both expenses and income
   const monthlyData = [
@@ -84,7 +107,7 @@ export default function Dashboard() {
     { name: "Oct", Income: 8100, Expenses: 1300 },
     { name: "Nov", Income: 8100, Expenses: 1300 },
     { name: "Dec", Income: 8100, Expenses: 1300 },
-  ]
+  ];
 
   // Income & Expenses Trend data
   const trendData = [
@@ -92,7 +115,7 @@ export default function Dashboard() {
     { name: "Feb", Income: 15000, Expenses: 9000 },
     { name: "Mar", Income: 20000, Expenses: 11000 },
     { name: "Apr", Income: 25000, Expenses: 12000 },
-  ]
+  ];
 
   const activeProjects = [
     {
@@ -119,7 +142,31 @@ export default function Dashboard() {
       status: "Delayed",
       statusColor: "bg-red-500",
     },
-  ]
+    {
+      name: "Downtown Office Tower",
+      progress: 75,
+      status: "On Track",
+      statusColor: "bg-green-500",
+    },
+    {
+      name: "Riverside Apartments",
+      progress: 45,
+      status: "At Risk",
+      statusColor: "bg-yellow-500",
+    },
+    {
+      name: "Highway Bridge Repair",
+      progress: 90,
+      status: "On Track",
+      statusColor: "bg-green-500",
+    },
+    {
+      name: "Shopping Mall Renovation",
+      progress: 30,
+      status: "Delayed",
+      statusColor: "bg-red-500",
+    },
+  ];
 
   const teamMembers = [
     {
@@ -146,7 +193,55 @@ export default function Dashboard() {
       projects: 4,
       avatar: "/placeholder.svg?height=40&width=40",
     },
-  ]
+    {
+      name: "Sarah Johnson",
+      role: "Project Manager",
+      projects: 8,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      name: "Michael Chen",
+      role: "Civil Engineer",
+      projects: 5,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      name: "Emily Rodriguez",
+      role: "Architect",
+      projects: 6,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      name: "David Kim",
+      role: "Site Supervisor",
+      projects: 4,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      name: "Sarah Johnson",
+      role: "Project Manager",
+      projects: 8,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      name: "Michael Chen",
+      role: "Civil Engineer",
+      projects: 5,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      name: "Emily Rodriguez",
+      role: "Architect",
+      projects: 6,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+    {
+      name: "David Kim",
+      role: "Site Supervisor",
+      projects: 4,
+      avatar: "/placeholder.svg?height=40&width=40",
+    },
+  ];
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-US", {
@@ -154,36 +249,35 @@ export default function Dashboard() {
       currency: "USD",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(amount)
-  }
+    }).format(amount);
+  };
 
   const toggleExpenseDetails = () => {
-    setShowExpenseDetails(!showExpenseDetails)
-  }
+    setShowExpenseDetails(!showExpenseDetails);
+  };
 
   const toggleMonthlyDetails = () => {
-    setShowMonthlyDetails(!showMonthlyDetails)
-  }
+    setShowMonthlyDetails(!showMonthlyDetails);
+  };
 
   const toggleActiveProjectView = () => {
-    setActiveProjectView(!activeProjectView)
-  }
+    setActiveProjectView(!activeProjectView);
+  };
 
   const toggleActiveTeamView = () => {
-    setActiveTeamView(!activeTeamView)
-  }
+    setActiveTeamView(!activeTeamView);
+  };
 
   const toggleIncomeDetails = () => {
-    setShowIncomeDetails(!showIncomeDetails)
-  }
+    setShowIncomeDetails(!showIncomeDetails);
+  };
 
   return (
-      <div className="p-6">
-        <div className="bg-white rounded shadow-md p-4 pb-8">
-
+    <div className="p-6">
+      <div className="bg-white rounded shadow-md p-4 pb-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-800">Construction Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
         </div>
 
         {/* Summary Cards - First Row */}
@@ -193,7 +287,9 @@ export default function Dashboard() {
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className="text-sm text-gray-500">Total Projects</p>
-                <h2 className="text-3xl font-bold text-gray-800">{dashboardData.totalProjects}</h2>
+                <h2 className="text-3xl font-bold text-gray-800">
+                  {dashboardData.totalProjects}
+                </h2>
               </div>
               <div className="bg-blue-100 p-3 rounded-lg">
                 <svg
@@ -212,12 +308,17 @@ export default function Dashboard() {
                 </svg>
               </div>
             </div>
-            <p className="text-sm text-gray-500 mb-2">Progress</p>
+            <p className="text-sm text-gray-500 mb-2">Project Completion</p>
             <div className="w-full bg-gray-200 rounded-full h-2.5">
-              <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${dashboardData.progress}%` }}></div>
+              <div
+                className="bg-blue-600 h-2.5 rounded-full"
+                style={{ width: `${dashboardData.progress}%` }}
+              ></div>
             </div>
             <div className="flex justify-end mt-1">
-              <span className="text-sm text-gray-500">{dashboardData.progress}%</span>
+              <span className="text-sm text-gray-500">
+                {dashboardData.progress}%
+              </span>
             </div>
           </div>
 
@@ -225,8 +326,10 @@ export default function Dashboard() {
           <div className="bg-white rounded-xl shadow p-6">
             <div className="flex justify-between items-start mb-4">
               <div>
-                <p className="text-sm text-gray-500">Total Budget</p>
-                <h2 className="text-3xl font-bold text-gray-800">{formatCurrency(dashboardData.totalBudget)}</h2>
+                <p className="text-sm text-gray-500">Total Income</p>
+                <h2 className="text-3xl font-bold text-gray-800">
+                  {formatCurrency(dashboardData.totalBudget)}
+                </h2>
               </div>
               <div className="bg-green-100 p-3 rounded-lg">
                 <svg
@@ -247,10 +350,15 @@ export default function Dashboard() {
             </div>
             <p className="text-sm text-gray-500 mb-2">Spent</p>
             <div className="w-full bg-gray-200 rounded-full h-2.5">
-              <div className="bg-green-500 h-2.5 rounded-full" style={{ width: `${dashboardData.spent}%` }}></div>
+              <div
+                className="bg-green-500 h-2.5 rounded-full"
+                style={{ width: `${dashboardData.spent}%` }}
+              ></div>
             </div>
             <div className="flex justify-end mt-1">
-              <span className="text-sm text-gray-500">{dashboardData.spent}%</span>
+              <span className="text-sm text-gray-500">
+                {dashboardData.spent}%
+              </span>
             </div>
           </div>
 
@@ -259,7 +367,9 @@ export default function Dashboard() {
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className="text-sm text-gray-500">Revenue</p>
-                <h2 className="text-3xl font-bold text-gray-800">{formatCurrency(dashboardData.revenue)}</h2>
+                <h2 className="text-3xl font-bold text-gray-800">
+                  {formatCurrency(dashboardData.revenue)}
+                </h2>
               </div>
               <div className="bg-purple-100 p-3 rounded-lg">
                 <svg
@@ -280,10 +390,15 @@ export default function Dashboard() {
             </div>
             <p className="text-sm text-gray-500 mb-2">ROI</p>
             <div className="w-full bg-gray-200 rounded-full h-2.5">
-              <div className="bg-purple-600 h-2.5 rounded-full" style={{ width: `${dashboardData.roi}%` }}></div>
+              <div
+                className="bg-purple-600 h-2.5 rounded-full"
+                style={{ width: `${dashboardData.roi}%` }}
+              ></div>
             </div>
             <div className="flex justify-end mt-1">
-              <span className="text-sm text-gray-500">{dashboardData.roi}%</span>
+              <span className="text-sm text-gray-500">
+                {dashboardData.roi}%
+              </span>
             </div>
           </div>
 
@@ -292,7 +407,9 @@ export default function Dashboard() {
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className="text-sm text-gray-500">Team Members</p>
-                <h2 className="text-3xl font-bold text-gray-800">{dashboardData.teamMembers}</h2>
+                <h2 className="text-3xl font-bold text-gray-800">
+                  {dashboardData.teamMembers}
+                </h2>
               </div>
               <div className="bg-orange-100 p-3 rounded-lg">
                 <svg
@@ -313,16 +430,20 @@ export default function Dashboard() {
             </div>
             <div className="grid grid-cols-3 gap-2 text-center">
               <div>
-                <p className="text-sm text-gray-500">Managers</p>
-                <p className="text-xl font-semibold">{dashboardData.managers}</p>
+                <p className="text-sm text-gray-500">Admins</p>
+                <p className="text-xl font-semibold">
+                  {dashboardData.managers}
+                </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Workers</p>
+                <p className="text-sm text-gray-500">Users</p>
                 <p className="text-xl font-semibold">{dashboardData.workers}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Engineers</p>
-                <p className="text-xl font-semibold">{dashboardData.engineers}</p>
+                <p className="text-sm text-gray-500">Workers</p>
+                <p className="text-xl font-semibold">
+                  {dashboardData.engineers}
+                </p>
               </div>
             </div>
           </div>
@@ -333,7 +454,9 @@ export default function Dashboard() {
           {/* Project Completion Status */}
           <div className="bg-white rounded-xl shadow p-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-gray-800">Project Completion Status</h3>
+              <h3 className="font-semibold text-gray-800">
+                Project Completion Status
+              </h3>
             </div>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -353,23 +476,41 @@ export default function Dashboard() {
                     ))}
                   </Pie>
                   <Tooltip formatter={(value) => value} />
-                  <Legend layout="vertical" align="right" verticalAlign="middle" />
+                  <Legend
+                    layout="vertical"
+                    align="right"
+                    verticalAlign="middle"
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-4">
               <div className="bg-blue-50 p-3 rounded-lg text-center">
                 <p className="text-sm text-gray-500">Completed</p>
-                <p className="text-xl font-semibold text-blue-600">{dashboardData.completedProjects}</p>
+                <p className="text-xl font-semibold text-blue-600">
+                  {dashboardData.completedProjects}
+                </p>
                 <p className="text-sm text-gray-500">
-                  {Math.round((dashboardData.completedProjects / dashboardData.totalProjects) * 100)}%
+                  {Math.round(
+                    (dashboardData.completedProjects /
+                      dashboardData.totalProjects) *
+                      100
+                  )}
+                  %
                 </p>
               </div>
               <div className="bg-red-50 p-3 rounded-lg text-center">
                 <p className="text-sm text-gray-500">Incomplete</p>
-                <p className="text-xl font-semibold text-red-600">{dashboardData.incompleteProjects}</p>
+                <p className="text-xl font-semibold text-red-600">
+                  {dashboardData.incompleteProjects}
+                </p>
                 <p className="text-sm text-gray-500">
-                  {Math.round((dashboardData.incompleteProjects / dashboardData.totalProjects) * 100)}%
+                  {Math.round(
+                    (dashboardData.incompleteProjects /
+                      dashboardData.totalProjects) *
+                      100
+                  )}
+                  %
                 </p>
               </div>
             </div>
@@ -378,7 +519,9 @@ export default function Dashboard() {
           {/* Total Income vs Expenses */}
           <div className="bg-white rounded-xl shadow p-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-gray-800">Total Income vs Expenses</h3>
+              <h3 className="font-semibold text-gray-800">
+                Total Income vs Expenses
+              </h3>
             </div>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -398,18 +541,26 @@ export default function Dashboard() {
                     ))}
                   </Pie>
                   <Tooltip formatter={(value) => formatCurrency(value)} />
-                  <Legend layout="vertical" align="right" verticalAlign="middle" />
+                  <Legend
+                    layout="vertical"
+                    align="right"
+                    verticalAlign="middle"
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-4">
               <div className="bg-blue-50 p-3 rounded-lg text-center">
                 <p className="text-sm text-gray-500">Total Income</p>
-                <p className="text-xl font-semibold text-blue-600">{formatCurrency(dashboardData.totalIncome)}</p>
+                <p className="text-xl font-semibold text-blue-600">
+                  {formatCurrency(dashboardData.totalIncome)}
+                </p>
               </div>
               <div className="bg-red-50 p-3 rounded-lg text-center">
                 <p className="text-sm text-gray-500">Total Expenses</p>
-                <p className="text-xl font-semibold text-red-600">{formatCurrency(dashboardData.totalExpenses)}</p>
+                <p className="text-xl font-semibold text-red-600">
+                  {formatCurrency(dashboardData.totalExpenses)}
+                </p>
               </div>
             </div>
           </div>
@@ -421,7 +572,10 @@ export default function Dashboard() {
           <div className="bg-white rounded-xl shadow p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-semibold text-gray-800">Expense Breakdown</h3>
-              <button onClick={toggleExpenseDetails} className="text-sm text-blue-600 hover:text-blue-800">
+              <button
+                onClick={toggleExpenseDetails}
+                className="text-sm text-blue-600 hover:text-blue-800"
+              >
                 View Details
               </button>
             </div>
@@ -443,13 +597,19 @@ export default function Dashboard() {
                     ))}
                   </Pie>
                   <Tooltip formatter={(value) => formatCurrency(value)} />
-                  <Legend layout="vertical" align="right" verticalAlign="middle" />
+                  <Legend
+                    layout="vertical"
+                    align="right"
+                    verticalAlign="middle"
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
             {showExpenseDetails && (
               <div className="mt-6">
-                <h4 className="font-medium text-gray-700 mb-2">Expense Details</h4>
+                <h4 className="font-medium text-gray-700 mb-2">
+                  Expense Details
+                </h4>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
@@ -468,11 +628,15 @@ export default function Dashboard() {
                     <tbody className="bg-white divide-y divide-gray-200">
                       {expenseData.map((item) => (
                         <tr key={item.name}>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{item.name}</td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {item.name}
+                          </td>
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                             {formatCurrency(item.value)}
                           </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{item.percentage}%</td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                            {item.percentage}%
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -486,7 +650,10 @@ export default function Dashboard() {
           <div className="bg-white rounded-xl shadow p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-semibold text-gray-800">Income Breakdown</h3>
-              <button onClick={toggleIncomeDetails} className="text-sm text-blue-600 hover:text-blue-800">
+              <button
+                onClick={toggleIncomeDetails}
+                className="text-sm text-blue-600 hover:text-blue-800"
+              >
                 View Details
               </button>
             </div>
@@ -508,13 +675,19 @@ export default function Dashboard() {
                     ))}
                   </Pie>
                   <Tooltip formatter={(value) => formatCurrency(value)} />
-                  <Legend layout="vertical" align="right" verticalAlign="middle" />
+                  <Legend
+                    layout="vertical"
+                    align="right"
+                    verticalAlign="middle"
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
             {showIncomeDetails && (
               <div className="mt-6">
-                <h4 className="font-medium text-gray-700 mb-2">Income Details</h4>
+                <h4 className="font-medium text-gray-700 mb-2">
+                  Income Details
+                </h4>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
@@ -533,11 +706,15 @@ export default function Dashboard() {
                     <tbody className="bg-white divide-y divide-gray-200">
                       {incomeData.map((item) => (
                         <tr key={item.name}>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{item.name}</td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {item.name}
+                          </td>
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                             {formatCurrency(item.value)}
                           </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{item.percentage}%</td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                            {item.percentage}%
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -552,8 +729,13 @@ export default function Dashboard() {
         <div className="mb-8">
           <div className="bg-white rounded-xl shadow p-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-gray-800">Monthly Income & Expenses</h3>
-              <button onClick={toggleMonthlyDetails} className="text-sm text-blue-600 hover:text-blue-800">
+              <h3 className="font-semibold text-gray-800">
+                Monthly Income & Expenses
+              </h3>
+              <button
+                onClick={toggleMonthlyDetails}
+                className="text-sm text-blue-600 hover:text-blue-800"
+              >
                 View Details
               </button>
             </div>
@@ -572,7 +754,9 @@ export default function Dashboard() {
             </div>
             {showMonthlyDetails && (
               <div className="mt-6">
-                <h4 className="font-medium text-gray-700 mb-2">Monthly Breakdown</h4>
+                <h4 className="font-medium text-gray-700 mb-2">
+                  Monthly Breakdown
+                </h4>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
@@ -596,8 +780,8 @@ export default function Dashboard() {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {monthlyData.map((item) => {
-                        const profit = item.Income - item.Expenses
-                        const margin = Math.round((profit / item.Income) * 100)
+                        const profit = item.Income - item.Expenses;
+                        const margin = Math.round((profit / item.Income) * 100);
                         return (
                           <tr key={item.name}>
                             <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -612,9 +796,11 @@ export default function Dashboard() {
                             <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                               {formatCurrency(profit)}
                             </td>
-                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{margin}%</td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                              {margin}%
+                            </td>
                           </tr>
-                        )
+                        );
                       })}
                     </tbody>
                   </table>
@@ -628,7 +814,9 @@ export default function Dashboard() {
         <div className="mb-8">
           <div className="bg-white rounded-xl shadow p-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-gray-800">Income & Expenses Trend</h3>
+              <h3 className="font-semibold text-gray-800">
+                Income & Expenses Trend
+              </h3>
             </div>
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
@@ -666,16 +854,31 @@ export default function Dashboard() {
           <div className="bg-white rounded-xl shadow p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-semibold text-gray-800">Active Projects</h3>
-              <button onClick={toggleActiveProjectView} className="text-sm text-blue-600 hover:text-blue-800">
-                View All
-              </button>
+              {activeProjects.length > 4 && (
+                <button
+                  onClick={toggleActiveProjectView}
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  {activeProjectView ? "Show Less" : "View All"}
+                </button>
+              )}
             </div>
             <div className="space-y-4">
-              {activeProjects.map((project) => (
-                <div key={project.name} className="border rounded-lg p-4">
+              {(activeProjectView
+                ? activeProjects
+                : activeProjects.slice(0, 4)
+              ).map((project) => (
+                <div
+                  key={project.name}
+                  className="border border-gray-200 rounded-lg p-4"
+                >
                   <div className="flex justify-between items-center mb-2">
-                    <h4 className="font-medium text-gray-800">{project.name}</h4>
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full text-white ${project.statusColor}`}>
+                    <h4 className="font-medium text-gray-800">
+                      {project.name}
+                    </h4>
+                    <span
+                      className={`px-2 py-1 text-xs font-semibold rounded-full text-white ${project.statusColor}`}
+                    >
                       {project.status}
                     </span>
                   </div>
@@ -686,14 +889,16 @@ export default function Dashboard() {
                         project.status === "On Track"
                           ? "bg-green-500"
                           : project.status === "At Risk"
-                            ? "bg-yellow-500"
-                            : "bg-red-500"
+                          ? "bg-yellow-500"
+                          : "bg-red-500"
                       }`}
                       style={{ width: `${project.progress}%` }}
                     ></div>
                   </div>
                   <div className="flex justify-end mt-1">
-                    <span className="text-sm text-gray-500">{project.progress}%</span>
+                    <span className="text-sm text-gray-500">
+                      {project.progress}%
+                    </span>
                   </div>
                 </div>
               ))}
@@ -704,35 +909,47 @@ export default function Dashboard() {
           <div className="bg-white rounded-xl shadow p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-semibold text-gray-800">Team Members</h3>
-              <button onClick={toggleActiveTeamView} className="text-sm text-blue-600 hover:text-blue-800">
-                View All
-              </button>
+              {teamMembers.length > 6 && (
+                <button
+                  onClick={toggleActiveTeamView}
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  {activeTeamView ? "Show Less" : "View All"}
+                </button>
+              )}
             </div>
             <div className="space-y-4">
-              {teamMembers.map((member) => (
-                <div key={member.name} className="flex items-center justify-between border-b pb-4">
-                  <div className="flex items-center">
-                    <img
-                      src={member.avatar || "/placeholder.svg"}
-                      alt={member.name}
-                      className="w-10 h-10 rounded-full bg-gray-200 mr-3"
-                    />
-                    <div>
-                      <h4 className="font-medium text-gray-800">{member.name}</h4>
-                      <p className="text-sm text-gray-500">{member.role}</p>
+              {(activeTeamView ? teamMembers : teamMembers.slice(0, 7)).map(
+                (member) => (
+                  <div
+                    key={member.name}
+                    className="flex items-center justify-between border-b border-gray-200 pb-4"
+                  >
+                    <div className="flex items-center">
+                      <img
+                        src={member.avatar || "/placeholder.svg"}
+                        alt={member.name}
+                        className="w-10 h-10 rounded-full bg-gray-200 mr-3"
+                      />
+                      <div>
+                        <h4 className="font-medium text-gray-800">
+                          {member.name}
+                        </h4>
+                        <p className="text-sm text-gray-500">{member.role}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <button className="text-sm text-blue-600 hover:text-blue-800">
+                        View
+                      </button>
                     </div>
                   </div>
-                  <div className="flex items-center">
-                    <span className="text-sm font-medium mr-2">{member.projects} Projects</span>
-                    <button className="text-sm text-blue-600 hover:text-blue-800">View</button>
-                  </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </div>
         </div>
       </div>
     </div>
-
-  )
+  );
 }
