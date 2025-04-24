@@ -9,6 +9,10 @@ const userSchema = new mongoose.Schema({
     password: String, 
     salt: String,
     company: String,
+    photo: {
+        type: String,
+        default: ""
+    },
     role: {
         type: String,
         enum: ["admin", "employee"]
@@ -17,6 +21,10 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: `false`
     },
+    bio: {
+        type: String,
+        default: ""
+    }
 },{
     timestamps: true
 });

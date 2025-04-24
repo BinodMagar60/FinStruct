@@ -11,33 +11,36 @@ import {
 import { Link } from "react-router-dom";
 import Notes from "./Notes";
 import Logout from "./Logout";
+import { getInitials } from "../utils/getInitials";
 
-const Navbar = ({ isLogout, setLogout}) => {
+const Navbar = ({ isLogout, setLogout, user}) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(true)
   const [notificationSignChecker, setnotificationSignChecker] = useState(false);
+  const userDetails = user
 
   const profileSidebarAdmin = [
-    "/admin/profile/profileuser",
+    `/admin/profile/profileuser/${userDetails.id}`,
     "/admin/profile/setting",
     "/admin/profile/activity"
-  ]
-
+  ];
+  
   const profileSidebarEmployee = [
-    "/employee/profile/profileuser",
+    `/employee/profile/profileuser/${userDetails.id}`,
     "/employee/profile/setting",
     "/employee/profile/activity"
-  ]
+  ];
+  
 
   const profile = isAdmin? profileSidebarAdmin : profileSidebarEmployee;
 
 
   useEffect(()=> {
     
-    const user = JSON.parse(localStorage.getItem("userDetails"));
+    // const user = JSON.parse(localStorage.getItem("userDetails"));
 
-    if(user.role === "admin"){
+    if(userDetails.role === "admin"){
       setIsAdmin(true)
     }
     else{
@@ -341,13 +344,19 @@ const Navbar = ({ isLogout, setLogout}) => {
               className="flex items-center space-x-1 py-1 px-2 gap-2 rounded hover:bg-gray-100 outline-none cursor-pointer"
               onClick={() => setIsProfileOpen(!isProfileOpen)}
             >
-              <div className="h-10 w-10 rounded-full bg-gray-300 overflow-hidden">
-                <img
-                  src="/profilePic.png"
-                  alt="User Avatar"
-                  className="h-full w-full object-cover"
-                />
-              </div>
+              {userDetails.photo ? (
+    <div className="h-10 w-10 rounded-full overflow-hidden">
+      <img
+        src={userDetails.photo}
+        alt={userDetails.username}
+        className="h-full w-full object-cover"
+      />
+    </div>
+  ) : (
+    <div className="h-10 w-10 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold">
+      {getInitials(userDetails.username)}
+    </div>
+  )}
               <ChevronDown
                 className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${
                   isProfileOpen ? "rotate-180" : ""
@@ -359,11 +368,11 @@ const Navbar = ({ isLogout, setLogout}) => {
             {isProfileOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
                 <div className="px-4 py-3 border-b border-gray-100">
-                  <p className="text-sm leading-5 font-medium text-gray-900">
-                    Binod Kaucha
+                  <p className="text-sm leading-5 font-medium text-gray-900 capitalize">
+                    {userDetails.username}
                   </p>
                   <p className="text-xs leading-4 font-medium text-gray-500 truncate">
-                    kauchabinod88@gmail.com
+                    {userDetails.email}
                   </p>
                 </div>
 

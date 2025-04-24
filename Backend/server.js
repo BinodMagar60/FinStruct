@@ -27,7 +27,7 @@ app.get("/", (req, res) => {
 });
 
 // Routes
-const authRoutes = require("./Routes/authRoutes");
+const authRoutes = require("./Routes/LoginSignupRoutes");
 app.use("/auth", authRoutes);
 
 // Server
@@ -37,8 +37,11 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 
 // for the user and the worker
-const userRoutes = require("./Routes/userRoutes");
-const workerRoutes = require("./Routes/workerRoutes");
+const AdminRoutes = require('./Routes/AdminRoutes')
 
-app.use("/api/users", userRoutes);
-app.use("/api/workers", workerRoutes);
+app.use('/admin/User', AdminRoutes)
+app.use('/admin/Wroker', AdminRoutes)
+
+
+// app.use("/api/users", userRoutes);
+// app.use("/api/workers", workerRoutes);

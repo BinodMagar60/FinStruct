@@ -96,17 +96,16 @@ router.post("/login", validateLogin, async (req, res) => {
             expiresIn: "1h"
         });
 
-        // res.cookie("token", token, {
-        //     httpOnly: true,
-        //     secure: false,
-        //     sameSite: "strict",
-        //     maxAge: 30 * 24 * 60 * 60 * 1000
-        // });
-
+  
         const safeUser = {
             id: user._id,
             username: user.username,
+            personalEmail: user.personalEmail,
+            phoneNumber: user.phoneNumber,
+            location: user.location,
             email: user.email,
+            company: user.company,
+            photo: user.photo,
             role: user.role,
             isOwner: user.isOwner
         };
