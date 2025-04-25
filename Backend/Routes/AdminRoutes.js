@@ -2,19 +2,53 @@ const express = require("express");
 const router = express.Router();
 const User = require("../User/User");
 const Worker = require("../User/worker");
+const mongoose = require('mongoose')
 
-//get data for profile of the user
-router.get('/profile/:id', async(req, res) => {
-    try{
-        const user = await User.findById(req.params.id).select('-password','-salt');
-        if(!user){
-            return res.status(404).json({message: "User not found"})
-        }
-        res.json(user)
+//get data for profile of the user logged in
+
+router.get('/profile/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+    console.log("Requested user email:", email);
+
+    const user = await User.findOne({ email }).select('-password -salt');
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-    catch (err) {
-        res.status(500).json({message: 'Server Error'})
+
+    res.json(user);
+  } catch (err) {
+    console.error(err); 
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+//update the data for profile of the user logged in
+router.put('/profile/:email', async(req, res)=> {
+  try{
+    const {email} = req.params;
+    
+    const {username, phoneNumber, personalEmail, location, bio, photo} = req.body
+
+    const updateData = {username, phoneNumber, personalEmail, location, bio, photo}
+
+    const updatedUser = await User.findOneAndUpdate(
+      { email },                 
+      updateData,
+      { new: true }             
+    ).select('-password -salt'); 
+
+    if(!updatedUser){
+      return res.status(404).json({message: "User not found."})
     }
+
+    res.json({message: "User Updated successfully", user: updatedUser})
+
+  }
+  catch (err){
+    console.log(err)
+    res.status(500).json({message: "server Error"})
+  }
 })
 
 

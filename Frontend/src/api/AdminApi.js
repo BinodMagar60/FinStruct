@@ -13,3 +13,15 @@ export const profileDetails = async (route) => {
     }
   };
 
+export const profileDetailsUpdate = async(route, data) => {
+  try{
+    const response = await axios.put(BackendURI+route,data)
+    console.log(response)
+
+    return response.data
+  }
+  catch(err){
+    console.error("Error updating profile: ", err)
+    throw err
+  }
+}

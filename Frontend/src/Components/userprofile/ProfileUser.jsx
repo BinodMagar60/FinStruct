@@ -1,5 +1,6 @@
 import { Upload, User, Edit2, Save, X } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { profileDetails, profileDetailsUpdate } from "../../api/AdminApi";
 
 const ProfileUser = () => {
   const user = JSON.parse(localStorage.getItem("userDetails"));
@@ -7,7 +8,21 @@ const ProfileUser = () => {
   const [profileImage, setProfileImage] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [errors, setErrors] = useState({});
-  const [userData, setUserData] = useState(user || {});
+  const [userData, setUserData] = useState({});
+  const [originalData, setOriginalData] = useState({});
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await profileDetails(`admin/user/profile/${user.email}`);
+        setUserData(response);
+        setOriginalData(response);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -23,34 +38,31 @@ const ProfileUser = () => {
       ...prev,
       [name]: value,
     }));
-    validateField(name, value);
+
+    if (value.trim() !== "") {
+      validateField(name, value.trim());
+    } else {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const validateField = (name, value) => {
     let errorMsg = "";
 
-    if (name === "name") {
-      if (!/^[A-Za-z][0-9A-Za-z\s]*$/.test(value.trim())) {
-        errorMsg = "Invalid Name.";
-      }
+    if (name === "username" && !/^[A-Za-z][0-9A-Za-z\s]*$/.test(value)) {
+      errorMsg = "Invalid Name.";
+    }
+    
+
+    if (name === "phoneNumber" && !/^(97|98)\d{8}$/.test(value)) {
+      errorMsg = "Invalid Phone Number";
     }
 
-    if (name === "phone") {
-      if (!/^(97|98)\d{8}$/.test(value.trim())) {
-        errorMsg = "Invalid Phone Number";
-      }
-    }
-
-    if (name === "personalEmail") {
-      if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.com$/.test(value.trim())) {
-        errorMsg = "Invalid Email";
-      }
-    }
-
-    if (name === "location") {
-      if (!value.trim()) {
-        errorMsg = "Location cannot be empty.";
-      }
+    if (
+      name === "personalEmail" &&
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.com$/.test(value)
+    ) {
+      errorMsg = "Invalid Email";
     }
 
     setErrors((prev) => ({
@@ -60,53 +72,67 @@ const ProfileUser = () => {
   };
 
   const validateInputs = () => {
-    const requiredFields = ["name", "personalEmail", "phone", "location"];
+    const fieldsToValidate = ["username", "personalEmail", "phoneNumber"];
     let validationErrors = {};
   
-    requiredFields.forEach((field) => {
-      const value = userData[field] || "";
-      let errorMsg = "";
+    fieldsToValidate.forEach((field) => {
+      const newValue = (userData[field] || "");
+      const originalValue = (originalData[field] || "");
   
-      if (!value.trim()) {
-        errorMsg = "This field is required.";
-      } else {
-        // custom validations
-        if (field === "username" && !/^[A-Za-z][0-9A-Za-z\s]*$/.test(value.trim())) {
-          errorMsg = "Invalid Name.";
+
+      if (newValue !== originalValue) {
+        let errorMsg = "";
+  
+
+        if (field === "username") {
+          if (newValue === "") {
+            errorMsg = "Username is required.";
+          } else if (!/^[A-Za-z][0-9A-Za-z\s]*$/.test(newValue)) {
+            errorMsg = "Invalid Name.";
+          }
         }
-        if (field === "phone" && !/^(97|98)\d{8}$/.test(value.trim())) {
+  
+
+        if (field === "phoneNumber" && newValue !== "" && !/^(97|98)\d{8}$/.test(newValue)) {
           errorMsg = "Invalid Phone Number";
         }
+  
         if (
           field === "personalEmail" &&
-          !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.com$/.test(value.trim())
+          newValue !== "" &&
+          !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.com$/.test(newValue)
         ) {
           errorMsg = "Invalid Email";
         }
-      }
   
-      if (errorMsg) {
-        validationErrors[field] = errorMsg;
+        if (errorMsg) {
+          validationErrors[field] = errorMsg;
+        }
       }
     });
   
     setErrors(validationErrors);
     return Object.keys(validationErrors).length === 0;
   };
-  
 
-  const handleSave = () => {
+
+  const handleSave = async () => {
     if (!validateInputs()) return;
-    console.log("Saving user data:", userData);
+
     setIsEditing(false);
-    // Optionally update localStorage here:
-    // localStorage.setItem("userDetails", JSON.stringify(userData));
+    try {
+      await profileDetailsUpdate(`admin/user/profile/${user.email}`, userData);
+      setOriginalData(userData);
+      localStorage.setItem("userDetails", JSON.stringify(userData));
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const handleCancel = () => {
-    setUserData(user); // Reset to original
-    setIsEditing(false);
+    setUserData(originalData);
     setErrors({});
+    setIsEditing(false);
   };
 
   return (
@@ -143,7 +169,6 @@ const ProfileUser = () => {
                   </label>
                 )}
               </div>
-
               <div>
                 <h2 className="text-2xl font-bold capitalize">
                   {userData.username}
@@ -158,7 +183,6 @@ const ProfileUser = () => {
                 </p>
               </div>
             </div>
-
             {!isEditing && (
               <button
                 className="flex items-center space-x-1 bg-black hover:bg-gray-800 text-white px-3 py-2 rounded-md cursor-pointer"
@@ -173,37 +197,85 @@ const ProfileUser = () => {
           <div className="space-y-6">
             <h3 className="text-lg font-medium">Personal Information</h3>
             <div className="grid grid-cols-2 gap-6">
-              {[
-                { label: "Full Name", name: "username" },
-                {
-                  label: "Email Address (Personal)",
-                  name: "personalEmail",
-                  type: "email",
-                },
-                { label: "Phone Number", name: "phone", type: "tel" },
-                { label: "Location", name: "location" },
-              ].map(({ label, name, type = "text" }) => (
-                <div key={name}>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {label}
-                  </label>
-                  <input
-                    type={type}
-                    name={name}
-                    className={`w-full px-3 py-2 border capitalize ${
-                      errors[name] ? "border-red-500" : "border-gray-300"
-                    } rounded-md`}
-                    value={userData[name] || ""}
-                    onChange={handleInputChange}
-                    readOnly={!isEditing}
-                  />
-                  {errors[name] && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors[name]}
-                    </p>
-                  )}
-                </div>
-              ))}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  name="username"
+                  className={`w-full px-3 py-2 border ${
+                    errors.username ? "border-red-500" : "border-gray-300"
+                  } rounded-md capitalize`}
+                  value={userData.username || ""}
+                  onChange={handleInputChange}
+                  readOnly={!isEditing}
+                />
+                {errors.username && (
+                  <p className="text-red-500 text-sm mt-1">{errors.username}</p>
+                )}
+              </div>
+
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address (Personal)
+                </label>
+                <input
+                  type="email"
+                  name="personalEmail"
+                  className={`w-full px-3 py-2 border ${
+                    errors.personalEmail ? "border-red-500" : "border-gray-300"
+                  } rounded-md`}
+                  value={userData.personalEmail || ""}
+                  onChange={handleInputChange}
+                  readOnly={!isEditing}
+                />
+                {errors.personalEmail && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.personalEmail}
+                  </p>
+                )}
+              </div>
+
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="text"
+                  name="phoneNumber"
+                  className={`w-full px-3 py-2 border ${
+                    errors.phoneNumber ? "border-red-500" : "border-gray-300"
+                  } rounded-md`}
+                  value={userData.phoneNumber || ""}
+                  onChange={handleInputChange}
+                  readOnly={!isEditing}
+                />
+                {errors.phoneNumber && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.phoneNumber}
+                  </p>
+                )}
+              </div>
+
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Location
+                </label>
+                <input
+                  type="text"
+                  name="location"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md capitalize"
+                  value={userData.location || ""}
+                  onChange={handleInputChange}
+                  readOnly={!isEditing}
+                />
+              </div>
+
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -218,6 +290,7 @@ const ProfileUser = () => {
                 />
               </div>
 
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Company
@@ -225,11 +298,12 @@ const ProfileUser = () => {
                 <input
                   type="text"
                   name="company"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 capitalize"
                   value={userData.company || ""}
                   readOnly
                 />
               </div>
+
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -239,12 +313,13 @@ const ProfileUser = () => {
                   type="text"
                   name="title"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
-                  value={userData.isOwner? 'Owner' : userData.role === 'admin'? 'Admin': "Employee"}
+                  value={userData.isOwner ? "Owner" : userData.role === "admin" ? "Admin" : "Employee"}
                   readOnly
                 />
               </div>
             </div>
 
+            
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Bio
@@ -260,27 +335,26 @@ const ProfileUser = () => {
               ></textarea>
             </div>
 
-            <div className="flex items-center justify-end pt-4 border-t border-gray-200">
-              {isEditing && (
-                <div className="flex space-x-3">
-                  <button
-                    onClick={handleCancel}
-                    className="bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded-md flex items-center space-x-1"
-                  >
-                    <X size={16} />
-                    <span>Cancel</span>
-                  </button>
-                  <button
-                    onClick={handleSave}
-                    disabled={Object.values(errors).some((err) => err)}
-                    className="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded-md flex items-center space-x-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <Save size={16} />
-                    <span>Save Changes</span>
-                  </button>
-                </div>
-              )}
-            </div>
+
+            {isEditing && (
+              <div className="flex items-center justify-end pt-4 border-t border-gray-200 space-x-3">
+                <button
+                  onClick={handleCancel}
+                  className="bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded-md flex items-center space-x-1"
+                >
+                  <X size={16} />
+                  <span>Cancel</span>
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={Object.values(errors).some((err) => err)}
+                  className="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded-md flex items-center space-x-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Save size={16} />
+                  <span>Save Changes</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

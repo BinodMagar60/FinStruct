@@ -21,13 +21,13 @@ const Navbar = ({ isLogout, setLogout, user}) => {
   const userDetails = user
 
   const profileSidebarAdmin = [
-    `/admin/profile/profileuser/${userDetails.id}`,
+    `/admin/profile/profileuser`,
     "/admin/profile/setting",
     "/admin/profile/activity"
   ];
   
   const profileSidebarEmployee = [
-    `/employee/profile/profileuser/${userDetails.id}`,
+    `/employee/profile/profileuser`,
     "/employee/profile/setting",
     "/employee/profile/activity"
   ];
