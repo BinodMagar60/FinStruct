@@ -13,41 +13,36 @@ import Notes from "./Notes";
 import Logout from "./Logout";
 import { getInitials } from "../utils/getInitials";
 
-const Navbar = ({ isLogout, setLogout, user}) => {
+const Navbar = ({ isLogout, setLogout, user }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(true)
+  const [isAdmin, setIsAdmin] = useState(true);
   const [notificationSignChecker, setnotificationSignChecker] = useState(false);
-  const userDetails = user
+  const userDetails = user;
 
   const profileSidebarAdmin = [
     `/admin/profile/profileuser`,
     "/admin/profile/setting",
-    "/admin/profile/activity"
+    "/admin/profile/activity",
   ];
-  
+
   const profileSidebarEmployee = [
     `/employee/profile/profileuser`,
     "/employee/profile/setting",
-    "/employee/profile/activity"
+    "/employee/profile/activity",
   ];
-  
 
-  const profile = isAdmin? profileSidebarAdmin : profileSidebarEmployee;
+  const profile = isAdmin ? profileSidebarAdmin : profileSidebarEmployee;
 
-
-  useEffect(()=> {
-    
+  useEffect(() => {
     // const user = JSON.parse(localStorage.getItem("userDetails"));
 
-    if(userDetails.role === "admin"){
-      setIsAdmin(true)
+    if (userDetails.role === "admin") {
+      setIsAdmin(true);
+    } else {
+      setIsAdmin(false);
     }
-    else{
-      setIsAdmin(false)
-    }
-
-  })
+  });
 
   const [notifications, setNotifications] = useState([
     {
@@ -60,8 +55,8 @@ const Navbar = ({ isLogout, setLogout, user}) => {
       sendTo: "Marketing Team",
       sender: {
         email: "emily.j@company.com",
-        avatar: "/api/placeholder/40/40"
-      }
+        avatar: "/api/placeholder/40/40",
+      },
     },
     {
       id: 2,
@@ -73,8 +68,8 @@ const Navbar = ({ isLogout, setLogout, user}) => {
       sendTo: "Finance Department",
       sender: {
         email: "michael.c@company.com",
-        avatar: "/api/placeholder/40/40"
-      }
+        avatar: "/api/placeholder/40/40",
+      },
     },
     {
       id: 3,
@@ -86,8 +81,8 @@ const Navbar = ({ isLogout, setLogout, user}) => {
       sendTo: "Customer Success Team",
       sender: {
         email: "sarah.r@company.com",
-        avatar: "/api/placeholder/40/40"
-      }
+        avatar: "/api/placeholder/40/40",
+      },
     },
     {
       id: 4,
@@ -99,8 +94,8 @@ const Navbar = ({ isLogout, setLogout, user}) => {
       sendTo: "Engineering Team",
       sender: {
         email: "alex.k@company.com",
-        avatar: "/api/placeholder/40/40"
-      }
+        avatar: "/api/placeholder/40/40",
+      },
     },
     {
       id: 5,
@@ -112,8 +107,8 @@ const Navbar = ({ isLogout, setLogout, user}) => {
       sendTo: "All Employees",
       sender: {
         email: "hr@company.com",
-        avatar: "/api/placeholder/40/40"
-      }
+        avatar: "/api/placeholder/40/40",
+      },
     },
     {
       id: 6,
@@ -125,8 +120,8 @@ const Navbar = ({ isLogout, setLogout, user}) => {
       sendTo: "All Users",
       sender: {
         email: "it-support@company.com",
-        avatar: "/api/placeholder/40/40"
-      }
+        avatar: "/api/placeholder/40/40",
+      },
     },
     {
       id: 7,
@@ -138,8 +133,8 @@ const Navbar = ({ isLogout, setLogout, user}) => {
       sendTo: "Sales Team",
       sender: {
         email: "david.t@company.com",
-        avatar: "/api/placeholder/40/40"
-      }
+        avatar: "/api/placeholder/40/40",
+      },
     },
     {
       id: 8,
@@ -151,8 +146,8 @@ const Navbar = ({ isLogout, setLogout, user}) => {
       sendTo: "Executive Team",
       sender: {
         email: "rachel.g@company.com",
-        avatar: "/api/placeholder/40/40"
-      }
+        avatar: "/api/placeholder/40/40",
+      },
     },
     {
       id: 9,
@@ -164,8 +159,8 @@ const Navbar = ({ isLogout, setLogout, user}) => {
       sendTo: "Marketing Strategy Team",
       sender: {
         email: "tom.h@company.com",
-        avatar: "/api/placeholder/40/40"
-      }
+        avatar: "/api/placeholder/40/40",
+      },
     },
     {
       id: 10,
@@ -177,8 +172,8 @@ const Navbar = ({ isLogout, setLogout, user}) => {
       sendTo: "All Staff",
       sender: {
         email: "legal@company.com",
-        avatar: "/api/placeholder/40/40"
-      }
+        avatar: "/api/placeholder/40/40",
+      },
     },
     {
       id: 11,
@@ -190,8 +185,8 @@ const Navbar = ({ isLogout, setLogout, user}) => {
       sendTo: "Department Managers",
       sender: {
         email: "hr-management@company.com",
-        avatar: "/api/placeholder/40/40"
-      }
+        avatar: "/api/placeholder/40/40",
+      },
     },
     {
       id: 12,
@@ -203,15 +198,13 @@ const Navbar = ({ isLogout, setLogout, user}) => {
       sendTo: "Beta Testers",
       sender: {
         email: "product@company.com",
-        avatar: "/api/placeholder/40/40"
-      }
-    }
+        avatar: "/api/placeholder/40/40",
+      },
+    },
   ]);
   const profileRef = useRef(null);
   const notificationRef = useRef(null);
 
-
-  
   //   dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -345,18 +338,18 @@ const Navbar = ({ isLogout, setLogout, user}) => {
               onClick={() => setIsProfileOpen(!isProfileOpen)}
             >
               {userDetails.photo ? (
-    <div className="h-10 w-10 rounded-full overflow-hidden">
-      <img
-        src={userDetails.photo}
-        alt={userDetails.username}
-        className="h-full w-full object-cover"
-      />
-    </div>
-  ) : (
-    <div className="h-10 w-10 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold">
-      {getInitials(userDetails.username)}
-    </div>
-  )}
+                <div className="h-10 w-10 rounded-full overflow-hidden">
+                  <img
+                    src={userDetails.photo}
+                    alt={userDetails.username}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="h-10 w-10 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold">
+                  {getInitials(userDetails.username)}
+                </div>
+              )}
               <ChevronDown
                 className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${
                   isProfileOpen ? "rotate-180" : ""

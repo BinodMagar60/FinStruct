@@ -1,7 +1,8 @@
 import { Upload, User, Edit2, Save, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { profileDetails, profileDetailsUpdate } from "../../api/AdminApi";
-
+import {getInitials} from '../../utils/getInitials'
+import {toast} from 'react-toastify'
 const ProfileUser = () => {
   const user = JSON.parse(localStorage.getItem("userDetails"));
 
@@ -121,9 +122,17 @@ const ProfileUser = () => {
 
     setIsEditing(false);
     try {
-      await profileDetailsUpdate(`admin/user/profile/${user.email}`, userData);
+      const response = await profileDetailsUpdate(`admin/user/profile/${user.email}`, userData);
+      // console.log(response)
       setOriginalData(userData);
       localStorage.setItem("userDetails", JSON.stringify(userData));
+      toast.success(response.message,{
+        autoClose: 1000,
+        theme: "light"
+      })
+      setTimeout(() => {
+        window.location.reload()
+      }, 1000);
     } catch (err) {
       console.log(err);
     }
@@ -143,15 +152,19 @@ const ProfileUser = () => {
             <div className="flex items-center space-x-4">
               <div className="relative">
                 <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
-                  {profileImage ? (
-                    <img
-                      src={profileImage}
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <User size={48} />
-                  )}
+                  {userData.photo ? (
+                                  <div className="h-full w-full rounded-full overflow-hidden">
+                                    <img
+                                      src={userData.photo}
+                                      alt={userData.username}
+                                      className="h-full w-full object-cover"
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="h-full w-full rounded-full bg-blue-600 text-white flex items-center justify-center text-4xl font-semibold">
+                                    {getInitials(userData.username)}
+                                  </div>
+                                )}
                 </div>
                 {isEditing && (
                   <label

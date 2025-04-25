@@ -1,7 +1,10 @@
 import React, { useState } from "react";
-import { Eye, EyeOff, Save, Lock, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, Save, Lock, AlertCircle, ChevronsRightLeft } from "lucide-react";
+import { changePassword } from "../../api/AdminApi";
+import { toast} from 'react-toastify'
 
 const Setting = () => {
+  const userData = JSON.parse(localStorage.getItem("userDetails"));
   const [passwords, setPasswords] = useState({
     currentPassword: "",
     newPassword: "",
@@ -90,18 +93,40 @@ const Setting = () => {
     return isValid;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
 
     if (validateForm()) {
       // console.log("Password change requested:", passwords);
 
       setSuccessMessage("Password changed successfully!");
-      setPasswords({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
+      const data = {
+        currentPassword: passwords.currentPassword,
+        newPassword: passwords.newPassword
+      }
+
+      try{
+        const response = await changePassword(`admin/user/password/${userData._id}`, data)
+        // console.log(response)
+        toast.success(response.message,{
+          autoClose: 1000,
+          theme: "light"
+        })
+        setPasswords({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+      }
+      catch (error){
+        // console.log(error)
+        toast.error(error.message,{
+          autoClose: 1500,
+          theme: "light",
+        })
+      }
+
+      
     }
   };
 

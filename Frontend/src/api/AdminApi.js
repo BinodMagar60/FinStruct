@@ -13,10 +13,11 @@ export const profileDetails = async (route) => {
     }
   };
 
+  //update the details of logged in user
 export const profileDetailsUpdate = async(route, data) => {
   try{
     const response = await axios.put(BackendURI+route,data)
-    console.log(response)
+    // console.log(response)
 
     return response.data
   }
@@ -25,3 +26,25 @@ export const profileDetailsUpdate = async(route, data) => {
     throw err
   }
 }
+
+
+//update the password for logged in user
+
+export const changePassword = async(route, data) => {
+  try{
+    const response = await axios.put(BackendURI+route, data)
+    // console.log(response)
+    return response.data
+  }
+  catch (err){
+    // console.error("Error changing the password: ",err)
+    throw err.response.data
+  }
+}
+
+
+
+
+
+
+
