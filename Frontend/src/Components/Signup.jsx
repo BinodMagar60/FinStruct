@@ -83,8 +83,6 @@ const Signup = ({ isSignin, setSignin }) => {
           email: formData.email,
           password: formData.password,
           company: formData.company,
-          role: "admin",
-          isOwner: true
         };
 
       
@@ -100,12 +98,13 @@ const Signup = ({ isSignin, setSignin }) => {
           setSignin(!isSignin);
         }, 1000);
       } catch (err) {
+        // console.log(err)
       if (err.response) {
         if (err.response.status === 400) {
-          if (err.response.data.message === "Company already registered"){
+          if (err.response.data.message === "Company already registered."){
             setSignupError((prev) => ({ ...prev, e2: "Company name already in use" }));
           }
-          if (err.response.data.message === "Email Already Exist"){
+          if (err.response.data.message === "Email already registered."){
             setSignupError((prev) => ({ ...prev, e3: "Email already in use" }));
           }
           

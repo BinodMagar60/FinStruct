@@ -1,131 +1,162 @@
 const express = require("express");
 const { body, validationResult } = require("express-validator");
-const User = require("../User/User");
+const User = require("../models/User");
+const Company = require("../models/Company");
+const JobTitle = require("../models/JobTitle")
 const jwt = require("jsonwebtoken");
-const { generateCustomSalt, customHash, xorEncrypt, xorDecrypt } = require("../utils/passwordUtils");
+const {
+  generateCustomSalt,
+  customHash,
+  xorEncrypt,
+  xorDecrypt,
+} = require("../utils/passwordUtils");
 const router = express.Router();
 const secretKey = process.env.JWT_SECRET;
 
 // Validation for signup and login
 const validateSignup = [
-    body("username").notEmpty().withMessage("Username is required"),
-    body("email").isEmail().withMessage("Invalid email"),
-    body("password").isLength({ min: 8 }).withMessage("Password must be at least 8 characters long"),
-    body("company").notEmpty().withMessage("Company name is required"),
+  body("username").notEmpty().withMessage("Username is required"),
+  body("email").isEmail().withMessage("Invalid email"),
+  body("password")
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters long"),
+  body("company").notEmpty().withMessage("Company name is required"),
 ];
 
 const validateLogin = [
-    body("email").isEmail().withMessage("Invalid email"),
-    body("password").notEmpty().withMessage("Password is required"),
+  body("email").isEmail().withMessage("Invalid email"),
+  body("password").notEmpty().withMessage("Password is required"),
 ];
 
 // Register User
 router.post("/signup", validateSignup, async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  try {
+    const { username, email, password, company } = req.body;
+
+    
+    const existingCompany = await Company.findOne({ name: company });
+    if (existingCompany) {
+      return res.status(400).json({ show: "error", message: "Company already registered." });
     }
-
-    try {
-        const { username, email, password, company, role, isOwner } = req.body;
-
-        // Check if email already exists
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ show: "error", message: "Email Already Exist" });
-        }
-
-        // Check if company name already exists
-        const existingCompany = await User.findOne({ company });
-        if (existingCompany) {
-            return res.status(400).json({ message: "Company already registered" });
-        }
-
-        const salt = generateCustomSalt(16, username)
-
-        const hashedPassword = customHash(password, salt)
-
-        const encryptedPassword = xorEncrypt(hashedPassword)
-
-        const userData = {
-            username: username,
-            personalEmail: "",
-            phoneNumber: null,
-            location: "",
-            email: email,
-            password: encryptedPassword,
-            salt: salt,
-            company: company,
-            role: role,
-            isOwner: isOwner
-        }
-
-        const user = new User(userData);
-        await user.save();
-        res.status(201).json({ show: "success",message: "Signup Successful" });
-
-    } catch (error) {
-        res.status(500).json({ error: error.message, show: "error", message: "Server Error" });
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ show: "error", message: "Email already registered." });
     }
+    
+  
+    const companyData = new Company({
+      name: company,
+      ownerName: username,
+    });
+    await companyData.save();
+
+
+    const JobTitleData = new JobTitle({
+      companyId: companyData._id,
+      role: "user",
+      titleName: "Owner",
+      defaultSalary: 0
+    })
+
+    await JobTitleData.save()
+
+
+    const salt = generateCustomSalt(16, username);
+    const hashedPassword = customHash(password, salt);
+    const encryptedPassword = xorEncrypt(hashedPassword);
+
+    const user = new User({
+      username,
+      salt,
+      email,
+      password: encryptedPassword,
+      isOwner: true,
+      role: "admin",
+      companyId: companyData._id,
+      jobTitle: JobTitleData.titleName,
+      salary: JobTitleData.defaultSalary,
+      lastLogin: null,
+      lastLogout: null,
+    });
+    await user.save();
+
+    res.status(201).json({ show: "success", message: "Signup Successful" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ show: "error", message: "Server Error", error: err.message });
+  }
 });
+
 
 // Login User
 
 router.post("/login", validateLogin, async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  try {
+    const { email, password } = req.body;
+
+    // Find user and populate company name
+    const user = await User.findOne({ email }).populate("companyId", "name ownerName");
+
+    if (!user) {
+      return res.status(401).json({ show: "error", message: "Invalid Email or Password" });
     }
 
-    try {
-        const { email, password } = req.body;
-        const user = await User.findOne({ email });
+    // Verify password
+    const inputHash = customHash(password, user.salt);
+    const originalHash = xorDecrypt(user.password);
 
-        if (!user) {
-            return res.status(401).json({ error: "Invalid Email or Password" });
-        }
-
-        const inputHash = customHash(password, user.salt);
-        const originalHash = xorDecrypt(user.password);
-
-        if (!originalHash || originalHash !== inputHash) {
-            return res.status(401).json({ error: "Invalid Email or Password" });
-        }
-
-        const token = jwt.sign({ email: user.email, id: user.id }, secretKey, {
-            expiresIn: "1h"
-        });
-
-  
-        const safeUser = {
-            id: user._id,
-            username: user.username,
-            personalEmail: user.personalEmail,
-            phoneNumber: user.phoneNumber,
-            location: user.location,
-            email: user.email,
-            company: user.company,
-            photo: user.photo,
-            role: user.role,
-            isOwner: user.isOwner
-        };
-
-        res.status(200).json({ message: "Login successful", safeUser, token });
-
-    } catch (error) {
-        res.status(500).json({
-            error: error.message,
-            message: "Server Error"
-        });
+    if (!originalHash || originalHash !== inputHash) {
+      return res.status(401).json({ show: "error", message: "Invalid Email or Password" });
     }
+
+    // Generate JWT Token
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role, companyId: user.companyId._id },
+      secretKey,
+      { expiresIn: "30d" }
+    );
+
+    // Prepare safe user info
+    const safeUser = {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      personalEmail: user.personalEmail || null,
+      phoneNumber: user.phoneNumber || null,
+      location: user.location || null,
+      companyId: user.companyId?._id || null,
+      companyName: user.companyId?.name || null,
+      photo: user.photo || null,
+      role: user.role,
+      isOwner: user.isOwner,
+    };
+
+    res.status(200).json({
+      show: "success",
+      message: "Login successful",
+      safeUser,
+      token,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      show: "error",
+      message: "Server Error",
+      error: error.message,
+    });
+  }
 });
 
-
-//Logout
-router.post("/logout", (req,res)=>{
-    res.clearCookie("token");
-    res.status(200).json({message: "logged out successfully"})
-})
-
-
 module.exports = router;
+
+

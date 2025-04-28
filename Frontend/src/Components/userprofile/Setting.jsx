@@ -23,7 +23,7 @@ const Setting = () => {
     confirmPassword: "",
   });
 
-  const [successMessage, setSuccessMessage] = useState("");
+  // const [successMessage, setSuccessMessage] = useState("");
 
   const togglePasswordVisibility = (field) => {
     setShowPasswords((prev) => ({
@@ -48,9 +48,9 @@ const Setting = () => {
     }
 
     // Clear success message when user starts typing again
-    if (successMessage) {
-      setSuccessMessage("");
-    }
+    // if (successMessage) {
+    //   setSuccessMessage("");
+    // }
   };
 
   const validateForm = () => {
@@ -99,7 +99,7 @@ const Setting = () => {
     if (validateForm()) {
       // console.log("Password change requested:", passwords);
 
-      setSuccessMessage("Password changed successfully!");
+      // setSuccessMessage("Password changed successfully!");
       const data = {
         currentPassword: passwords.currentPassword,
         newPassword: passwords.newPassword
@@ -139,11 +139,11 @@ const Setting = () => {
             <h2 className="text-2xl font-bold">Security Settings</h2>
           </div>
 
-          {successMessage && (
+          {/* {successMessage && (
             <div className="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
               {successMessage}
             </div>
-          )}
+          )} */}
 
           <form onSubmit={handleSubmit}>
             <div className="space-y-6">

@@ -192,7 +192,7 @@ const ProfileUser = () => {
                     : userData.role === "Admin"
                     ? "Admin"
                     : "Employee"}{" "}
-                  at <span className="capitalize">{userData.company}</span>
+                  at <span className="capitalize">{userData.companyId?.name || ""}</span>
                 </p>
               </div>
             </div>
@@ -312,7 +312,7 @@ const ProfileUser = () => {
                   type="text"
                   name="company"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 capitalize"
-                  value={userData.company || ""}
+                  value={userData.companyId?.name || ""}
                   readOnly
                 />
               </div>

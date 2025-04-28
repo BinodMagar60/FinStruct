@@ -78,7 +78,7 @@ const Signin = () => {
           throw new Error("Unexpected error");
         }
       } catch (err) {
-        const errorMsg = err.response?.data?.error || "Something went wrong. Please try again.";
+        const errorMsg = err.response?.data?.message || "Something went wrong. Please try again.";
         toast.error(errorMsg, {
           position: "top-right",
           autoClose: 1000,

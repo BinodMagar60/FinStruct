@@ -36,12 +36,10 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 
 
-// for the user and the worker
 const AdminRoutes = require('./Routes/AdminRoutes')
 
 app.use('/admin/user', AdminRoutes)
 app.use('/admin/wroker', AdminRoutes)
 
 
-// app.use("/api/users", userRoutes);
-// app.use("/api/workers", workerRoutes);
+

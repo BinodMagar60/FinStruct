@@ -6,6 +6,7 @@ const BackendURI="http://localhost:5000/";
 export const profileDetails = async (route) => {
     try {
       const response = await axios.get(BackendURI + route);
+      console.log(response)
       return response.data; 
     } catch (error) {
       console.error("Error fetching profile:", error);
@@ -29,7 +30,6 @@ export const profileDetailsUpdate = async(route, data) => {
 
 
 //update the password for logged in user
-
 export const changePassword = async(route, data) => {
   try{
     const response = await axios.put(BackendURI+route, data)
@@ -37,11 +37,38 @@ export const changePassword = async(route, data) => {
     return response.data
   }
   catch (err){
-    // console.error("Error changing the password: ",err)
+    console.error("Error changing the password: ",err)
     throw err.response.data
   }
 }
 
+
+//Add roles and salaries
+export const addRolesAndSalaries = async(route, data) => {
+  try{
+    const response = await axios.post(BackendURI+route, data)
+    // console.log(response)
+    return response.data
+  }
+  catch (err){
+    // console.error(err)
+    throw err.response.data
+  }
+}
+
+
+//Show roles and salaries
+export const getRolesAndSalaries = async(route) => {
+  try{
+    const response = await axios.get(BackendURI+route)
+    // console.log(response)
+    return response.data
+  }
+  catch (err){
+    console.error("Error changing the password: ",err)
+    throw err.response.data
+  }
+}
 
 
 
