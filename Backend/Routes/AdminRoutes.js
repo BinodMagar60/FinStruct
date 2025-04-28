@@ -30,7 +30,7 @@ router.post('/roles-salaries', async (req, res) => {
   try {
     const { titleName, companyId, role, defaultSalary } = req.body;
 
-    // Check if a role with the same title already exists in the same company (case-insensitive)
+
     const existingJobTitle = await JobTitle.findOne({
       companyId,
       titleName: { $regex: `^${titleName}$`, $options: 'i' }
