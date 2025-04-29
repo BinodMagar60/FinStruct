@@ -2,6 +2,11 @@ import { useState } from "react"
 import { Edit2, Trash2 } from "lucide-react"
 
 export default function RolesList({ roles, searchTerm, onEdit, onDelete, onAddRole }) {
+
+
+  const user = JSON.parse(localStorage.getItem("userDetails"));
+
+
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "ascending" })
 
   const filteredRoles = roles.filter((role) => {
@@ -80,18 +85,24 @@ export default function RolesList({ roles, searchTerm, onEdit, onDelete, onAddRo
           <tbody className="bg-white divide-y divide-gray-200">
             {sortedRoles.map((role) => (
               <tr key={role._id}>
-                <td className="px-6 py-4 whitespace-nowrap">{role.titleName}</td>
+                <td className="px-6 py-4 whitespace-nowrap capitalize">{role.titleName}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   ${role.defaultSalary.toLocaleString()}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">{role.role}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <button onClick={() => onEdit(role)} className="text-blue-600 hover:text-blue-900 mr-4">
+                  {
+                    user.isOwner && (
+                      <button onClick={() => onEdit(role)} className="text-blue-600 hover:text-blue-900 mr-4">
                     <Edit2 className="h-5 w-5" />
                   </button>
-                  <button onClick={() => onDelete(role._id)} className="text-red-600 hover:text-red-900">
+                    )
+                  }
+                  { role.titleName !== "Owner" && (
+                    <button onClick={() => onDelete(role._id)} className="text-red-600 hover:text-red-900">
                     <Trash2 className="h-5 w-5" />
                   </button>
+                  )}
                 </td>
               </tr>
             ))}

@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { X } from "lucide-react"
+import { updateRolesAndSalaries } from "../../../api/AdminApi"
 
 export default function EditRoleModal({ role, onSave, onCancel }) {
   const [formData, setFormData] = useState({
@@ -18,9 +19,19 @@ export default function EditRoleModal({ role, onSave, onCancel }) {
     })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault()
-    onSave(formData)
+    
+    // console.log(formData)
+    try{
+      const response = await updateRolesAndSalaries(`admin/user/roles-salaries/${formData._id}`, formData)
+      // console.log(response)
+      onSave(formData)
+    }
+    catch(err){
+      console.log(err)
+    }
+
   }
 
   return (
@@ -84,3 +95,9 @@ export default function EditRoleModal({ role, onSave, onCancel }) {
     </div>
   )
 }
+
+
+
+
+
+

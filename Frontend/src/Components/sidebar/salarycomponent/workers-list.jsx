@@ -76,7 +76,7 @@ export default function WorkersList({ workers, searchTerm, onEdit, onDelete }) {
         <tbody className="bg-white divide-y divide-gray-200">
           {sortedWorkers.map((worker) => (
             <tr key={worker._id}>
-              <td className="px-6 py-4 whitespace-nowrap">{worker.username}</td>
+              <td className="px-6 py-4 whitespace-nowrap capitalize">{worker.username}</td>
               <td className="px-6 py-4 whitespace-nowrap">{worker.role}</td>
               <td className="px-6 py-4 whitespace-nowrap">
                 ${worker.salary.toLocaleString()}

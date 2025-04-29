@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
+const JobTitle = require("../models/JobTitle");
 const mongoose = require("mongoose");
 const {
   generateCustomSalt,
@@ -8,6 +9,12 @@ const {
   xorEncrypt,
   xorDecrypt
 } = require("../utils/passwordUtils");
+
+
+
+
+
+// ---------------------- User Profile ---------------
 
 //get the data for profile of the user logged in
 const getProfileDetails = async (req, res) => {
@@ -115,10 +122,130 @@ const updateProfilePassword = async (req, res) => {
   }
 }
 
+// ---------------------- User Profile End ---------------
 
 
 
 
 
 
-module.exports = {getProfileDetails, updateProfileDetails, updateProfilePassword} 
+
+
+
+// ----------------------  Salary Section ---------------
+
+//add Roles and their salaries
+const addRolesAndSalaries = async (req, res) => {
+  try {
+    const { titleName, companyId, role, defaultSalary } = req.body;
+
+
+    const existingJobTitle = await JobTitle.findOne({
+      companyId,
+      titleName: { $regex: `^${titleName}$`, $options: 'i' }
+    });
+
+    if (existingJobTitle) {
+      return res.status(400).json({ message: "Role already exists" });
+    }
+
+    const jobTitleData = new JobTitle({
+      companyId,
+      role,
+      titleName: titleName,
+      defaultSalary,
+    });
+
+    await jobTitleData.save();
+
+    res.status(201).json({ message: "Successfully Created" });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
+
+
+
+// Show roles and salaries
+const displayRolesAndSalaries = async(req, res) => {
+
+  try{
+    const {id} = req.params
+    const roles = await JobTitle.find({companyId: id})
+
+    return res.status(200).json({message: "data retrived", allRolesData: roles})
+  }
+  catch(error){
+    res.status(500).json({message: "Server Error", error: error.message})
+  }
+
+}
+
+
+//Update roles and salaries
+const updateRolesAndSalaries = async(req, res)=> {
+  try{
+    const {id} = req.params
+
+    const {_id, titleName, defaultSalary, role, companyId} = req.body
+
+    const updateData = {
+      _id,
+      titleName,
+      defaultSalary,
+      role,
+      companyId
+    }
+    
+    const updatedData = await JobTitle.findByIdAndUpdate(id, updateData, {new: true})
+
+    if(!updatedData){
+      return res.status(400).json({message: "Role not found"})
+    }
+
+    res.status(200).json({message: "Update Successfull", updatedValues: updatedData})
+
+
+  }
+  catch(error){
+    res.status(500).json({message: "Server Error", error: error.message})
+  }
+}
+
+
+//Delete role and salaries
+  const deleteRolesAndSalaries = async(req, res)=> {
+    try{
+      const {id} = req.params;
+
+      const existingJobTitle = await JobTitle.findById(id)
+
+      
+
+      if(!existingJobTitle){
+        return res.status(404).json({message: "Role not found"})
+      }
+
+      const isUserUsingJobTitle = await User.findOne({jobTitleId: id})
+
+      if(isUserUsingJobTitle){
+        return res.status(400).json({message: "The role is currently being used"})
+      }
+
+      await JobTitle.findByIdAndDelete(id)
+      res.status(200).json({message: 'Deleted Successfully.'})
+
+    }
+    catch (error){
+      res.status(500).json({message: "Server Error", error: error.message})
+    }
+  }
+
+
+// ---------------------- Salary Section End ---------------
+
+
+
+
+module.exports = {getProfileDetails, updateProfileDetails, updateProfilePassword, deleteRolesAndSalaries, updateRolesAndSalaries, displayRolesAndSalaries, addRolesAndSalaries} 

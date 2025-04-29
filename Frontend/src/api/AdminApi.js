@@ -57,6 +57,7 @@ export const addRolesAndSalaries = async(route, data) => {
 }
 
 
+
 //Show roles and salaries
 export const getRolesAndSalaries = async(route) => {
   try{
@@ -65,12 +66,40 @@ export const getRolesAndSalaries = async(route) => {
     return response.data
   }
   catch (err){
-    console.error("Error changing the password: ",err)
+    console.error(err)
     throw err.response.data
   }
 }
 
 
+
+//Update roles and salaries
+
+export const updateRolesAndSalaries = async(route, data) => {
+  try{
+    const response = await axios.put(BackendURI+route, data)
+    // console.log(response)
+    return response.data.updatedValues
+  }
+  catch(err){
+    // console.log(err)
+    throw err.response.data
+  }
+}
+
+
+
+//Delete roles and salaries
+export const DeleteRolesAndSalaries = async(route)=> {
+  try{
+   const response = await axios.delete(BackendURI+route)
+   return response
+  }
+  catch(err){
+    // console.log(err)
+    throw err.response.data
+  }
+}
 
 
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { toast } from "react-toastify"
 import { Users, Briefcase, UserCog, Plus } from "lucide-react"
 import UsersList from "./salarycomponent/users-list"
 import WorkersList from "./salarycomponent/workers-list"
@@ -6,7 +7,9 @@ import RolesList from "./salarycomponent/roles-list"
 import EditEmployeeModal from "./salarycomponent/edit-employee-modal"
 import EditRoleModal from "./salarycomponent/edit-role-modal"
 import AddRoleModal from "./salarycomponent/add-role-modal"
-import { getRolesAndSalaries } from "../../api/AdminApi"
+import { getRolesAndSalaries, DeleteRolesAndSalaries } from "../../api/AdminApi"
+
+
 
 export default function Salary() {
 
@@ -105,23 +108,14 @@ export default function Salary() {
     },
   ])
 
-  const [jobTitles, setJobTitles] = useState([
-    // { _id: "1", titleName: "QA Tester", defaultSalary: 65000, role: "worker", companyId: "1" },
-    // { _id: "2", titleName: "Marketing Specialist", defaultSalary: 68000, role: "user", companyId: "1" },
-    // { _id: "3", titleName: "Analyst", defaultSalary: 70000, role: "worker", companyId: "1" },
-    // { _id: "4", titleName: "HR Specialist", defaultSalary: 72000, role: "user", companyId: "1" },
-    // { _id: "5", titleName: "Designer", defaultSalary: 75000, role: "worker", companyId: "1" },
-    // { _id: "6", titleName: "Developer", defaultSalary: 85000, role: "worker", companyId: "1" },
-    // { _id: "7", titleName: "DevOps Engineer", defaultSalary: 90000, role: "worker", companyId: "1" },
-    // { _id: "8", titleName: "Manager", defaultSalary: 95000, role: "user", companyId: "1" },
-  ])
+  const [jobTitles, setJobTitles] = useState([])
 
 
   useEffect(()=>{
     const getRolesData = async()=>{
         try{
             const response = await getRolesAndSalaries(`admin/user/roles-salaries/${user.companyId}`)
-            console.log(response)
+            // console.log(response)
             setJobTitles(response.allRolesData)
         }
         catch(err){
@@ -175,8 +169,23 @@ export default function Salary() {
     }
   }
 
-  const handleDeleteRole = (id) => {
-    setJobTitles(jobTitles.filter((jobTitle) => jobTitle._id !== id))
+  const handleDeleteRole = async(id) => {
+    
+
+    try{
+      await DeleteRolesAndSalaries(`admin/user/roles-salaries/${id}`)
+      
+      setJobTitles(jobTitles.filter((jobTitle) => jobTitle._id !== id))
+      
+    }catch(err){
+      // console.log(err)s
+      toast.error(err.message, {
+        theme: 'light',
+        autoClose: 1500
+      })
+    }
+
+
   }
 
   return (

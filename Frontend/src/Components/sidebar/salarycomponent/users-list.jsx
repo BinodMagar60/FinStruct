@@ -84,10 +84,10 @@ export default function UsersList({ users, searchTerm, onEdit, onDelete }) {
         <tbody className="bg-white divide-y divide-gray-200">
           {sortedUsers.map((user) => (
             <tr key={user._id}>
-              <td className="px-6 py-4 whitespace-nowrap  ">{user.username}</td>
-              <td className="px-6 py-4 whitespace-nowrap  ">{user.email}</td>
-              <td className="px-6 py-4 whitespace-nowrap  ">{user.role}</td>
-              <td className="px-6 py-4 whitespace-nowrap  ">
+              <td className="px-6 py-4 whitespace-nowrap capitalize">{user.username}</td>
+              <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
+              <td className="px-6 py-4 whitespace-nowrap">{user.role}</td>
+              <td className="px-6 py-4 whitespace-nowrap">
                 ${user.salary.toLocaleString()}
                 {user.isDefault && <span className="ml-2 text-xs text-gray-400">(Default)</span>}
               </td>

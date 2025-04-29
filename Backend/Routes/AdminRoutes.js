@@ -8,8 +8,14 @@ const {
   xorEncrypt,
   xorDecrypt
 } = require("../utils/passwordUtils");
-const { getProfileDetails, updateProfileDetails, updateProfilePassword } = require("../controllers/AdminControllers");
+const { getProfileDetails, updateProfileDetails, updateProfilePassword, deleteRolesAndSalaries, updateRolesAndSalaries, displayRolesAndSalaries, addRolesAndSalaries } = require("../controllers/AdminControllers");
 const JobTitle = require("../models/JobTitle");
+
+
+
+
+
+// ---------------------- User Profile---------------
 
 //get data for profile of the user logged in
 router.get("/profile/:email", getProfileDetails);
@@ -24,97 +30,62 @@ router.put("/profile/:email", updateProfileDetails);
 router.put("/password/:id", updateProfilePassword);
 
 
+// ---------------------- User Profile End ---------------
+
+
+
+
+
+
+
+
+// ----------------------  Salary Section ---------------
 
 //add Roles and their salaries
-router.post('/roles-salaries', async (req, res) => {
-  try {
-    const { titleName, companyId, role, defaultSalary } = req.body;
-
-
-    const existingJobTitle = await JobTitle.findOne({
-      companyId,
-      titleName: { $regex: `^${titleName}$`, $options: 'i' }
-    });
-
-    if (existingJobTitle) {
-      return res.status(400).json({ message: "Role already exists" });
-    }
-
-    const jobTitleData = new JobTitle({
-      companyId,
-      role,
-      titleName: titleName,
-      defaultSalary,
-    });
-
-    await jobTitleData.save();
-
-    res.status(201).json({ message: "Successfully Created" });
-  } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
-  }
-});
+router.post('/roles-salaries', addRolesAndSalaries);
 
 
 
 
 // Show roles and salaries
-router.get('/roles-salaries/:id', async(req, res) => {
-
-  try{
-    const {id} = req.params
-    const roles = await JobTitle.find({companyId: id})
-
-    return res.status(200).json({message: "data retrived", allRolesData: roles})
-  }
-  catch(error){
-    res.status(500).json({message: "Server Error", error: error.message})
-  }
-
-})
+router.get('/roles-salaries/:id', displayRolesAndSalaries)
 
 
 //Update roles and salaries
-router.put('/roles-salaries', async(req, res)=> {
-  try{
-
-  }
-  catch(error){
-    res.status(500).json({message: "Server Error", error: error.message})
-  }
-})
+router.put('/roles-salaries/:id', updateRolesAndSalaries)
 
 
+//Delete role and salaries
+  router.delete('/roles-salaries/:id', deleteRolesAndSalaries)
+
+
+// ---------------------- Salary Section End ---------------
 
 
 
 
 
 
-//add user
-router.post("/add-user", async (req, res) => {
-  try {
-    console.log("Request body:", req.body);
 
-    const newUser = new User(req.body);
-    await newUser.save();
+// ----------------------  User Section ---------------
 
-    res.status(201).json({ message: "User added successfully" });
-  } catch (err) {
-    console.error("Error saving user:", err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
 
-//add worker
-router.post("/add-worker", async (req, res) => {
-  try {
-    const newWorker = new Worker(req.body);
-    await newWorker.save();
-    res.status(201).json({ message: "Worker added successfully" });
-  } catch (err) {
-    res.status(500).json({ error: "Error adding worker" });
-  }
-});
+
+
+
+
+
+// ----------------------  User Section ---------------
+
+
+
+
+
+
+
+
+
+
+
 
 module.exports = router;
