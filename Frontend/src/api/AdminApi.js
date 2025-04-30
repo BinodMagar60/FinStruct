@@ -1,5 +1,6 @@
 import axios from "axios"
 
+
 const BackendURI="http://localhost:5000/";
 
 //get the details of logged in user
@@ -100,6 +101,49 @@ export const DeleteRolesAndSalaries = async(route)=> {
     throw err.response.data
   }
 }
+
+
+
+
+
+
+//Get roles in User Section
+export const getAllRoles = async(route) => {
+  try{
+    const response = await axios.get(BackendURI+route)
+    return response.data.allRoles
+  }
+  catch(err){
+    console.log(err)
+    throw err.response.data
+  }
+}
+
+//add users from the companies dashboard
+export const addUserFromCompany = async(route,data) => {
+  try{
+    const response =  await axios.post(BackendURI+route, data)
+    return response.data
+  }
+  catch (err){
+    console.log(err)
+    throw err.response.data
+  }
+}
+
+//get all the companies user details
+export const getAllUsersDetailFromCompany = async(route) => {
+  try{
+    const response = await axios.get(BackendURI+route)
+    return response.data
+  }
+  catch(err){
+    console.log(err)
+    throw err.response.data
+  }
+}
+
+
 
 
 

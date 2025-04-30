@@ -137,7 +137,7 @@ router.post("/login", validateLogin, async (req, res) => {
       companyId: user.companyId?._id || null,
       companyName: user.companyId?.name || null,
       jobTitleId: user.jobTitleId,
-      photo: user.photo || null,
+      photo: user.photo,
       role: user.role,
       isOwner: user.isOwner,
     };

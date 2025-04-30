@@ -6,6 +6,8 @@ import Logout from '../../Components/Logout';
 
 const Employee = () => {
     const [isLogout, setLogout] = useState(false);
+  const user = JSON.parse(localStorage.getItem("userDetails"));
+
     
 
     
@@ -14,7 +16,7 @@ const Employee = () => {
   return (
     <>
     <div className='bg-[#efefef] h-screen relative'>
-        <Navbar isLogout={isLogout} setLogout={setLogout}/>
+        <Navbar isLogout={isLogout} setLogout={setLogout} user={user}/>
 
       <div className=' flex'>
         <span >

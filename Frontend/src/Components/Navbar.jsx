@@ -14,11 +14,12 @@ import Logout from "./Logout";
 import { getInitials } from "../utils/getInitials";
 
 const Navbar = ({ isLogout, setLogout, user }) => {
+  const userDetails = user;
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(true);
   const [notificationSignChecker, setnotificationSignChecker] = useState(false);
-  const userDetails = user;
+  
 
   const profileSidebarAdmin = [
     `/admin/profile/profileuser`,

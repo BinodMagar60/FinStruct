@@ -10,7 +10,7 @@ import { CookiesProvider } from "react-cookie";
 import Admin from "./Pages/admin/Admin"
 import Dashboard from "./Components/sidebar/Dashboard";
 import Salary from "./Components/sidebar/Salary";
-import User from "./Pages/admin/SideBarLists/User";
+// import User from "./Pages/admin/SideBarLists/User";
 import Mails from "./Components/sidebar/Mails"
 import Docs from "./Components/sidebar/Docs"
 import Profile from "./Components/userprofile/Profile"
@@ -19,7 +19,7 @@ import ProfileUser from "./Components/userprofile/ProfileUser"
 import Activity from "./Components/userprofile/Activity"
 import Employee from "./Pages/users/Employee"
 import Overview from "./Components/sidebar/Overview";
-import EmployeeUser from "./Pages/users/SideBarLists/EmployeeUser";
+// import EmployeeUser from "./Pages/users/SideBarLists/EmployeeUser";
 import Tasks from "./Components/sidebar/Tasks";
 import IncomeExpenses from "./Components/sidebar/IncomeExpenses";
 import TodoList from "./Components/sidebar/TodoList";
@@ -28,6 +28,7 @@ import InprogreeList from "./Components/sidebar/InprogreeList";
 import TaskDetail from "./Components/TaskDetails/TaskDetail";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import Unauthorized from './Pages/Unauthorized'
+import User from "./Components/sidebar/User";
 
 
 
@@ -138,7 +139,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: "user",
-            element: <EmployeeUser/>
+            element: <User/>
           },
           {
             path: "mail",
