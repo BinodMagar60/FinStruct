@@ -2,7 +2,8 @@ import { useEffect, useState } from "react"
 import TeamMembers from "./users/team-members"
 import UserDetail from "./users/user-detail"
 import AddUserForm from "./users/add-user-form"
-import { addUserFromCompany, getAllUsersDetailFromCompany } from "../../api/AdminApi"
+import { addUserFromCompany, deleteUserDetails, getAllUsersDetailFromCompany, updateUserDetails } from "../../api/AdminApi"
+import { ChevronsRightLeft } from "lucide-react"
 
 export default function User() {
   const userSave = JSON.parse(localStorage.getItem("userDetails"));
@@ -64,9 +65,14 @@ export default function User() {
     setView("edit")
   }
 
-  const handleDeleteUser = (userId) => {
-    setUsers(users.filter((user) => user._id !== userId))
-    setWorkers(workers.filter((worker) => worker._id !== userId))
+  const handleDeleteUser = async(userId) => {
+    console.log(userId)
+    try{
+      const response = await deleteUserDetails(`admin/user/users/${userId}`)
+      console.log(response)
+    }catch(err){
+      console.log(err)
+    }
   }
 
   const handleBackToList = () => {
@@ -76,29 +82,16 @@ export default function User() {
 
   const handleSubmitUser = async(userData) => {
     if (userData._id) {
-      // Editing existing user
-      if (userData.role === "worker") {
-        setWorkers(workers.map((worker) => (worker._id === userData._id ? { ...worker, ...userData } : worker)))
-      } else {
-        setUsers(users.map((user) => (user._id === userData._id ? { ...user, ...userData } : user)))
-      }
+      console.log(userData)
+
+      const response = await updateUserDetails(`admin/user/users/${userData._id}`, userData)
+      console.log(response)
+
     } else {
-      // Add new user
-      const newUser = {
-        ...userData,
-        _id: Math.random().toString(36).substr(2, 9),
-      }
-
-      console.log(newUser)
+      
       try{
-        const response = await addUserFromCompany(`admin/user/users/${userSave.companyId}`, newUser)
+        const response = await addUserFromCompany(`admin/user/users/${userSave.companyId}`, userData)
         console.log(response)
-
-        if (userData.role === "worker") {
-          setWorkers([...workers, newUser])
-        } else {
-          setUsers([...users, newUser])
-        }
       }catch(err){
         console.log(err)
       }

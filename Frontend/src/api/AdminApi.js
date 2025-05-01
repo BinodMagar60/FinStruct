@@ -143,6 +143,30 @@ export const getAllUsersDetailFromCompany = async(route) => {
   }
 }
 
+//update the user details in User section
+export const updateUserDetails = async(route, data) => {
+  try{
+    const response = await axios.put(BackendURI+route, data)
+    return response.data
+  }
+  catch(err){
+    console.log(err)
+    throw err.response.data
+  }
+}
+
+//delete the user from User section
+export const deleteUserDetails = async(route) => {
+  try{
+    const response = await axios.delete(BackendURI+route)
+    return response.data
+  }
+  catch(err){
+    console.log(err)
+    throw err.response.data
+  }
+}
+
 
 
 

@@ -160,35 +160,7 @@ const defaultEmail = `${newUsername.replace(/\s/g, "")}${randomDigits}@${company
 
 
 
-
-//get the detail of all the users in User section
-// router.get('/users/:id', async(req,res)=> {
-//   try{
-//     const {id} = req.params
-
-//     const existingCompany = await Company.findById(id);
-//     if(!existingCompany){
-//       return res.status(404).json({message: 'Company Id not found'})
-//     }
-
-
-//     const users = await User.find({companyId: id})
-
-
-
-
-//   }
-//   catch(error){
-//     res.status(500).json({ message: "Server Error", error: error.message });
-
-//   }
-// })
-
-
-
-
-
-// GET all users under a company with cleaned and transformed data
+// get all users under a company 
 router.get('/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -219,7 +191,6 @@ router.get('/users/:id', async (req, res) => {
       };
     });
 
-    // Return cleaned users
     res.status(200).json({message: 'successfully pulled users data', sanitizedUsers});
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });
@@ -228,8 +199,60 @@ router.get('/users/:id', async (req, res) => {
 
 
 
+//update the user detail in User section.
+router.put('/users/:id', async(req, res)=>{
+  try{
+    const {id} = req.params;
+    
+    const existingUser = await User.findById(id)
+    if(!existingUser){
+      return res.status(404).json({message: "User not found"})
+    }
+
+    const { username, jobTitleId, personalEmail, phoneNumber} = req.body
+
+    const jobID = await JobTitle.findOne({titleName: jobTitleId.name});
+    if(!jobID){
+      return res.status(404).json({message: "Job Title not found"})
+    }
+
+    const updateData = {
+      username,
+      jobTitleId: jobID,
+      personalEmail,
+      phoneNumber
+    }
+
+    const updatedData = await User.findByIdAndUpdate(id,updateData, {new: true})
+    res.status(200).json({message: "Update Successful", updatedValues: updateData})
+  }
+  catch(error){
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+})
 
 
+
+//delete the user detial in user section.
+router.delete('/users/:id', async(req, res)=>{
+  try{
+    const {id} = req.params
+    const existingUser = await User.findById(id)
+    if(!existingUser){
+      return res.status(404).json({message: "User not found"})
+    }
+
+    if(existingUser.isOwner){
+      return res.status(404).json({message: "Owners details cannot be deleted"})
+    }
+
+    await User.findByIdAndDelete(id)
+    res.status(200).json({message: 'User deleted successfully'})
+  }
+  catch(error){
+    res.status(500).json({message: 'Server Error', error: error.message})
+  }
+})
 
 
 

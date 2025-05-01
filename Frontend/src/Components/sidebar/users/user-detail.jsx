@@ -1,6 +1,10 @@
-import { Briefcase, Edit, Trash2, X, MapPin, Phone, Mail } from "lucide-react"
+import { Briefcase, Edit, Trash2, X, MapPin, Phone, Mail, User } from "lucide-react"
 
 export default function UserDetail({ userId, users = [], onBack }) {
+
+  const userlocal = JSON.parse(localStorage.getItem("userDetails"));
+
+
   // Find the user by ID
   const user = users.find((u) => u._id === userId) || {
     _id: "1",
@@ -57,9 +61,9 @@ export default function UserDetail({ userId, users = [], onBack }) {
             <div>
               <h1 className="text-2xl font-bold">{user.username}</h1>
               <div className="flex items-center gap-2 text-gray-600">
-                <Briefcase size={16} />
+                <User size={18} />
                 <span>
-                  {user.jobTitleId?.name || "Job Title"} {user.companyId?.name ? `at ${user.companyId.name}` : ""}
+                  {user.jobTitleId?.name || "Job Title"} {userlocal.companyName ? `at ${userlocal.companyName}` : ""}
                 </span>
               </div>
             </div>
@@ -84,7 +88,7 @@ export default function UserDetail({ userId, users = [], onBack }) {
               <h2 className="text-lg font-semibold mb-3">Employment Details</h2>
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <Briefcase size={18} className="text-gray-500 mt-0.5" />
+                <User size={18} className="text-gray-500 mt-0.5" />
                   <div>
                     <p className="font-medium">Type</p>
                     <p className="text-gray-700 capitalize">{user.role}</p>
@@ -109,13 +113,17 @@ export default function UserDetail({ userId, users = [], onBack }) {
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
+                {
+                  user.role !== "worker" && (
+                    <div className="flex items-start gap-3">
                   <MapPin size={18} className="text-gray-500 mt-0.5" />
                   <div>
                     <p className="font-medium">Location</p>
                     <p className="text-gray-700">{user.location || "Not specified"}</p>
                   </div>
                 </div>
+                  )
+                }
               </div>
             </div>
           </div>

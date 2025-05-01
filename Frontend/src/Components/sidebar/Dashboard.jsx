@@ -867,9 +867,9 @@ export default function Dashboard() {
               {(activeProjectView
                 ? activeProjects
                 : activeProjects.slice(0, 4)
-              ).map((project) => (
+              ).map((project, index) => (
                 <div
-                  key={project.name}
+                  key={index}
                   className="border border-gray-200 rounded-lg p-4"
                 >
                   <div className="flex justify-between items-center mb-2">
@@ -920,9 +920,9 @@ export default function Dashboard() {
             </div>
             <div className="space-y-4">
               {(activeTeamView ? teamMembers : teamMembers.slice(0, 7)).map(
-                (member) => (
+                (member, index) => (
                   <div
-                    key={member.name}
+                    key={index}
                     className="flex items-center justify-between border-b border-gray-200 pb-4"
                   >
                     <div className="flex items-center">

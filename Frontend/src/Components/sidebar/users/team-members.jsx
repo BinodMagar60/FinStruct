@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, X } from "lucide-react";
 
 export default function TeamMembers(props) {
   const userdetails = JSON.parse(localStorage.getItem("userDetails"));
@@ -9,10 +9,11 @@ export default function TeamMembers(props) {
   const [userType, setUserType] = useState("user");
   const [sortField, setSortField] = useState("username");
   const [sortDirection, setSortDirection] = useState("asc");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   // Use props.users and props.workers if provided, otherwise use default data
   const users = props.users;
-
   const workers = props.workers;
 
   const handleSearch = (e) => {
@@ -47,11 +48,21 @@ export default function TeamMembers(props) {
   };
 
   const handleDelete = (user) => {
-    if (confirm(`Are you sure you want to delete ${user.username}?`)) {
-      if (props.onDeleteUser) {
-        props.onDeleteUser(user._id);
-      }
+    setUserToDelete(user);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    if (props.onDeleteUser && userToDelete) {
+      props.onDeleteUser(userToDelete._id);
     }
+    setShowDeleteConfirm(false);
+    setUserToDelete(null);
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirm(false);
+    setUserToDelete(null);
   };
 
   const handleViewUser = (user) => {
@@ -88,7 +99,8 @@ export default function TeamMembers(props) {
     const filteredData = data.filter(
       (item) =>
         item.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.email.toLowerCase().includes(searchQuery.toLowerCase())
+        item.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.phoneNumber?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     // Then sort by the selected field
@@ -117,7 +129,41 @@ export default function TeamMembers(props) {
   };
 
   return (
-    <div>
+    <div className="relative">
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && userToDelete && (
+        <div className="fixed inset-0 bg-[#0000003d] bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 shadow-lg max-w-md w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Confirm Deletion</h3>
+              <button 
+                onClick={cancelDelete}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <p className="mb-6">
+              Are you sure you want to delete <span className="font-semibold">{userToDelete.username}</span>?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={cancelDelete}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Team Members</h1>
         <div className="flex gap-2">
@@ -130,19 +176,7 @@ export default function TeamMembers(props) {
               onChange={handleSearch}
             />
             <button className="absolute inset-y-0 right-0 px-3 flex items-center bg-black text-white rounded-r-md">
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+              <Search className="h-5 w-5" />
             </button>
           </div>
 
@@ -205,7 +239,9 @@ export default function TeamMembers(props) {
                     className="flex items-center gap-1 cursor-pointer font-medium"
                     onClick={() => handleSort("email")}
                   >
-                    Email
+                    {
+                      activeTab === "workers" ? "Contact" : "Email"
+                    }
                     {sortField === "email" && (
                       <span className="ml-1">
                         {sortDirection === "asc" ? " ↑" : " ↓"}
@@ -248,9 +284,9 @@ export default function TeamMembers(props) {
                               user._id
                             )}`}
                           >
-                            {getInitials(user.username)}
+                             {user.photo? <img src={user.photo} alt={user.username}/> : getInitials(user.username)}
                           </div>
-                          <span>{user.username}</span>
+                          <span className="capitalize">{user.username}</span>
                         </div>
                       </td>
                       <td
@@ -260,7 +296,7 @@ export default function TeamMembers(props) {
                         {user.email}
                       </td>
                       <td
-                        className="px-6 py-4"
+                        className="px-6 py-4 capitalize"
                         onClick={() => handleViewUser(user)}
                       >
                         {user.jobTitleId?.name || "Not assigned"}
@@ -309,17 +345,17 @@ export default function TeamMembers(props) {
                           >
                             {getInitials(worker.username)}
                           </div>
-                          <span>{worker.username}</span>
+                          <span className="capitalize">{worker.username}</span>
                         </div>
                       </td>
                       <td
                         className="px-6 py-4"
                         onClick={() => handleViewUser(worker)}
                       >
-                        {worker.email}
+                        {worker.phoneNumber}
                       </td>
                       <td
-                        className="px-6 py-4"
+                        className="px-6 py-4 capitalize"
                         onClick={() => handleViewUser(worker)}
                       >
                         {worker.jobTitleId?.name || "Not assigned"}
