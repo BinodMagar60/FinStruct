@@ -6,31 +6,18 @@ export default function TeamMembers(props) {
   const [activeTab, setActiveTab] = useState("users");
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [userType, setUserType] = useState("user");
   const [sortField, setSortField] = useState("username");
   const [sortDirection, setSortDirection] = useState("asc");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
 
-  // Use props.users and props.workers if provided, otherwise use default data
   const users = props.users;
   const workers = props.workers;
 
-  const handleSearch = (e) => {
-    setSearchQuery(e.target.value);
-  };
-
-  const handleAddUser = () => {
-    if (props.onAddUser) {
-      props.onAddUser();
-    } else {
-      setShowAddModal(true);
-    }
-  };
-
-  const handleCloseModal = () => {
-    setShowAddModal(false);
-  };
+  const handleSearch = (e) => setSearchQuery(e.target.value);
+  const handleAddUser = () =>
+    props.onAddUser ? props.onAddUser() : setShowAddModal(true);
+  const handleCloseModal = () => setShowAddModal(false);
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -42,9 +29,7 @@ export default function TeamMembers(props) {
   };
 
   const handleEdit = (user) => {
-    if (props.onEditUser) {
-      props.onEditUser(user);
-    }
+    if (props.onEditUser) props.onEditUser(user);
   };
 
   const handleDelete = (user) => {
@@ -66,22 +51,16 @@ export default function TeamMembers(props) {
   };
 
   const handleViewUser = (user) => {
-    if (userdetails.role === "employee") {
-      return;
-    }
-
-    if (props.onViewUser) {
-      props.onViewUser(user._id);
-    }
+    if (userdetails.role === "employee") return;
+    if (props.onViewUser) props.onViewUser(user._id);
   };
 
-  const getInitials = (name) => {
-    return name
+  const getInitials = (name) =>
+    name
       .split(" ")
       .map((part) => part[0])
       .join("")
       .toUpperCase();
-  };
 
   const getRandomColor = (id) => {
     const colors = [
@@ -95,48 +74,49 @@ export default function TeamMembers(props) {
   };
 
   const getSortedAndFilteredData = (data) => {
-    // First filter by search query
-    const filteredData = data.filter(
+    const filtered = data.filter(
       (item) =>
         item.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.phoneNumber?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Then sort by the selected field
-    return filteredData.sort((a, b) => {
-      let aValue = a[sortField];
-      let bValue = b[sortField];
-
-      // Handle nested properties like jobTitleId.name
+    return filtered.sort((a, b) => {
+      let aVal = a[sortField];
+      let bVal = b[sortField];
       if (sortField === "jobTitleId") {
-        aValue = a.jobTitleId?.name || "";
-        bValue = b.jobTitleId?.name || "";
+        aVal = a.jobTitleId?.name || "";
+        bVal = b.jobTitleId?.name || "";
       } else if (sortField === "role" && activeTab === "users") {
-        aValue = a.jobTitleId?.name || a.role;
-        bValue = b.jobTitleId?.name || b.role;
+        aVal = a.jobTitleId?.name || a.role;
+        bVal = b.jobTitleId?.name || b.role;
       }
-
-      if (typeof aValue === "string") {
-        aValue = aValue.toLowerCase();
-        bValue = bValue.toLowerCase();
+      if (typeof aVal === "string") {
+        aVal = aVal.toLowerCase();
+        bVal = bVal.toLowerCase();
       }
-
-      if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
-      if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+      if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
       return 0;
     });
   };
 
+  const canShowUserActions = (user) => {
+    if (userdetails.role !== "admin") return false;
+    if (userdetails.isOwner) return true;
+    return user.role !== "admin";
+  };
+
+  const canShowWorkerActions = () => userdetails.role === "admin";
+
   return (
     <div className="relative">
-      {/* Delete Confirmation Modal */}
       {showDeleteConfirm && userToDelete && (
-        <div className="fixed inset-0 bg-[#0000003d] bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-[#0000003d] flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 shadow-lg max-w-md w-full">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold">Confirm Deletion</h3>
-              <button 
+              <button
                 onClick={cancelDelete}
                 className="text-gray-500 hover:text-gray-700"
               >
@@ -144,7 +124,8 @@ export default function TeamMembers(props) {
               </button>
             </div>
             <p className="mb-6">
-              Are you sure you want to delete <span className="font-semibold">{userToDelete.username}</span>?
+              Are you sure you want to delete{" "}
+              <strong>{userToDelete.username}</strong>?
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -172,14 +153,13 @@ export default function TeamMembers(props) {
               type="text"
               placeholder="Search..."
               value={searchQuery}
-              className="border border-gray-300 rounded-md py-2 px-4 pr-10 focus:outline-none"
               onChange={handleSearch}
+              className="border border-gray-300 rounded-md py-2 px-4 pr-10 focus:outline-none"
             />
             <button className="absolute inset-y-0 right-0 px-3 flex items-center bg-black text-white rounded-r-md">
               <Search className="h-5 w-5" />
             </button>
           </div>
-
           {userdetails.role === "admin" && (
             <button
               onClick={handleAddUser}
@@ -195,22 +175,22 @@ export default function TeamMembers(props) {
         <div className="border-b border-gray-300">
           <div className="flex">
             <button
+              onClick={() => setActiveTab("users")}
               className={`px-6 py-2 font-medium ${
                 activeTab === "users"
                   ? "border-b-2 border-black shadow-inner"
                   : "text-gray-500"
               }`}
-              onClick={() => setActiveTab("users")}
             >
               Users
             </button>
             <button
+              onClick={() => setActiveTab("workers")}
               className={`px-6 py-2 font-medium ${
                 activeTab === "workers"
                   ? "border-b-2 border-black shadow-inner"
                   : "text-gray-500"
               }`}
-              onClick={() => setActiveTab("workers")}
             >
               Workers
             </button>
@@ -221,171 +201,100 @@ export default function TeamMembers(props) {
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-300">
-                <th className="text-left px-6 py-4">
-                  <div
-                    className="flex items-center gap-1 cursor-pointer font-medium "
-                    onClick={() => handleSort("username")}
-                  >
-                    Full Name
-                    {sortField === "username" && (
-                      <span className="ml-1">
-                        {sortDirection === "asc" ? " ↑" : " ↓"}
-                      </span>
-                    )}
-                  </div>
+                <th
+                  className="text-left px-6 py-4 cursor-pointer"
+                  onClick={() => handleSort("username")}
+                >
+                  Full Name
                 </th>
-                <th className="text-left px-6 py-4">
-                  <div
-                    className="flex items-center gap-1 cursor-pointer font-medium"
-                    onClick={() => handleSort("email")}
-                  >
-                    {
-                      activeTab === "workers" ? "Contact" : "Email"
-                    }
-                    {sortField === "email" && (
-                      <span className="ml-1">
-                        {sortDirection === "asc" ? " ↑" : " ↓"}
-                      </span>
-                    )}
-                  </div>
+                <th
+                  className="text-left px-6 py-4 cursor-pointer"
+                  onClick={() => handleSort("email")}
+                >
+                  {activeTab === "workers" ? "Contact" : "Email"}
                 </th>
-                <th className="text-left px-6 py-4">
-                  <div
-                    className="flex items-center gap-1 cursor-pointer font-medium"
-                    onClick={() => handleSort("jobTitleId")}
-                  >
-                    Job Title
-                    {sortField === "jobTitleId" && (
-                      <span className="ml-1">
-                        {sortDirection === "asc" ? " ↑" : " ↓"}
-                      </span>
-                    )}
-                  </div>
+                <th
+                  className="text-left px-6 py-4 cursor-pointer"
+                  onClick={() => handleSort("jobTitleId")}
+                >
+                  Job Title
                 </th>
-                {userdetails.role === "admin" && (
+                {userdetails.role !== "employee" && (
                   <th className="text-right px-6 py-4 font-medium">Actions</th>
                 )}
               </tr>
             </thead>
             <tbody>
-              {activeTab === "users"
-                ? getSortedAndFilteredData(users).map((user) => (
-                    <tr
-                      key={user._id}
-                      className="border-t hover:bg-gray-50 cursor-pointer border-gray-300"
-                    >
-                      <td
-                        className="px-6 py-4"
-                        onClick={() => handleViewUser(user)}
+              {(activeTab === "users"
+                ? getSortedAndFilteredData(users)
+                : getSortedAndFilteredData(workers)
+              ).map((item) => (
+                <tr
+                  key={item._id}
+                  className="border-t hover:bg-gray-50 cursor-pointer border-gray-300"
+                >
+                  <td
+                    className="px-6 py-4"
+                    onClick={() => handleViewUser(item)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${getRandomColor(
+                          item._id
+                        )}`}
                       >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${getRandomColor(
-                              user._id
-                            )}`}
+                        {item.photo ? (
+                          <img src={item.photo} alt={item.username} />
+                        ) : (
+                          getInitials(item.username)
+                        )}
+                      </div>
+                      <span className="capitalize">{item.username}</span>
+                    </div>
+                  </td>
+                  <td
+                    className="px-6 py-4"
+                    onClick={() => handleViewUser(item)}
+                  >
+                    {activeTab === "users" ? item.email : item.phoneNumber}
+                  </td>
+                  <td
+                    className="px-6 py-4 capitalize"
+                    onClick={() => handleViewUser(item)}
+                  >
+                    {item.jobTitleId?.name || "Not assigned"}
+                  </td>
+                  {(activeTab === "users" && canShowUserActions(item)) ||
+                  (activeTab === "workers" && canShowWorkerActions()) ? (
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          className="text-blue-500 hover:text-blue-700"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEdit(item);
+                          }}
+                        >
+                          Edit
+                        </button>
+                        {!item.isOwner && (
+                          <button
+                            className="text-red-500 hover:text-red-700"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(item);
+                            }}
                           >
-                             {user.photo? <img src={user.photo} alt={user.username}/> : getInitials(user.username)}
-                          </div>
-                          <span className="capitalize">{user.username}</span>
-                        </div>
-                      </td>
-                      <td
-                        className="px-6 py-4"
-                        onClick={() => handleViewUser(user)}
-                      >
-                        {user.email}
-                      </td>
-                      <td
-                        className="px-6 py-4 capitalize"
-                        onClick={() => handleViewUser(user)}
-                      >
-                        {user.jobTitleId?.name || "Not assigned"}
-                      </td>
-
-                      {userdetails.isOwner || user.role === "employee" ? (
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex justify-end gap-2">
-                            <button
-                              className="text-blue-500 hover:text-blue-700"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEdit(user);
-                              }}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className="text-red-500 hover:text-red-700"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete(user);
-                              }}
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </td>
-                      ) : null}
-                    </tr>
-                  ))
-                : getSortedAndFilteredData(workers).map((worker) => (
-                    <tr
-                      key={worker._id}
-                      className="border-t border-gray-300 hover:bg-gray-50 cursor-pointer"
-                    >
-                      <td
-                        className="px-6 py-4"
-                        onClick={() => handleViewUser(worker)}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${getRandomColor(
-                              worker._id
-                            )}`}
-                          >
-                            {getInitials(worker.username)}
-                          </div>
-                          <span className="capitalize">{worker.username}</span>
-                        </div>
-                      </td>
-                      <td
-                        className="px-6 py-4"
-                        onClick={() => handleViewUser(worker)}
-                      >
-                        {worker.phoneNumber}
-                      </td>
-                      <td
-                        className="px-6 py-4 capitalize"
-                        onClick={() => handleViewUser(worker)}
-                      >
-                        {worker.jobTitleId?.name || "Not assigned"}
-                      </td>
-                      {userdetails.role === "admin" && (
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex justify-end gap-2">
-                            <button
-                              className="text-blue-500 hover:text-blue-700"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEdit(worker);
-                              }}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className="text-red-500 hover:text-red-700"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete(worker);
-                              }}
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </td>
-                      )}
-                    </tr>
-                  ))}
+                            Delete
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  ) : (
+                    <td></td>
+                  )}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
