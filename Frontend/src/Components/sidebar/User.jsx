@@ -8,7 +8,7 @@ import { ChevronsRightLeft } from "lucide-react"
 export default function User() {
   const userSave = JSON.parse(localStorage.getItem("userDetails"));
 
- 
+  
 
   const [view, setView] = useState("list") // 'list', 'detail', 'add', 'edit'
   const [selectedUserId, setSelectedUserId] = useState(null)
@@ -82,10 +82,15 @@ export default function User() {
 
   const handleSubmitUser = async(userData) => {
     if (userData._id) {
-      console.log(userData)
+      // console.log(userData)
 
-      const response = await updateUserDetails(`admin/user/users/${userData._id}`, userData)
-      console.log(response)
+      try{
+        const response = await updateUserDetails(`admin/user/users/${userData._id}`, userData)
+      // console.log(response)
+      }
+      catch(err){
+        console.log(err)
+      }
 
     } else {
       
@@ -95,8 +100,6 @@ export default function User() {
       }catch(err){
         console.log(err)
       }
-
-      
     }
 
     setEditingUser(null)

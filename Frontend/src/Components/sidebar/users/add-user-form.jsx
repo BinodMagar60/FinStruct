@@ -68,7 +68,6 @@ export default function AddUserForm({ onClose, onSubmit, userData = null }) {
   const validateForm = () => {
     const newErrors = {}
     
-    // Validate username (full name)
     if (!formData.username.trim()) {
       newErrors.username = "Full name cannot be empty"
     }
@@ -77,17 +76,17 @@ export default function AddUserForm({ onClose, onSubmit, userData = null }) {
     if (!formData.phoneNumber.trim()) {
       newErrors.phoneNumber = "Phone number cannot be empty"
     } else if (!/^(98|97)\d{8}$/.test(formData.phoneNumber)) {
-      newErrors.phoneNumber = "Phone number must be 10 digits and start with 98 or 97"
+      newErrors.phoneNumber = "Please enter a valid phone number"
     }
     
     // Validate email
     if (!formData.personalEmail.trim()) {
       newErrors.personalEmail = "Email cannot be empty"
     } else if (!formData.personalEmail.endsWith(".com")) {
-      newErrors.personalEmail = "Email must end with .com"
+      newErrors.personalEmail = "Please enter a valid email"
     }
     
-    // Validate job title
+    // Validate job title (only if not an admin)
     if (!formData.isOwner && formData.jobTitleId === "") {
       newErrors.jobTitleId = "Please select a job title"
     }
@@ -99,7 +98,6 @@ export default function AddUserForm({ onClose, onSubmit, userData = null }) {
   const handleSubmit = (e) => {
     e.preventDefault()
     
-    // Validate form before submission
     if (!validateForm()) {
       return
     }
@@ -170,7 +168,7 @@ export default function AddUserForm({ onClose, onSubmit, userData = null }) {
               </button>
             </div>
 
-            {/* Form Fields */}
+            {/* Form is here*/}
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
@@ -208,27 +206,24 @@ export default function AddUserForm({ onClose, onSubmit, userData = null }) {
                 {errors.personalEmail && <p className="text-red-500 text-xs mt-1">{errors.personalEmail}</p>}
               </div>
 
-              {
-                !formData.isOwner && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
-                    <select
-                      name="jobTitleId"
-                      value={formData.jobTitleId}
-                      onChange={handleChange}
-                      className={`w-full p-2 border rounded-md border-gray-300 focus:outline-none ${errors.jobTitleId ? "border-red-500" : ""}`}
-                    >
-                      <option value="">Select a job title</option>
-                      {(userType === "user" ? userJobTitles : workerJobTitles).map((title) => (
-                        title.titleName !== "Owner" && <option key={title._id} value={title.titleName}>
-                          {title.titleName}
-                        </option> 
-                      ))}
-                    </select>
-                    {errors.jobTitleId && <p className="text-red-500 text-xs mt-1">{errors.jobTitleId}</p>}
-                  </div>
-                )
-              }
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
+                <select
+                  name="jobTitleId"
+                  value={formData.jobTitleId}
+                  onChange={handleChange}
+                  className={`w-full p-2 border rounded-md border-gray-300 focus:outline-none ${errors.jobTitleId ? "border-red-500" : ""}`}
+                  disabled={formData.isOwner}
+                >
+                  <option value="">Select a job title</option>
+                  {(userType === "user" ? userJobTitles : workerJobTitles).map((title) => (
+                    title.titleName !== "Owner" && <option key={title._id} value={title.titleName}>
+                      {title.titleName}
+                    </option> 
+                  ))}
+                </select>
+                {errors.jobTitleId && !formData.isOwner && <p className="text-red-500 text-xs mt-1">{errors.jobTitleId}</p>}
+              </div>
 
               {userType === "user" && !isEditing && (
                 <div>

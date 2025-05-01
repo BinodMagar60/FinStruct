@@ -59,7 +59,7 @@ export default function WorkersList({ workers, searchTerm, onEdit, onDelete }) {
               className="px-6 py-3 text-left font-medium uppercase tracking-wider cursor-pointer"
               onClick={() => requestSort("role")}
             >
-              Role {getSortIndicator("role")}
+              Job Title {getSortIndicator("role")}
             </th>
             <th
               scope="col"
@@ -77,17 +77,13 @@ export default function WorkersList({ workers, searchTerm, onEdit, onDelete }) {
           {sortedWorkers.map((worker) => (
             <tr key={worker._id}>
               <td className="px-6 py-4 whitespace-nowrap capitalize">{worker.username}</td>
-              <td className="px-6 py-4 whitespace-nowrap">{worker.role}</td>
+              <td className="px-6 py-4 whitespace-nowrap">{worker.jobTitleId.titleName}</td>
               <td className="px-6 py-4 whitespace-nowrap">
                 ${worker.salary.toLocaleString()}
-                {worker.isDefault && <span className="ml-2 text-xs text-gray-400">(Default)</span>}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <button onClick={() => onEdit(worker)} className="text-blue-600 hover:text-blue-900 mr-4">
                   <Edit2 className="h-5 w-5" />
-                </button>
-                <button onClick={() => onDelete(worker._id)} className="text-red-600 hover:text-red-900">
-                  <Trash2 className="h-5 w-5" />
                 </button>
               </td>
             </tr>

@@ -1,47 +1,52 @@
-import { useState } from "react"
-import { Edit2, Trash2 } from "lucide-react"
+import { useState } from "react";
+import { Edit2, Trash2 } from "lucide-react";
 
 export default function UsersList({ users, searchTerm, onEdit, onDelete }) {
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: "ascending" })
+  const userSavedDetail = JSON.parse(localStorage.getItem("userDetails"));
+
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: "ascending",
+  });
 
   const filteredUsers = users.filter((user) => {
-    const searchLower = searchTerm.toLowerCase()
+    const searchLower = searchTerm.toLowerCase();
     return (
       user.username.toLowerCase().includes(searchLower) ||
       user.email.toLowerCase().includes(searchLower) ||
       user.role.toLowerCase().includes(searchLower) ||
       user.salary.toString().includes(searchLower)
-    )
-  })
+    );
+  });
 
   const requestSort = (key) => {
-    let direction = "ascending"
+    let direction = "ascending";
     if (sortConfig.key === key && sortConfig.direction === "ascending") {
-      direction = "descending"
+      direction = "descending";
     }
-    setSortConfig({ key, direction })
-  }
+    setSortConfig({ key, direction });
+  };
 
   const getSortedItems = (items) => {
-    if (!sortConfig.key) return items
+    if (!sortConfig.key) return items;
 
     return [...items].sort((a, b) => {
       if (a[sortConfig.key] < b[sortConfig.key]) {
-        return sortConfig.direction === "ascending" ? -1 : 1
+        return sortConfig.direction === "ascending" ? -1 : 1;
       }
       if (a[sortConfig.key] > b[sortConfig.key]) {
-        return sortConfig.direction === "ascending" ? 1 : -1
+        return sortConfig.direction === "ascending" ? 1 : -1;
       }
-      return 0
-    })
-  }
+      return 0;
+    });
+  };
 
-  const sortedUsers = getSortedItems(filteredUsers)
+  const sortedUsers = getSortedItems(filteredUsers);
 
   const getSortIndicator = (key) => {
-    if (sortConfig.key !== key) return null
-    return sortConfig.direction === "ascending" ? " ↑" : " ↓"
-  }
+    if (sortConfig.key !== key) return null;
+    return sortConfig.direction === "ascending" ? " ↑" : " ↓";
+  };
 
   return (
     <div className="overflow-x-auto">
@@ -67,7 +72,7 @@ export default function UsersList({ users, searchTerm, onEdit, onDelete }) {
               className="px-6 py-3 text-left font-medium uppercase tracking-wider cursor-pointer"
               onClick={() => requestSort("role")}
             >
-              Role {getSortIndicator("role")}
+              Job Title {getSortIndicator("role")}
             </th>
             <th
               scope="col"
@@ -76,7 +81,10 @@ export default function UsersList({ users, searchTerm, onEdit, onDelete }) {
             >
               Salary {getSortIndicator("salary")}
             </th>
-            <th scope="col" className="px-6 py-3 text-right font-medium uppercase tracking-wider">
+            <th
+              scope="col"
+              className="px-6 py-3 text-right font-medium uppercase tracking-wider"
+            >
               Actions
             </th>
           </tr>
@@ -84,25 +92,33 @@ export default function UsersList({ users, searchTerm, onEdit, onDelete }) {
         <tbody className="bg-white divide-y divide-gray-200">
           {sortedUsers.map((user) => (
             <tr key={user._id}>
-              <td className="px-6 py-4 whitespace-nowrap capitalize">{user.username}</td>
+              <td className="px-6 py-4 whitespace-nowrap capitalize">
+                {user.username}
+              </td>
               <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
-              <td className="px-6 py-4 whitespace-nowrap">{user.role}</td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                {user.jobTitleId.titleName}
+              </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 ${user.salary.toLocaleString()}
-                {user.isDefault && <span className="ml-2 text-xs text-gray-400">(Default)</span>}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button onClick={() => onEdit(user)} className="text-blue-600 hover:text-blue-900 mr-4">
-                  <Edit2 className="h-5 w-5" />
-                </button>
-                <button onClick={() => onDelete(user._id)} className="text-red-600 hover:text-red-900">
-                  <Trash2 className="h-5 w-5" />
-                </button>
+                {userSavedDetail?.isOwner ||
+                (userSavedDetail?.role === "admin" &&
+                  !user.isOwner &&
+                  user.role !== "admin") ? (
+                  <button
+                    onClick={() => onEdit(user)}
+                    className="text-blue-600 hover:text-blue-900 mr-4"
+                  >
+                    <Edit2 className="h-5 w-5" />
+                  </button>
+                ) : null}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
-  )
+  );
 }

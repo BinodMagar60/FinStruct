@@ -5,7 +5,7 @@ export default function EditEmployeeModal({ employee, roles, onSave, onCancel, e
   const [formData, setFormData] = useState({
     _id: employee._id,
     username: employee.username,
-    email: employee.email,
+    email: employee.role === 'worker'? employee.personalEmail : employee.email,
     role: employee.role,
     salary: employee.salary,
     jobTitleId: employee.jobTitleId,
@@ -62,7 +62,9 @@ export default function EditEmployeeModal({ employee, roles, onSave, onCancel, e
           </div>
           <div className="mb-4">
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email
+              {
+                formData.role === "worker"? "Personal Email":"Email"
+              }
             </label>
             <input
               type="email"
@@ -81,7 +83,7 @@ export default function EditEmployeeModal({ employee, roles, onSave, onCancel, e
             <input
               id="jobTitleId"
               name="jobTitleId"
-              value={formData.jobTitle}
+              value={formData.jobTitleId.titleName}
               disabled
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none"
               required

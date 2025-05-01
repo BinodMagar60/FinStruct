@@ -92,7 +92,14 @@ export default function RolesList({ roles, searchTerm, onEdit, onDelete, onAddRo
                 <td className="px-6 py-4 whitespace-nowrap">{role.role}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
                   {
-                    user.isOwner && (
+                    role.titleName !== "Owner" && (
+                      <button onClick={() => onEdit(role)} className="text-blue-600 hover:text-blue-900 mr-4">
+                    <Edit2 className="h-5 w-5" />
+                  </button>
+                    )
+                  }
+                  {
+                    user.isOwner && role.titleName === 'Owner' && (
                       <button onClick={() => onEdit(role)} className="text-blue-600 hover:text-blue-900 mr-4">
                     <Edit2 className="h-5 w-5" />
                   </button>

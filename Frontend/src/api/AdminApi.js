@@ -3,6 +3,12 @@ import axios from "axios"
 
 const BackendURI="http://localhost:5000/";
 
+
+
+
+
+//======================== User Profile ========================
+
 //get the details of logged in user
 export const profileDetails = async (route) => {
     try {
@@ -42,6 +48,32 @@ export const changePassword = async(route, data) => {
     throw err.response.data
   }
 }
+
+//************************ END ************************
+
+
+
+
+
+
+
+
+
+
+//======================== Salaries Section ========================
+
+//get all the user data to salary section
+export const getAllUserForSalary = async(route) => {
+  try{
+    const response = await axios.get(BackendURI+route)
+    return response.data
+  }
+  catch(err){
+    throw err.response.data
+  }
+}
+
+
 
 
 //Add roles and salaries
@@ -102,8 +134,19 @@ export const DeleteRolesAndSalaries = async(route)=> {
   }
 }
 
+//************************ END ************************
 
 
+
+
+
+
+
+
+
+
+
+//======================== Users Section ========================
 
 
 
@@ -166,6 +209,10 @@ export const deleteUserDetails = async(route) => {
     throw err.response.data
   }
 }
+
+
+
+//************************ END ************************
 
 
 

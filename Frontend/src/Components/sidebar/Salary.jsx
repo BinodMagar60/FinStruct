@@ -7,7 +7,7 @@ import RolesList from "./salarycomponent/roles-list"
 import EditEmployeeModal from "./salarycomponent/edit-employee-modal"
 import EditRoleModal from "./salarycomponent/edit-role-modal"
 import AddRoleModal from "./salarycomponent/add-role-modal"
-import { getRolesAndSalaries, DeleteRolesAndSalaries } from "../../api/AdminApi"
+import { getRolesAndSalaries, DeleteRolesAndSalaries, addRolesAndSalaries, getAllUserForSalary } from "../../api/AdminApi"
 
 
 
@@ -23,94 +23,14 @@ export default function Salary() {
   const [showAddRoleModal, setShowAddRoleModal] = useState(false)
   const [currentEmployee, setCurrentEmployee] = useState(null)
   const [currentRole, setCurrentRole] = useState(null)
-  const [users, setUsers] = useState([
-    {
-      _id: "1",
-      username: "James Taylor",
-      email: "james@finstruct.com",
-      role: "admin",
-      salary: 97000,
-      jobTitleId: "8",
-    },
-    {
-      _id: "2",
-      username: "Michael Brown",
-      email: "michael@finstruct.com",
-      role: "admin",
-      salary: 98000,
-      jobTitleId: "8",
-    },
-    {
-      _id: "3",
-      username: "Olivia Williams",
-      email: "olivia@finstruct.com",
-      role: "employee",
-      salary: 69500,
-      jobTitleId: "2",
-    },
-    {
-      _id: "4",
-      username: "Thomas Garcia",
-      email: "thomas@finstruct.com",
-      role: "employee",
-      salary: 72000,
-      jobTitleId: "4",
-      isDefault: true,
-    },
-  ])
+  const [allTheUsers, setAllTheUsers] = useState([]);
+  const [users, setUsers] = useState([])
 
-  const [workers, setWorkers] = useState([
-    { _id: "1", username: "Alex Johnson", email: "alex@finstruct.com", role: "worker", salary: 78000, jobTitleId: "5" },
-    { _id: "2", username: "Ava Thompson", email: "ava@finstruct.com", role: "worker", salary: 66000, jobTitleId: "1" },
-    { _id: "3", username: "Daniel Lee", email: "daniel@finstruct.com", role: "worker", salary: 91000, jobTitleId: "7" },
-    { _id: "4", username: "David Kim", email: "david@finstruct.com", role: "worker", salary: 86500, jobTitleId: "6" },
-    {
-      _id: "5",
-      username: "Emily Wilson",
-      email: "emily@finstruct.com",
-      role: "worker",
-      salary: 70000,
-      jobTitleId: "3",
-      isDefault: true,
-    },
-    {
-      _id: "6",
-      username: "Emma Rodriguez",
-      email: "emma@finstruct.com",
-      role: "worker",
-      salary: 71500,
-      jobTitleId: "3",
-    },
-    { _id: "7", username: "Jane Smith", email: "jane@finstruct.com", role: "worker", salary: 87500, jobTitleId: "6" },
-    {
-      _id: "8",
-      username: "Jessica Park",
-      email: "jessica@finstruct.com",
-      role: "worker",
-      salary: 67000,
-      jobTitleId: "1",
-    },
-    {
-      _id: "9",
-      username: "Robert Chen",
-      email: "robert@finstruct.com",
-      role: "worker",
-      salary: 92000,
-      jobTitleId: "7",
-    },
-    {
-      _id: "10",
-      username: "Sarah Davis",
-      email: "sarah@finstruct.com",
-      role: "worker",
-      salary: 82000,
-      jobTitleId: "6",
-    },
-  ])
+  const [workers, setWorkers] = useState([])
 
   const [jobTitles, setJobTitles] = useState([])
 
-
+//get roles from backend
   useEffect(()=>{
     const getRolesData = async()=>{
         try{
@@ -125,6 +45,31 @@ export default function Salary() {
       getRolesData()
   },[jobTitles])
 
+//get all the user detail from backend
+useEffect(()=>{
+  const getData = async() => {
+    try{
+      const response = await getAllUserForSalary(`admin/user/salaries/${user.companyId}`)
+      // console.log(response)
+      setAllTheUsers(response.receivedData)
+    }catch(err){
+      console.log(err)
+    }
+  }
+  getData()
+},[allTheUsers])
+
+
+//dividing allTheUsers into worker and users
+useEffect(()=>{
+  if(!allTheUsers || allTheUsers.length === 0) return;
+
+  const adminanduserDetails = allTheUsers.filter(user=> user.role !== 'worker');
+  const workersDetails = allTheUsers.filter(user=> user.role === 'worker');
+
+  setUsers(adminanduserDetails)
+  setWorkers(workersDetails)
+},[allTheUsers])
 
 
   const handleEditEmployee = (employee) => {
