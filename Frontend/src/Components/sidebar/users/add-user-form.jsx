@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react"
 import { User, Users, X } from "lucide-react"
 import { getAllRoles } from "../../../api/AdminApi";
@@ -11,6 +10,7 @@ export default function AddUserForm({ onClose, onSubmit, userData = null }) {
   const [allRoles, setAllRoles] = useState([])
   const [userJobTitles, setUserJobTitles]= useState([])
   const [workerJobTitles, setWorkerJobTitles] = useState([])
+  const [errors, setErrors] = useState({})
   const [formData, setFormData] = useState({
     username: userData?.username || "",
     personalEmail: userData?.personalEmail || "",
@@ -24,8 +24,6 @@ export default function AddUserForm({ onClose, onSubmit, userData = null }) {
     companyId: userData?.companyId || "1",
     _id: userData?._id || null,
   })
-
-
 
   useEffect(()=>{
     const gettingRoles= async() => {
@@ -41,8 +39,6 @@ export default function AddUserForm({ onClose, onSubmit, userData = null }) {
     gettingRoles()
   },[])
 
-
-
   useEffect(() => {
     if (!allRoles || allRoles.length === 0) return;
   
@@ -53,17 +49,60 @@ export default function AddUserForm({ onClose, onSubmit, userData = null }) {
     setWorkerJobTitles(workerTitles);
   }, [allRoles]);
   
-
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
     setFormData({
       ...formData,
       [name]: type === "checkbox" ? checked : value,
     })
+    
+    // Clear error for the field when the user changes it
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: ""
+      })
+    }
+  }
+
+  const validateForm = () => {
+    const newErrors = {}
+    
+    // Validate username (full name)
+    if (!formData.username.trim()) {
+      newErrors.username = "Full name cannot be empty"
+    }
+    
+    // Validate phone number
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = "Phone number cannot be empty"
+    } else if (!/^(98|97)\d{8}$/.test(formData.phoneNumber)) {
+      newErrors.phoneNumber = "Phone number must be 10 digits and start with 98 or 97"
+    }
+    
+    // Validate email
+    if (!formData.personalEmail.trim()) {
+      newErrors.personalEmail = "Email cannot be empty"
+    } else if (!formData.personalEmail.endsWith(".com")) {
+      newErrors.personalEmail = "Email must end with .com"
+    }
+    
+    // Validate job title
+    if (!formData.isOwner && formData.jobTitleId === "") {
+      newErrors.jobTitleId = "Please select a job title"
+    }
+    
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    
+    // Validate form before submission
+    if (!validateForm()) {
+      return
+    }
 
     // Set the role based on user type and admin access
     let role = ""
@@ -94,8 +133,10 @@ export default function AddUserForm({ onClose, onSubmit, userData = null }) {
         isOwner: false,
       })
     }
+    
+    // Clear errors when changing user type
+    setErrors({})
   }
-
 
   return (
     <div className="fixed inset-0 bg-[#0000001f] bg-opacity-30 flex items-center justify-center z-50">
@@ -138,9 +179,9 @@ export default function AddUserForm({ onClose, onSubmit, userData = null }) {
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded-md border-gray-300 focus:outline-none"
-                  required
+                  className={`w-full p-2 border rounded-md border-gray-300 focus:outline-none ${errors.username ? "border-red-500" : ""}`}
                 />
+                {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
               </div>
 
               <div>
@@ -150,8 +191,9 @@ export default function AddUserForm({ onClose, onSubmit, userData = null }) {
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded-md border-gray-300 focus:outline-none"
+                  className={`w-full p-2 border rounded-md border-gray-300 focus:outline-none ${errors.phoneNumber ? "border-red-500" : ""}`}
                 />
+                {errors.phoneNumber && <p className="text-red-500 text-xs mt-1">{errors.phoneNumber}</p>}
               </div>
 
               <div>
@@ -161,27 +203,32 @@ export default function AddUserForm({ onClose, onSubmit, userData = null }) {
                   name="personalEmail"
                   value={formData.personalEmail}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded-md border-gray-300 focus:outline-none"
-                  required
+                  className={`w-full p-2 border rounded-md border-gray-300 focus:outline-none ${errors.personalEmail ? "border-red-500" : ""}`}
                 />
+                {errors.personalEmail && <p className="text-red-500 text-xs mt-1">{errors.personalEmail}</p>}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
-                <select
-                  name="jobTitleId"
-                  value={formData.jobTitleId}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded-md border-gray-300 focus:outline-none"
-                >
-                  <option value="">Select a job title</option>
-                  {(userType === "user" ? userJobTitles : workerJobTitles).map((title) => (
-                    <option key={title._id} value={title.titleName}>
-                      {title.titleName}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {
+                !formData.isOwner && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
+                    <select
+                      name="jobTitleId"
+                      value={formData.jobTitleId}
+                      onChange={handleChange}
+                      className={`w-full p-2 border rounded-md border-gray-300 focus:outline-none ${errors.jobTitleId ? "border-red-500" : ""}`}
+                    >
+                      <option value="">Select a job title</option>
+                      {(userType === "user" ? userJobTitles : workerJobTitles).map((title) => (
+                        title.titleName !== "Owner" && <option key={title._id} value={title.titleName}>
+                          {title.titleName}
+                        </option> 
+                      ))}
+                    </select>
+                    {errors.jobTitleId && <p className="text-red-500 text-xs mt-1">{errors.jobTitleId}</p>}
+                  </div>
+                )
+              }
 
               {userType === "user" && !isEditing && (
                 <div>
