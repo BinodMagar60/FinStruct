@@ -105,7 +105,7 @@ router.post("/login", validateLogin, async (req, res) => {
     const { email, password } = req.body;
 
     // Find user and populate company name
-    const user = await User.findOne({ email }).populate("companyId", "name ownerName");
+    const user = await User.findOne({ email }).populate("companyId", "name ownerName").populate("jobTitleId");
 
     if (!user) {
       return res.status(401).json({ show: "error", message: "Invalid Email or Password" });
@@ -136,7 +136,8 @@ router.post("/login", validateLogin, async (req, res) => {
       location: user.location || null,
       companyId: user.companyId?._id || null,
       companyName: user.companyId?.name || null,
-      jobTitleId: user.jobTitleId,
+      jobTitleId: user.jobTitleId?._id,
+      jobTitle: user.jobTitleId?.titleName,
       photo: user.photo,
       role: user.role,
       isOwner: user.isOwner,

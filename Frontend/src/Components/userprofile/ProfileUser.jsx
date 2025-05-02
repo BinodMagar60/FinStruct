@@ -189,7 +189,7 @@ const ProfileUser = () => {
                 <p className="text-gray-500">
                   {userData.isOwner
                     ? "Owner"
-                    : userData.role === "Admin"
+                    : userData.role === "admin"
                     ? "Admin"
                     : "Employee"}{" "}
                   at <span className="capitalize">{userData.companyId?.name || ""}</span>
@@ -326,7 +326,7 @@ const ProfileUser = () => {
                   type="text"
                   name="title"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
-                  value={userData.isOwner ? "Owner" : userData.role === "admin" ? "Admin" : "Employee"}
+                  value={userData.jobTitleId?.titleName || "" }
                   readOnly
                 />
               </div>

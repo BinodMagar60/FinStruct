@@ -7,7 +7,7 @@ import RolesList from "./salarycomponent/roles-list"
 import EditEmployeeModal from "./salarycomponent/edit-employee-modal"
 import EditRoleModal from "./salarycomponent/edit-role-modal"
 import AddRoleModal from "./salarycomponent/add-role-modal"
-import { getRolesAndSalaries, DeleteRolesAndSalaries, addRolesAndSalaries, getAllUserForSalary } from "../../api/AdminApi"
+import { getRolesAndSalaries, DeleteRolesAndSalaries, getAllUserForSalary, updateUserSalary } from "../../api/AdminApi"
 
 
 
@@ -86,13 +86,19 @@ useEffect(()=>{
     setShowAddRoleModal(true)
   }
 
-  const handleSaveEmployee = (updatedEmployee) => {
-    if (activeTab === "users") {
-      setUsers(users.map((user) => (user._id === updatedEmployee._id ? updatedEmployee : user)))
-    } else {
-      setWorkers(workers.map((worker) => (worker._id === updatedEmployee._id ? updatedEmployee : worker)))
-    }
+  const handleSaveEmployee = async(updatedEmployee) => {
+ 
+
+    try{
+      const response = await updateUserSalary(`admin/user/salaries/${updatedEmployee._id}`,updatedEmployee)
     setShowEditEmployeeModal(false)
+      // console.log(response)
+    }
+    catch(err){
+      console.log(err)
+    }
+
+
   }
 
   const handleSaveRole = (updatedRole) => {

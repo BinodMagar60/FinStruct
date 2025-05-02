@@ -18,6 +18,10 @@ const {
 
 // ---------------------- User Profile ---------------
 
+
+
+
+
 //get the data for profile of the user logged in
 const getProfileDetails = async (req, res) => {
   try {
@@ -25,7 +29,8 @@ const getProfileDetails = async (req, res) => {
 
     const user = await User.findOne({ email })
       .select("-password -salt")
-      .populate("companyId");
+      .populate("companyId")
+      .populate("jobTitleId");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -132,6 +137,50 @@ const updateProfilePassword = async (req, res) => {
 
 
 // ----------------------  Salary Section ---------------
+
+//get all the user data to Salary section
+const getAllUserToSalarySection = async(req, res)=>{
+  try {
+      const { id } = req.params;
+  
+      const existingCompany = await Company.findById(id);
+      if (!existingCompany) {
+        return res.status(404).json({ message: 'Company Id not found' });
+      }
+  
+      const users = await User.find({ companyId: id }).populate({path: 'jobTitleId'}).select('-password -salt')
+  
+      res.status(200).json({message: 'successfully pulled users data', receivedData: users});
+    } catch (error) {
+      res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+}
+
+//update users salary in salary section
+const updateUserSalaryInSalarySection = async(req, res)=> {
+  try{
+    const {id} = req.params;
+
+    const {salary} = req.body;
+
+    const newData = {
+      salary: salary
+    }
+
+    const updatedData = await User.findByIdAndUpdate(id, newData, {new: true})
+
+    if(!updatedData){
+      return res.status(404).json({message: "User doesnot exist"})
+    }
+
+    res.status(200).json({message: "Salary Updated", recievedData: updatedData})
+    
+  }
+  catch(error){
+    res.status(500).json({message: "Server Error", error: error.message})
+  }
+}
+
 
 //add Roles and their salaries
 const addRolesAndSalaries = async (req, res) => {
@@ -460,4 +509,6 @@ module.exports = {
   getAllUserForUser,
   updateTheUsersInUserSection,
   deleteUserDetailUserSection,
+  getAllUserToSalarySection,
+  updateUserSalaryInSalarySection
 };

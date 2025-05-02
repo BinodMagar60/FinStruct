@@ -13,7 +13,7 @@ const BackendURI="http://localhost:5000/";
 export const profileDetails = async (route) => {
     try {
       const response = await axios.get(BackendURI + route);
-      console.log(response)
+      // console.log(response)
       return response.data; 
     } catch (error) {
       console.error("Error fetching profile:", error);
@@ -66,6 +66,17 @@ export const changePassword = async(route, data) => {
 export const getAllUserForSalary = async(route) => {
   try{
     const response = await axios.get(BackendURI+route)
+    return response.data
+  }
+  catch(err){
+    throw err.response.data
+  }
+}
+
+//update users salary in salary section
+export const updateUserSalary =  async(route, data) => {
+  try{
+    const response = await axios.put(BackendURI+route, data)
     return response.data
   }
   catch(err){

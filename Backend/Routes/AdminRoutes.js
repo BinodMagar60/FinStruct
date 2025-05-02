@@ -8,7 +8,7 @@ const {
   xorEncrypt,
   xorDecrypt
 } = require("../utils/passwordUtils");
-const { getProfileDetails, updateProfileDetails, updateProfilePassword, deleteRolesAndSalaries, updateRolesAndSalaries, displayRolesAndSalaries, addRolesAndSalaries, getAllJobTitles, addNewUsers, getAllUserForUser, updateTheUsersInUserSection, deleteUserDetailUserSection } = require("../controllers/AdminControllers");
+const { getProfileDetails, updateProfileDetails, updateProfilePassword, deleteRolesAndSalaries, updateRolesAndSalaries, displayRolesAndSalaries, addRolesAndSalaries, getAllJobTitles, addNewUsers, getAllUserForUser, updateTheUsersInUserSection, deleteUserDetailUserSection, getAllUserToSalarySection, updateUserSalaryInSalarySection } = require("../controllers/AdminControllers");
 const JobTitle = require("../models/JobTitle");
 const Company = require("../models/Company");
 
@@ -45,22 +45,12 @@ router.put("/password/:id", updateProfilePassword);
 // ----------------------  Salary Section ---------------
 
 //get all the user data to Salary section
-router.get('/salaries/:id', async(req, res)=>{
-  try {
-      const { id } = req.params;
-  
-      const existingCompany = await Company.findById(id);
-      if (!existingCompany) {
-        return res.status(404).json({ message: 'Company Id not found' });
-      }
-  
-      const users = await User.find({ companyId: id }).populate({path: 'jobTitleId'}).select('-password -salt')
-  
-      res.status(200).json({message: 'successfully pulled users data', receivedData: users});
-    } catch (error) {
-      res.status(500).json({ message: 'Server Error', error: error.message });
-    }
-})
+router.get('/salaries/:id', getAllUserToSalarySection)
+
+
+//update users salary in salary section
+router.put('/salaries/:id', updateUserSalaryInSalarySection)
+
 
 
 //add Roles and their salaries

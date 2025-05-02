@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { X } from "lucide-react"
 
-export default function EditEmployeeModal({ employee, roles, onSave, onCancel, employeeType }) {
+export default function EditEmployeeModal({ employee, onSave, onCancel}) {
   const [formData, setFormData] = useState({
     _id: employee._id,
     username: employee.username,
@@ -11,23 +11,11 @@ export default function EditEmployeeModal({ employee, roles, onSave, onCancel, e
     jobTitleId: employee.jobTitleId,
   })
 
-  const filteredRoles = roles.filter((role) => role.type === employeeType)
-
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData({
       ...formData,
       [name]: name === "salary" ? Number.parseInt(value, 10) || 0 : value,
-    })
-  }
-
-  const handleRoleChange = (e) => {
-    const selectedRole = roles.find((role) => role._id === e.target.value)
-    setFormData({
-      ...formData,
-      jobTitleId: e.target.value,
-      role: selectedRole ? selectedRole.role : formData.role,
-      salary: selectedRole ? selectedRole.defaultSalary : formData.salary,
     })
   }
 
