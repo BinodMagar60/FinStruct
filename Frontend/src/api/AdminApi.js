@@ -3,6 +3,56 @@ import axios from "axios"
 
 const BackendURI="http://localhost:5000/";
 
+//======================== User Profile ========================
+//save notes in navbar
+export const navbarNotesSave = async(route, data) => {
+  try{
+    const response = await axios.post(BackendURI+route,data)
+    return response.data
+  }
+  catch(error){
+    throw error.response.data
+  }
+}
+
+//get data of saved notes in navbar
+export const navbarNotesPull = async(route) => {
+  try{
+    const response = await axios.get(BackendURI+route)
+    return response.data
+  }
+  catch(error){
+    throw error.response.data
+  }
+}
+
+//update data of saved notes in navbar
+export const navbaNotesUpdate = async(route, data)=>{
+  try{  
+    const response = await axios.put(BackendURI+route, data)
+    return response.data
+  }
+  catch(error){
+    throw error.response.data
+  }
+}
+
+//delete note in navbar
+export const navbarNotesDelete = async(route) => {
+  try{
+    const response = await axios.delete(BackendURI+route)
+    return response.data
+  }
+  catch(err){
+    throw err.response.data
+  }
+}
+
+//************************ END ************************
+
+
+
+
 
 
 
@@ -16,7 +66,7 @@ export const profileDetails = async (route) => {
       // console.log(response)
       return response.data; 
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      // console.error("Error fetching profile:", error);
       throw error; 
     }
   };

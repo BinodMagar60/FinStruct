@@ -1,100 +1,113 @@
-
-import React, { useState, useEffect, useRef } from 'react';
-import { FileText, Edit, Save, Plus, Trash2 } from 'lucide-react'; 
+import React, { useState, useEffect, useRef } from "react";
+import { FileText, Edit, Save, Plus, Trash2 } from "lucide-react";
+import { navbaNotesUpdate, navbarNotesDelete, navbarNotesPull, navbarNotesSave } from "../api/AdminApi";
 
 const Notes = () => {
+  const locallySavedUser = JSON.parse(localStorage.getItem("userDetails"));
+
   const [isNotesOpen, setIsNotesOpen] = useState(false);
-  const [notes, setNotes] = useState([
-    {
-      id: 1,
-      date: new Date(2025, 2, 8),
-      content: 'hello world my name is binod kaucha magar',
-    },
-    {
-      id: 2,
-      date: new Date(2025, 2, 7),
-      content: 'binod magar adsad',
-    },
-  ]);
-  const [newNoteContent, setNewNoteContent] = useState('');
+  const [isChange, setChange] = useState(false);
+  const [notes, setNotes] = useState([]);
+  const [newNoteContent, setNewNoteContent] = useState("");
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [editingNoteId, setEditingNoteId] = useState(null);
-  const [editingContent, setEditingContent] = useState('');
-
+  const [editingContent, setEditingContent] = useState("");
   const notesRef = useRef(null);
 
+  // Fetch notes data
+  useEffect(() => {
+    const gettingNotes = async () => {
+      try {
+        const response = await navbarNotesPull(`admin/user/navbar/${locallySavedUser.id}`);
+        setNotes(response.receivedData);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    gettingNotes();
+  }, [isChange, isNotesOpen]);
+
+  // Close the notepad when clicked outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (notesRef.current && !notesRef.current.contains(event.target)) {
         setIsNotesOpen(false);
         setEditingNoteId(null);
-        setEditingContent('');
+        setEditingContent("");
       }
     };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const formatDate = (date) => {
-    const months = [
-      'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December',
-    ];
-    return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate)) return "Invalid date";
+
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    return `${months[parsedDate.getMonth()]} ${parsedDate.getDate()}, ${parsedDate.getFullYear()}`;
   };
 
-  const handleAddNote = () => {
+  const handleAddNote = async () => {
     if (newNoteContent.trim()) {
       const newNote = {
-        id: Date.now(),
+        userId: locallySavedUser.id,
+        companyId: locallySavedUser.companyId,
         date: new Date(),
         content: newNoteContent,
       };
-      setNotes([newNote, ...notes]);
-      setNewNoteContent('');
-      setIsAddingNote(false);
+      try {
+        await navbarNotesSave("admin/user/navbar", newNote);
+        setChange((prev) => !prev);
+        setNewNoteContent("");
+        setIsAddingNote(false);
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
   const startEditing = (note) => {
-    setEditingNoteId(note.id);
+    setEditingNoteId(note._id);
     setEditingContent(note.content);
   };
 
-  const saveEdit = () => {
-    if (editingContent.trim()) {
-      setNotes(
-        notes.map((note) =>
-          note.id === editingNoteId ? { ...note, content: editingContent, date: new Date() } : note
-        )
-      );
+  const saveEdit = async (id, { content }) => {
+    try {
+      await navbaNotesUpdate(`admin/user/navbar/${id}`, { content });
+      setChange((prev) => !prev);
       setEditingNoteId(null);
-      setEditingContent('');
+      setEditingContent("");
+    } catch (err) {
+      console.log(err);
     }
   };
 
   const cancelEdit = () => {
     setEditingNoteId(null);
-    setEditingContent('');
+    setEditingContent("");
   };
 
-  const deleteNote = (id) => {
-    setNotes(notes.filter((note) => note.id !== id));
-    setEditingNoteId(null);
-    setEditingContent('');
+  const deleteNote = async (id) => {
+    try {
+      await navbarNotesDelete(`admin/user/navbar/${id}`);
+      setChange((prev) => !prev);
+      setEditingNoteId(null);
+      setEditingContent("");
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       const textarea = e.target;
       const cursorPosition = textarea.selectionStart;
       const textBeforeCursor = textarea.value.substring(0, cursorPosition);
       const textAfterCursor = textarea.value.substring(cursorPosition);
 
-      const newValue = textBeforeCursor + '\n' + textAfterCursor;
+      const newValue = textBeforeCursor + "\n" + textAfterCursor;
 
       if (editingNoteId) {
         setEditingContent(newValue);
@@ -111,10 +124,7 @@ const Notes = () => {
   return (
     <div>
       <div className="relative" ref={notesRef}>
-        <button
-          className="p-2 rounded-full hover:bg-gray-100"
-          onClick={() => setIsNotesOpen(!isNotesOpen)}
-        >
+        <button className="p-2 rounded-full hover:bg-gray-100" onClick={() => setIsNotesOpen(!isNotesOpen)}>
           <FileText className="h-7 w-7 text-gray-600" />
         </button>
 
@@ -127,48 +137,40 @@ const Notes = () => {
             {/* Notes List */}
             <div className="flex-1 overflow-y-auto p-2 notesShow">
               {notes.map((note) => (
-                <div key={note.id} className="p-3 border-b border-gray-300">
-                  <div className="text-xs text-gray-500 font-medium">{formatDate(note.date)}</div>
+                <div key={note._id} className="p-3 border-b border-gray-300">
+                  <div className="text-xs text-gray-500 font-medium">
+                    {formatDate(note.date)}
+                  </div>
 
-                  {editingNoteId === note.id ? (
+                  {editingNoteId === note._id ? (
                     <div className="mt-1">
                       <textarea
                         value={editingContent}
                         onChange={(e) => setEditingContent(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        className="w-full p-2 border rounded text-black bg-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className="w-full p-2 border rounded text-black bg-gray-100 focus:outline-none border-gray-300"
                         rows={3}
                         autoFocus
                       />
-                      <div className="flex justify-end space-x-2 mt-2">
-                        <button
-                          onClick={cancelEdit}
-                          className="px-2 py-1 bg-gray-300 hover:bg-gray-400 rounded-md text-gray-800 text-sm cursor-pointer"
-                        >
+                      <div className="flex  justify-end space-x-2 mt-2">
+                        <button onClick={cancelEdit} className="px-2 py-1 bg-gray-300 hover:bg-gray-400 rounded-md text-gray-800 text-sm">
                           Cancel
                         </button>
-                        <button
-                          onClick={saveEdit}
-                          className="px-2 py-1 bg-blue-500 hover:bg-blue-600 rounded-md text-white flex items-center text-sm cursor-pointer"
-                        >
-                          <Save size={12} className="mr-1" /> Save
+                        <button onClick={() => saveEdit(note._id, { content: editingContent })} className="px-2 py-1 bg-black hover:bg-gray-800 rounded-md text-white text-sm flex justify-center items-center gap-1">
+                          <Save size={13} className="mr-1" /> Save
                         </button>
-                        <button
-                          onClick={() => deleteNote(note.id)}
-                          className="px-2 py-1 bg-red-500 hover:bg-red-600 rounded-md text-white flex items-center text-sm cursor-pointer"
-                        >
-                          <Trash2 size={12} className="mr-1" /> Delete
+                        <button onClick={() => deleteNote(note._id)} className="px-2 py-1 bg-red-500 hover:bg-red-600 rounded-md text-white text-sm flex justify-center items-center gap-1">
+                          <Trash2 size={13} className="mr-1" /> Delete
                         </button>
                       </div>
                     </div>
                   ) : (
                     <div className="flex justify-between items-start mt-1">
-                      <div className="whitespace-pre-line text-gray-800 text-sm">{note.content}</div>
-                      <button
-                        className="ml-2 text-gray-500 hover:text-blue-500 flex-shrink-0"
-                        onClick={() => startEditing(note)}
-                      >
-                        <Edit size={18} className='cursor-pointer hover:text-black'/>
+                      <div className="whitespace-pre-line text-gray-800 text-sm">
+                        {note.content}
+                      </div>
+                      <button className="ml-2 text-gray-500 hover:text-blue-500" onClick={() => startEditing(note)}>
+                        <Edit size={18} className="cursor-pointer hover:text-black" />
                       </button>
                     </div>
                   )}
@@ -184,32 +186,23 @@ const Notes = () => {
                     value={newNoteContent}
                     onChange={(e) => setNewNoteContent(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="w-full p-2 border rounded text-black bg-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full p-2 border rounded border-gray-300 text-black bg-gray-100 focus:outline-none"
                     placeholder="Type your note here..."
                     rows={3}
                     autoFocus
                   />
                   <div className="flex justify-end space-x-2">
-                    <button
-                      onClick={() => setIsAddingNote(false)}
-                      className="px-3 py-1 bg-gray-300 hover:bg-gray-400 rounded cursor-pointer"
-                    >
+                    <button onClick={() => setIsAddingNote(false)} className="px-3 py-1 bg-gray-300 hover:bg-gray-400 rounded">
                       Cancel
                     </button>
-                    <button
-                      onClick={handleAddNote}
-                      className="px-3 py-1 bg-blue-500 hover:bg-blue-600 rounded text-white cursor-pointer"
-                    >
+                    <button onClick={handleAddNote} className="px-3 py-1 bg-black hover:bg-gray-800 rounded text-white">
                       Add
                     </button>
                   </div>
                 </div>
               ) : (
-                <button
-                  onClick={() => setIsAddingNote(true)}
-                  className="flex items-center text-gray-600 hover:text-black cursor-pointer"
-                >
-                  <Plus size={18} className="mr-2 " /> New note
+                <button onClick={() => setIsAddingNote(true)} className="flex items-center text-gray-600 hover:text-black cursor-pointer">
+                  <Plus size={18} className="mr-2" /> New note
                 </button>
               )}
             </div>
