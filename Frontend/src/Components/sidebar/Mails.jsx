@@ -1,209 +1,252 @@
-import React, { useState } from 'react';
-import { Mail, Send, Star, Circle, CheckCircle2, Plus, Eye } from 'lucide-react';
-import data from "../../db/notificationData.json"
+import { useState, useEffect, useCallback } from "react"
+import MailList from "./mailcomponents/mail-list"
+import ComposeModal from "./mailcomponents/compose-modal"
 
-const Mails = () => {
-  const [activeTab, setActiveTab] = useState('all');
-  const [isComposeModalOpen, setIsComposeModalOpen] = useState(false);
+export default function MailPage() {
+  const [isComposeOpen, setIsComposeOpen] = useState(false)
+  const [mails, setMails] = useState([])
+  const [users, setUsers] = useState([])
+  const [currentUser, setCurrentUser] = useState(null)
+  // const [loading, setLoading] = useState(true)
 
-  const [mailMessages, setMailMessages] = useState(data)
-  
-  
-  const mailTabs = [
-    { 
-      id: 'all', 
-      icon: <Mail className="w-5 h-5" />, 
-      label: 'All Mail',
-      count: mailMessages.length
+  // Mock data - In a real application, this would come from an API
+  // Updated to match the Mongoose schema:
+  // companyId, subject, description, from, to, date, isRead, isSent
+  const mockMails = [
+    {
+      id: 1, // This would be _id in MongoDB
+      companyId: "60d21b4667d0d8992e610c85", // Mock ObjectId
+      subject: "New project proposal",
+      description: `Dear Marketing Team,
+
+I'm excited to share our detailed proposal for the Q2 marketing strategy. After analyzing our Q1 performance and market trends, I believe we have a strong opportunity to increase our market share through targeted digital campaigns.
+
+Key points:
+- Increase social media presence by 30%
+- Launch the new product line with an integrated campaign
+- Partner with three key influencers in our industry
+- Optimize our conversion funnel with A/B testing
+
+Please review the attached documents and share your feedback by Friday. I'd like to finalize this plan by early next week.
+
+Best regards,
+Emily`,
+      from: "60d21b4667d0d8992e610c86", // User ObjectId
+      fromName: "Emily Johnson", // Additional field for display purposes
+      to: "Marketing Team",
+      date: new Date(2023, 4, 15, 10, 30), // May 15, 2023, 10:30 AM
+      isRead: false,
+      isSent: false, // This indicates the email was received, not sent by the current user
     },
-    { 
-      id: 'sent', 
-      icon: <Send className="w-5 h-5" />, 
-      label: 'Sent',
-      count: mailMessages.filter(msg => msg.sendBy === "Emily Johnson").length
+    {
+      id: 2,
+      companyId: "60d21b4667d0d8992e610c85",
+      subject: "Budget Review Meeting",
+      description: `Hello Finance Department,
+
+I've scheduled our quarterly budget review meeting for this Thursday at 2 PM in Conference Room A. Please find the agenda and financial reports attached to this email.
+
+Agenda:
+1. Q1 Performance Review
+2. Budget Variance Analysis
+3. Q2 Budget Adjustments
+4. Department Funding Requests
+5. Cost-saving Initiatives
+
+Please come prepared with your department's spending reports and any funding requests for the upcoming quarter.
+
+Regards,
+Michael Chen
+Financial Director`,
+      from: "60d21b4667d0d8992e610c87",
+      fromName: "Michael Chen",
+      to: "Finance Department",
+      date: new Date(2023, 4, 15, 9, 15), // May 15, 2023, 9:15 AM
+      isRead: false,
+      isSent: false,
     },
-    { 
-      id: 'unread', 
-      icon: <Star className="w-5 h-5" />, 
-      label: 'Unread',
-      count: mailMessages.filter(msg => !msg.read).length
+    {
+      id: 3,
+      companyId: "60d21b4667d0d8992e610c85",
+      subject: "Customer Feedback Report",
+      description: "Quarterly customer satisfaction analysis shows a 15% increase in our NPS score. Great job team!",
+      from: "60d21b4667d0d8992e610c88",
+      fromName: "Sarah Rodriguez",
+      to: "Customer Success Team",
+      date: new Date(2023, 4, 15, 7, 45), // May 15, 2023, 7:45 AM
+      isRead: true,
+      isSent: false,
     },
-    { 
-      id: 'read', 
-      icon: <Eye className="w-5 h-5" />, 
-      label: 'Read',
-      count: mailMessages.filter(msg => msg.read).length
+    {
+      id: 4,
+      companyId: "60d21b4667d0d8992e610c85",
+      subject: "Product Development Update",
+      description:
+        "Sprint progress and upcoming feature roadmap. We're on track to release the new dashboard next week.",
+      from: "60d21b4667d0d8992e610c89",
+      fromName: "Alex Kim",
+      to: "Engineering Team",
+      date: new Date(2023, 4, 14, 16, 30), // May 14, 2023, 4:30 PM
+      isRead: true,
+      isSent: false,
+    },
+    {
+      id: 5,
+      companyId: "60d21b4667d0d8992e610c85",
+      subject: "Weekly Team Update",
+      description:
+        "Summary of our team's progress this week. We've hit all our KPIs and are ready for the product launch.",
+      from: "60d21b4667d0d8992e610c86", // Current user's ID
+      fromName: "Emily Johnson",
+      to: "Marketing Team",
+      date: new Date(2023, 4, 14, 15, 0), // May 14, 2023, 3:00 PM
+      isRead: true,
+      isSent: true, // This indicates the email was sent by the current user
+    },
+  ]
+
+  const mockUsers = [
+    {
+      id: "60d21b4667d0d8992e610c86",
+      name: "Emily Johnson",
+      email: "emily.johnson@company.com",
+      department: "Marketing",
+    },
+    { id: "60d21b4667d0d8992e610c87", name: "Michael Chen", email: "michael.chen@company.com", department: "Finance" },
+    {
+      id: "60d21b4667d0d8992e610c88",
+      name: "Sarah Rodriguez",
+      email: "sarah.rodriguez@company.com",
+      department: "Customer Success",
+    },
+    { id: "60d21b4667d0d8992e610c89", name: "Alex Kim", email: "alex.kim@company.com", department: "Engineering" },
+    {
+      id: "60d21b4667d0d8992e610c90",
+      name: "David Thompson",
+      email: "david.thompson@company.com",
+      department: "Sales",
+    },
+  ]
+
+  const mockCurrentUser = {
+    id: "60d21b4667d0d8992e610c86",
+    name: "Emily Johnson",
+    email: "emily.johnson@company.com",
+    department: "Marketing",
+  }
+
+  // Load initial data
+  useEffect(() => {
+    // Simulate API call with setTimeout
+    const loadData = async () => {
+      try {
+        // API INTEGRATION POINT:
+        // Replace this with actual API calls to fetch mails and users
+        // Example:
+        // const mailsResponse = await fetch('/api/mails');
+        // const mailsData = await mailsResponse.json();
+        // const usersResponse = await fetch('/api/users');
+        // const usersData = await usersResponse.json();
+
+         setMails(mockMails)
+          setUsers(mockUsers)
+          setCurrentUser(mockCurrentUser)
+          // setLoading(false)
+
+        // setTimeout(() => {
+        //   setMails(mockMails)
+        //   setUsers(mockUsers)
+        //   setCurrentUser(mockCurrentUser)
+        //   setLoading(false)
+        // }, 500)
+      } catch (error) {
+        console.error("Failed to load data:", error)
+        setLoading(false)
+      }
     }
-  ];
 
-  const handleMessageClick = (messageId) => {
-    setMailMessages(prevMessages => 
-      prevMessages.map(message => 
-        message.id === messageId 
-          ? { ...message, read: true } 
-          : message
-      )
-    );
-  };
+    loadData()
+  }, [])
 
-  const filteredMessages = activeTab === 'all' 
-    ? mailMessages 
-    : activeTab === 'unread' 
-      ? mailMessages.filter(msg => !msg.read)
-      : activeTab === 'read'
-        ? mailMessages.filter(msg => msg.read)
-        : activeTab === 'sent'
-          ? mailMessages.filter(msg => msg.sendBy === "Emily Johnson")
-          : [];
+  // Memoize functions to prevent unnecessary re-renders
+  const sendMail = useCallback(
+    (mail) => {
+      // API INTEGRATION POINT:
+      // In a real application, you would make an API call here
+      // Example:
+      // await fetch('/api/mails', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(mail)
+      // });
 
-  const ComposeModal = () => {
-    return (
-      <div className="fixed inset-0 bg-[#7e7e7e50] bg-opacity-50 z-50 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4">
-          <div className="p-4 border-b flex justify-between items-center">
-            <h2 className="text-lg font-semibold">Compose New Message</h2>
-            <button 
-              onClick={() => setIsComposeModalOpen(false)}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              ✕
-            </button>
-          </div>
-          <div className="p-4 space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">To:</label>
-              <input 
-                type="text" 
-                className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-200 outline-none"
-                placeholder="Enter recipient email"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Subject:</label>
-              <input 
-                type="text" 
-                className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-200 outline-none"
-                placeholder="Enter message subject"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Message:</label>
-              <textarea 
-                rows="4"
-                className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-200 outline-none"
-                placeholder="Write your message here..."
-              ></textarea>
-            </div>
-            <div className="flex justify-end space-x-2">
-              <button 
-                onClick={() => setIsComposeModalOpen(false)}
-                className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md"
-              >
-                Cancel
-              </button>
-              <button 
-                className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
-              >
-                Send
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
+      setMails((prevMails) => [
+        {
+          id: prevMails.length + 1,
+          companyId: "60d21b4667d0d8992e610c85", // Company ID would come from the current user's context
+          from: currentUser.id,
+          fromName: currentUser.name,
+          ...mail,
+          date: new Date(), // Use current date for new emails
+          isRead: false,
+          isSent: true, // Mark as sent since current user is sending it
+        },
+        ...prevMails,
+      ])
+    },
+    [currentUser],
+  )
+
+  const markAsRead = useCallback((id) => {
+    // API INTEGRATION POINT:
+    // In a real application, you would make an API call here
+    // Example:
+    // await fetch(`/api/mails/${id}/read`, {
+    //   method: 'PUT'
+    // });
+
+    setMails((prevMails) => prevMails.map((mail) => (mail.id === id ? { ...mail, isRead: true } : mail)))
+  }, [])
+
+  const deleteMail = useCallback((id) => {
+    // API INTEGRATION POINT:
+    // In a real application, you would make an API call here
+    // Example:
+    // await fetch(`/api/mails/${id}`, {
+    //   method: 'DELETE'
+    // });
+
+    setMails((prevMails) => prevMails.filter((mail) => mail.id !== id))
+  }, [])
+
+  // if (loading) {
+  //   return <div className="flex justify-center items-center h-screen">Loading...</div>
+  // }
 
   return (
-    <div className=' p-6'>
-      <div className="relative flex flex-col container mx-auto p-4 bg-white pb-8 rounded">
-        <h1 className='text-2xl font-bold mb-5'>Mails</h1>
-        {/* Tabs */}
-        <div className="flex border-b border-gray-200">
-          {mailTabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`
-                flex items-center gap-2 px-4 py-2 
-                ${activeTab === tab.id 
-                  ? 'border-b-2 shadow-inner' 
-                  : 'text-gray-600 hover:text-gray-800'}
-                transition-colors duration-200
-              `}
-            >
-              {tab.icon}
-              <span className="">{tab.label}</span>
-              <span className={`
-                text-xs px-2 py-0.5 rounded-full ml-2
-                ${activeTab === tab.id 
-                  ? 'bg-black text-white' 
-                  : 'bg-gray-200 text-gray-600'}
-              `}>
-                {tab.count}
-              </span>
-            </button>
-          ))}
-        </div>
+    <div className="p-6">
+      <div className="container mx-auto p-4 bg-white pb-8 rounded">
+      <h1 className="text-2xl font-bold mb-6">Mails</h1>
 
-        {/* Message List */}
-        <div className="flex-grow overflow-auto" style={{
-          scrollbarWidth: "none"
-        }}>
-          {filteredMessages.map((message) => (
-            <div 
-              key={message.id} 
-              onClick={() => handleMessageClick(message.id)}
-              className={`
-                p-4 border-b border-gray-200 flex items-start gap-3 hover:bg-gray-50 cursor-pointer
-                ${!message.read ? 'bg-blue-50' : ''}
-              `}
-            >
-              {message.read ? (
-                <CheckCircle2 className="w-5 h-5 text-gray-400 mt-1" />
-              ) : (
-                <Circle className="w-5 h-5 text-blue-500 mt-1" />
-              )}
-              <div className="flex-grow">
-                <div className="flex justify-between items-center">
-                  <h3 className={`
-                    text-sm font-semibold
-                    ${!message.read ? 'text-blue-800' : 'text-gray-800'}
-                  `}>
-                    {message.title}
-                  </h3>
-                  <span className="text-xs text-gray-500">{message.time}</span>
-                </div>
-                <p className={`
-                  text-xs mt-1
-                  ${!message.read ? 'text-blue-700' : 'text-gray-600'}
-                `}>
-                  {message.description}
-                </p>
-                <div className="text-xs text-gray-500 mt-2 flex justify-between">
-                  <span>From: {message.sendBy}</span>
-                  <span>To: {message.sendTo}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+      <MailList mails={mails} markAsRead={markAsRead} deleteMail={deleteMail} />
 
-        {/* Compose Button */}
-        <div className="fixed bottom-6 right-28 z-40">
-          <button 
-            onClick={() => setIsComposeModalOpen(true)}
-            className="flex items-center gap-3 bg-black text-white px-3 py-2 rounded-full shadow-lg w-10 hover:w-fit hover:bg-gray-800  overflow-hidden" 
-          >
-            <span className='ml-[-2px]'><Plus className="w-5 h-5 " /></span>
-            <span>Compose</span>
-          </button>
-        </div>
+      {isComposeOpen && (
+        <ComposeModal
+          onClose={() => setIsComposeOpen(false)}
+          sendMail={sendMail}
+          users={users}
+          currentUser={currentUser}
+        />
+      )}
 
-        {/* Compose Modal */}
-        {isComposeModalOpen && <ComposeModal />}
-      </div>
+      <button
+        onClick={() => setIsComposeOpen(true)}
+        className="fixed bottom-6 right-6 bg-black text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:bg-gray-800 transition-colors"
+        aria-label="Compose new mail"
+      >
+        <span className="text-2xl">+</span>
+      </button>
     </div>
-  );
-};
-
-export default Mails;
+    </div>
+  )
+}

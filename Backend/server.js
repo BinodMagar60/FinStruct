@@ -36,7 +36,7 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 
 
-const AdminRoutes = require('./Routes/AdminRoutes')
+const AdminRoutes = require('./Routes/Routes')
 
 app.use('/admin/user', AdminRoutes)
 app.use('/admin/wroker', AdminRoutes)

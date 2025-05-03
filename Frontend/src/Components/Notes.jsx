@@ -136,46 +136,48 @@ const Notes = () => {
 
             {/* Notes List */}
             <div className="flex-1 overflow-y-auto p-2 notesShow">
-              {notes.map((note) => (
-                <div key={note._id} className="p-3 border-b border-gray-300">
-                  <div className="text-xs text-gray-500 font-medium">
-                    {formatDate(note.date)}
-                  </div>
+              {[...notes]
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .map((note) => (
+                  <div key={note._id} className="p-3 border-b border-gray-300">
+                    <div className="text-xs text-gray-500 font-medium">
+                      {formatDate(note.date)}
+                    </div>
 
-                  {editingNoteId === note._id ? (
-                    <div className="mt-1">
-                      <textarea
-                        value={editingContent}
-                        onChange={(e) => setEditingContent(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        className="w-full p-2 border rounded text-black bg-gray-100 focus:outline-none border-gray-300"
-                        rows={3}
-                        autoFocus
-                      />
-                      <div className="flex  justify-end space-x-2 mt-2">
-                        <button onClick={cancelEdit} className="px-2 py-1 bg-gray-300 hover:bg-gray-400 rounded-md text-gray-800 text-sm">
-                          Cancel
-                        </button>
-                        <button onClick={() => saveEdit(note._id, { content: editingContent })} className="px-2 py-1 bg-black hover:bg-gray-800 rounded-md text-white text-sm flex justify-center items-center gap-1">
-                          <Save size={13} className="mr-1" /> Save
-                        </button>
-                        <button onClick={() => deleteNote(note._id)} className="px-2 py-1 bg-red-500 hover:bg-red-600 rounded-md text-white text-sm flex justify-center items-center gap-1">
-                          <Trash2 size={13} className="mr-1" /> Delete
+                    {editingNoteId === note._id ? (
+                      <div className="mt-1">
+                        <textarea
+                          value={editingContent}
+                          onChange={(e) => setEditingContent(e.target.value)}
+                          onKeyDown={handleKeyDown}
+                          className="w-full p-2 border rounded text-black bg-gray-100 focus:outline-none border-gray-300"
+                          rows={3}
+                          autoFocus
+                        />
+                        <div className="flex justify-end space-x-2 mt-2">
+                          <button onClick={cancelEdit} className="px-2 py-1 bg-gray-300 hover:bg-gray-400 rounded-md text-gray-800 text-sm">
+                            Cancel
+                          </button>
+                          <button onClick={() => saveEdit(note._id, { content: editingContent })} className="px-2 py-1 bg-black hover:bg-gray-800 rounded-md text-white text-sm flex justify-center items-center gap-1">
+                            <Save size={13} className="mr-1" /> Save
+                          </button>
+                          <button onClick={() => deleteNote(note._id)} className="px-2 py-1 bg-red-500 hover:bg-red-600 rounded-md text-white text-sm flex justify-center items-center gap-1">
+                            <Trash2 size={13} className="mr-1" /> Delete
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex justify-between items-start mt-1">
+                        <div className="whitespace-pre-line text-gray-800 text-sm">
+                          {note.content}
+                        </div>
+                        <button className="ml-2 text-gray-500 hover:text-blue-500" onClick={() => startEditing(note)}>
+                          <Edit size={18} className="cursor-pointer hover:text-black" />
                         </button>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="flex justify-between items-start mt-1">
-                      <div className="whitespace-pre-line text-gray-800 text-sm">
-                        {note.content}
-                      </div>
-                      <button className="ml-2 text-gray-500 hover:text-blue-500" onClick={() => startEditing(note)}>
-                        <Edit size={18} className="cursor-pointer hover:text-black" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
+                    )}
+                  </div>
+                ))}
             </div>
 
             {/* Add Note Section */}
