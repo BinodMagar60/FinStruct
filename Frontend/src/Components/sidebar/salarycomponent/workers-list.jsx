@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Edit2, Trash2 } from "lucide-react"
+import { getInitials } from "../../../utils/getInitials"
 
 export default function WorkersList({ workers, searchTerm, onEdit, onDelete }) {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "ascending" })
@@ -76,7 +77,21 @@ export default function WorkersList({ workers, searchTerm, onEdit, onDelete }) {
         <tbody className="bg-white divide-y divide-gray-200">
           {sortedWorkers.map((worker) => (
             <tr key={worker._id}>
-              <td className="px-6 py-4 whitespace-nowrap capitalize">{worker.username}</td>
+              <td className="px-6 py-4 whitespace-nowrap capitalize flex gap-2 items-center">
+                {worker.photo ? (
+                                <div className="w-8 h-8 rounded-full flex items-center justify-center text-white overflow-hidden">
+                                  <img
+                                    src={worker.photo}
+                                    alt={worker.username}
+                                    className="h-full w-full object-cover"
+                                  />
+                                </div>
+                              ) : (
+                                <div className="w-8 h-8 rounded-full flex items-center justify-center text-white bg-blue-600">
+                                  {getInitials(worker.username)}
+                                </div>
+                              )}
+                {worker.username}</td>
               <td className="px-6 py-4 whitespace-nowrap">{worker.jobTitleId.titleName}</td>
               <td className="px-6 py-4 whitespace-nowrap">
                 ${worker.salary.toLocaleString()}

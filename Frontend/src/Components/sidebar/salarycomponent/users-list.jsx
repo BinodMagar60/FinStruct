@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Edit2, Trash2 } from "lucide-react";
+import {getInitials} from '../../../utils/getInitials'
 
 export default function UsersList({ users, searchTerm, onEdit, onDelete }) {
   const userSavedDetail = JSON.parse(localStorage.getItem("userDetails"));
@@ -92,7 +93,20 @@ export default function UsersList({ users, searchTerm, onEdit, onDelete }) {
         <tbody className="bg-white divide-y divide-gray-200">
           {sortedUsers.map((user) => (
             <tr key={user._id}>
-              <td className="px-6 py-4 whitespace-nowrap capitalize">
+              <td className="px-6 py-4 whitespace-nowrap capitalize flex gap-2 items-center">
+              {user.photo ? (
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-white overflow-hidden">
+                  <img
+                    src={user.photo}
+                    alt={user.username}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-white bg-blue-600">
+                  {getInitials(user.username)}
+                </div>
+              )}
                 {user.username}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
