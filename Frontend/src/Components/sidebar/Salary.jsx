@@ -8,6 +8,7 @@ import EditEmployeeModal from "./salarycomponent/edit-employee-modal"
 import EditRoleModal from "./salarycomponent/edit-role-modal"
 import AddRoleModal from "./salarycomponent/add-role-modal"
 import { getRolesAndSalaries, DeleteRolesAndSalaries, getAllUserForSalary, updateUserSalary } from "../../api/AdminApi"
+import Loading from "./Loading"
 
 
 
@@ -24,6 +25,7 @@ export default function Salary() {
   const [currentEmployee, setCurrentEmployee] = useState(null)
   const [currentRole, setCurrentRole] = useState(null)
   const [allTheUsers, setAllTheUsers] = useState([]);
+  const [isLoading, setLoading] = useState(true)
   const [users, setUsers] = useState([])
 
   const [workers, setWorkers] = useState([])
@@ -43,7 +45,7 @@ export default function Salary() {
         }
       }
       getRolesData()
-  },[jobTitles])
+  },[])
 
 //get all the user detail from backend
 useEffect(()=>{
@@ -54,6 +56,9 @@ useEffect(()=>{
       setAllTheUsers(response.receivedData)
     }catch(err){
       console.log(err)
+    }
+    finally{
+        setLoading(false)
     }
   }
   getData()
@@ -144,7 +149,10 @@ useEffect(()=>{
       <div className="">
         <div className="p-6">
           <div className="container mx-auto p-4 bg-white pb-8 rounded">
-            <div className="flex justify-between items-center mb-6">
+            {
+              isLoading? <Loading/> : (
+                <>
+                <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-bold text-gray-900">Salary Management</h1>
               <div className="flex items-center">
                 {activeTab !== "roles" ? (
@@ -244,7 +252,10 @@ useEffect(()=>{
                 onAddRole={handleAddRole}
               />
             )}
-          </div>
+                </>
+              )
+            }
+            </div>
         </div>
       </div>
 

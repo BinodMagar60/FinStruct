@@ -4,6 +4,7 @@ import UserDetail from "./users/user-detail"
 import AddUserForm from "./users/add-user-form"
 import { addUserFromCompany, deleteUserDetails, getAllUsersDetailFromCompany, updateUserDetails } from "../../api/AdminApi"
 import { ChevronsRightLeft } from "lucide-react"
+import Loading from "./Loading"
 
 export default function User() {
   const userSave = JSON.parse(localStorage.getItem("userDetails"));
@@ -13,6 +14,7 @@ export default function User() {
   const [view, setView] = useState("list") // 'list', 'detail', 'add', 'edit'
   const [selectedUserId, setSelectedUserId] = useState(null)
   const [editingUser, setEditingUser] = useState(null)
+  const [isLoading, setLoading] = useState(true)
   const [allUsersDetails, setUsersDetails] = useState([]);
 
   const [users, setUsers] = useState([])
@@ -30,6 +32,9 @@ export default function User() {
       }
       catch(err){
         console.log(err)
+      }
+      finally{
+        setLoading(false)
       }
     }
     getAllDetailsUsers()
@@ -109,7 +114,9 @@ export default function User() {
   return (
     <div className="p-6">
       <div className="container mx-auto p-4 bg-white pb-8 rounded">
-      <TeamMembers
+      {
+        isLoading? <Loading/> : <>
+        <TeamMembers
         users={users}
         workers={workers}
         onViewUser={handleViewUser}
@@ -129,6 +136,8 @@ export default function User() {
           userData={view === "edit" ? editingUser : null}
         />
       )}
+        </>
+      }
     </div>
     </div>
   )
