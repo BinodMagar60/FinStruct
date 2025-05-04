@@ -20,8 +20,11 @@ export default function MailDetail({ mail, onClose, onDelete }) {
   return (
     <div className="fixed inset-0 bg-[#00000012] bg-opacity-50 flex items-center justify-center z-50" onClick={onClose}>
       <div
-        className="bg-white rounded-lg w-full max-w-2xl p-6 shadow-xl max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-lg w-full max-w-2xl p-6 shadow-xl max-h-[80vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
+        style={{
+          scrollbarWidth: "none"
+        }}
       >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">{mail.subject}</h2>
@@ -35,7 +38,6 @@ export default function MailDetail({ mail, onClose, onDelete }) {
             <div>
               <p className="font-medium">
                 From: {mail.fromName || "Unknown"}
-                {/* {mail.fromJobTitle && <span className="text-gray-500 ml-1">({mail.fromJobTitle})</span>} */}
               </p>
               <p className="text-gray-600">To: {mail.to}</p>
             </div>
@@ -48,14 +50,7 @@ export default function MailDetail({ mail, onClose, onDelete }) {
           <div style={{ whiteSpace: "pre-line" }}>{mail.description}</div>
         </div>
 
-        <div className="mt-6 flex justify-end gap-2">
-          <button
-            onClick={onDelete}
-            className="text-red-500 hover:text-red-700 px-3 py-1 border border-red-500 rounded-md text-sm"
-          >
-            Delete
-          </button>
-        </div>
+        
       </div>
     </div>
   )

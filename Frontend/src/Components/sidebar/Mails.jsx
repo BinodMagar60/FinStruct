@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import MailList from "./mailcomponents/mail-list";
 import ComposeModal from "./mailcomponents/compose-modal";
 import {
+  deleteMailApi,
   receiveMailApi,
   receiveMailUsersApi,
   sendMailApi,
@@ -66,8 +67,15 @@ export default function MailPage() {
     );
   }, []);
 
-  const deleteMail = useCallback((id) => {
-    setMails((prevMails) => prevMails.filter((mail) => mail.id !== id));
+  const deleteMail = useCallback(async(id) => {
+    // setMails((prevMails) => prevMails.filter((mail) => mail.id !== id));
+    try{
+      const response = await deleteMailApi(`admin/user/mail/${id}`)
+      setChanging(prev => prev)
+    }
+    catch(err){
+      console.log(err)
+    }
   }, []);
 
   return (

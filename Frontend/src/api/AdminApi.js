@@ -48,6 +48,17 @@ export const navbarNotesDelete = async(route) => {
   }
 }
 
+//get notification about mails in top
+export const getNotificationData = async(route) => {
+  try{
+    const response = await axios.get(BackendURI+route)
+    return response.data.data
+  }
+  catch(err){
+    throw err.response.data
+  }
+}
+
 //************************ END ************************
 
 
@@ -326,6 +337,16 @@ export const receiveMailUsersApi = async(route) => {
 export const updateMailApi = async(route) =>{
   try{
     const response = await axios.put(BackendURI+route)
+    return response.data
+  }
+  catch(err){
+    throw err.response.data
+  }
+}
+
+export const deleteMailApi = async(route) => {
+  try{
+    const response = await axios.delete(BackendURI+route)
     return response.data
   }
   catch(err){

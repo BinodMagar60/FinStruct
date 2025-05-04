@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import Notes from "./Notes";
 import Logout from "./Logout";
 import { getInitials } from "../utils/getInitials";
+import { getNotificationData } from "../api/AdminApi";
 
 const Navbar = ({ isLogout, setLogout, user }) => {
   const userDetails = user;
@@ -47,166 +48,23 @@ const Navbar = ({ isLogout, setLogout, user }) => {
     }
   });
 
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: "New project proposal",
-      description: "Detailed proposal for Q2 marketing strategy",
-      time: "5 minutes ago",
-      read: false,
-      sendBy: "Emily Johnson",
-      sendTo: "Marketing Team",
-      sender: {
-        email: "emily.j@company.com",
-        avatar: "/api/placeholder/40/40",
-      },
-    },
-    {
-      id: 2,
-      title: "Budget Review Meeting",
-      description: "Agenda and financial reports for upcoming meeting",
-      time: "1 hour ago",
-      read: false,
-      sendBy: "Michael Chen",
-      sendTo: "Finance Department",
-      sender: {
-        email: "michael.c@company.com",
-        avatar: "/api/placeholder/40/40",
-      },
-    },
-    {
-      id: 3,
-      title: "Customer Feedback Report",
-      description: "Quarterly customer satisfaction analysis",
-      time: "3 hours ago",
-      read: true,
-      sendBy: "Sarah Rodriguez",
-      sendTo: "Customer Success Team",
-      sender: {
-        email: "sarah.r@company.com",
-        avatar: "/api/placeholder/40/40",
-      },
-    },
-    {
-      id: 4,
-      title: "Product Development Update",
-      description: "Sprint progress and upcoming feature roadmap",
-      time: "5 hours ago",
-      read: true,
-      sendBy: "Alex Kim",
-      sendTo: "Engineering Team",
-      sender: {
-        email: "alex.k@company.com",
-        avatar: "/api/placeholder/40/40",
-      },
-    },
-    {
-      id: 5,
-      title: "Training Session Invitation",
-      description: "Annual company-wide professional development workshop",
-      time: "Yesterday",
-      read: true,
-      sendBy: "HR Department",
-      sendTo: "All Employees",
-      sender: {
-        email: "hr@company.com",
-        avatar: "/api/placeholder/40/40",
-      },
-    },
-    {
-      id: 6,
-      title: "System Maintenance Notification",
-      description: "Scheduled downtime for system upgrades",
-      time: "Yesterday",
-      read: true,
-      sendBy: "IT Support",
-      sendTo: "All Users",
-      sender: {
-        email: "it-support@company.com",
-        avatar: "/api/placeholder/40/40",
-      },
-    },
-    {
-      id: 7,
-      title: "New Client Onboarding",
-      description: "Welcome package and initial consultation details",
-      time: "2 days ago",
-      read: true,
-      sendBy: "David Thompson",
-      sendTo: "Sales Team",
-      sender: {
-        email: "david.t@company.com",
-        avatar: "/api/placeholder/40/40",
-      },
-    },
-    {
-      id: 8,
-      title: "Quarterly Sales Report",
-      description: "Comprehensive analysis of Q1 sales performance",
-      time: "3 days ago",
-      read: false,
-      sendBy: "Rachel Green",
-      sendTo: "Executive Team",
-      sender: {
-        email: "rachel.g@company.com",
-        avatar: "/api/placeholder/40/40",
-      },
-    },
-    {
-      id: 9,
-      title: "Marketing Campaign Review",
-      description: "Preliminary results of recent digital marketing initiative",
-      time: "4 days ago",
-      read: false,
-      sendBy: "Tom Harris",
-      sendTo: "Marketing Strategy Team",
-      sender: {
-        email: "tom.h@company.com",
-        avatar: "/api/placeholder/40/40",
-      },
-    },
-    {
-      id: 10,
-      title: "Compliance Training Reminder",
-      description: "Annual mandatory compliance and ethics training",
-      time: "5 days ago",
-      read: true,
-      sendBy: "Legal Department",
-      sendTo: "All Staff",
-      sender: {
-        email: "legal@company.com",
-        avatar: "/api/placeholder/40/40",
-      },
-    },
-    {
-      id: 11,
-      title: "Performance Review Scheduling",
-      description: "Instructions for scheduling annual performance reviews",
-      time: "6 days ago",
-      read: true,
-      sendBy: "HR Management",
-      sendTo: "Department Managers",
-      sender: {
-        email: "hr-management@company.com",
-        avatar: "/api/placeholder/40/40",
-      },
-    },
-    {
-      id: 12,
-      title: "Product Feedback Collection",
-      description: "Request for input on upcoming product improvements",
-      time: "1 week ago",
-      read: true,
-      sendBy: "Product Team",
-      sendTo: "Beta Testers",
-      sender: {
-        email: "product@company.com",
-        avatar: "/api/placeholder/40/40",
-      },
-    },
-  ]);
+  const [notifications, setNotifications] = useState([]);
   const profileRef = useRef(null);
   const notificationRef = useRef(null);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const response = await getNotificationData(`admin/user/navbarNotfication/${userDetails.id}`);
+        setNotifications(response);
+      } catch (err) {
+        console.error("Error fetching notifications:", err);
+      }
+    }, 1000); 
+  
+    return () => clearInterval(interval); 
+  }, [userDetails.id]);
+  
 
   //   dropdown
   useEffect(() => {
@@ -237,6 +95,19 @@ const Navbar = ({ isLogout, setLogout, user }) => {
     setIsProfileOpen(!isProfileOpen);
     setLogout(!isLogout);
   };
+
+
+
+  function formatDate(isoString) {
+    const date = new Date(isoString);
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'short' }); 
+    const year = date.getFullYear();
+    return `${day} ${month}, ${year}`;
+  }
+  
+
+  
 
   return (
     <div className="w-full fixed top-0 z-100">
@@ -270,30 +141,11 @@ const Navbar = ({ isLogout, setLogout, user }) => {
                   <h3 className="text-lg font-semibold text-gray-900">
                     Notifications
                   </h3>
-                  <button
-                    className="text-sm cursor-pointer text-blue-600 hover:text-blue-800"
-                    onClick={() =>
-                      setNotifications((prv) => {
-                        const newArr = [...prv];
-                        newArr.forEach((obj) => (obj.read = true));
-                        return newArr;
-                      })
-                    }
-                  >
-                    Mark all as read
-                  </button>
                 </div>
 
                 <div className="max-h-64 overflow-y-auto scroll cursor-pointer ">
                   {notifications.map((notification, index) => (
                     <div
-                      onClick={() =>
-                        setNotifications((prv) => {
-                          const newArr = [...prv];
-                          newArr[notification.id - 1].read = true;
-                          return newArr;
-                        })
-                      }
                       key={notification.id}
                       className={`px-4 py-3 border-b border-gray-100 hover:bg-gray-50 ${
                         !notification.read ? "bg-blue-50" : ""
@@ -314,7 +166,7 @@ const Navbar = ({ isLogout, setLogout, user }) => {
                         {notification.description}
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
-                        {notification.time}
+                        {formatDate(notification.time)}
                       </p>
                     </div>
                   ))}

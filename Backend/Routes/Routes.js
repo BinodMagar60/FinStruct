@@ -32,6 +32,35 @@ router.put('/navbar/:id', updateNotes)
 //Delete note in navbar
 router.delete('/navbar/:id', deleteNotes)
 
+//get notification about mails in top
+router.get('/navbarNotfication/:id', async(req, res)=> {
+  try{
+    const {id} = req.params
+
+    const existingUser = await User.findById(id)
+    if(!existingUser){
+      return res.status(404).json({message: "User not found"})
+    }
+
+    const mail = await Mail.find({to: id, companyId: existingUser.companyId}).sort({date: -1 })
+    
+    const mailData = mail.map(mail=> (
+      {
+        id: mail._id,
+        title: mail.subject,
+        description: mail.description,
+        time: mail.date,
+        read: mail.isRead,
+        
+      }
+    ))
+    return res.status(200).json({message: "data received", data: mailData})
+  }
+  catch(err){
+    return res.status(500).json({message: "Server Error"})
+  }
+})
+
 
 // ---------------------- Navbar End ---------------
 
@@ -327,6 +356,27 @@ router.put('/mail/:id', async (req, res) => {
     return res.status(500).json({ message: "Server Error" });
   }
 });
+
+
+//delete mail
+
+router.delete('/mail/:id',async(req, res)=> {
+  try{
+    const {id} = req.params
+
+    const exists = await Mail.findById(id)
+    if(!exists){
+      return res.status(404).json({message: "Not found"})
+    }
+
+    await Mail.findByIdAndDelete(id)
+    return res.status(200).json({message: "Mail deleted"})
+
+  }
+  catch(err){
+    return res.status(500).json({message: "Server Error"})
+  }
+})
 
 
 
