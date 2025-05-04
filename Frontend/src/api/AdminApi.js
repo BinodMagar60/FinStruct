@@ -218,7 +218,7 @@ export const getAllRoles = async(route) => {
     return response.data.allRoles
   }
   catch(err){
-    console.log(err)
+    // console.log(err)
     throw err.response.data
   }
 }
@@ -230,7 +230,7 @@ export const addUserFromCompany = async(route,data) => {
     return response.data
   }
   catch (err){
-    console.log(err)
+    // console.log(err)
     throw err.response.data
   }
 }
@@ -242,7 +242,7 @@ export const getAllUsersDetailFromCompany = async(route) => {
     return response.data
   }
   catch(err){
-    console.log(err)
+    // console.log(err)
     throw err.response.data
   }
 }
@@ -254,7 +254,7 @@ export const updateUserDetails = async(route, data) => {
     return response.data
   }
   catch(err){
-    console.log(err)
+    // console.log(err)
     throw err.response.data
   }
 }
@@ -266,7 +266,7 @@ export const deleteUserDetails = async(route) => {
     return response.data
   }
   catch(err){
-    console.log(err)
+    // console.log(err)
     throw err.response.data
   }
 }
@@ -278,5 +278,62 @@ export const deleteUserDetails = async(route) => {
 
 
 
+
+
+
+
+
+//======================== Mail Section ========================
+
+//add mail for mail section
+export const sendMailApi = async(route,data)=> {
+  try{
+    const response = await axios.post(BackendURI+route, data)
+    console.log(response)
+    return response.data
+  }
+  catch(err){
+    throw err.response.data
+  }
+}
+
+
+//get mail for mail section
+export const receiveMailApi = async(route) => {
+  try{
+    const response = await axios.get(BackendURI+route)
+    return response.data.data
+  }
+  catch(err){
+    throw err.response.data
+  }
+}
+
+
+//get Users data for showing recommend in compose mail
+export const receiveMailUsersApi = async(route) => {
+  try{
+    const response = await axios.get(BackendURI+route)
+    return response.data
+  }
+  catch(err){
+    throw err.response.data
+  }
+}
+
+
+//update the status of mail to read
+export const updateMailApi = async(route) =>{
+  try{
+    const response = await axios.put(BackendURI+route)
+    return response.data
+  }
+  catch(err){
+    throw err.response.data
+  }
+}
+
+
+//************************ END ************************
 
 

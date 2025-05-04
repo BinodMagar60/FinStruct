@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { CheckCircle, Circle } from "lucide-react"
 import MailDetail from "./mail-detail"
+import { updateMailApi } from "../../../api/AdminApi"
 
 export default function MailList({ mails, markAsRead, deleteMail }) {
   const [activeTab, setActiveTab] = useState("all")
@@ -21,10 +22,18 @@ export default function MailList({ mails, markAsRead, deleteMail }) {
     return true
   })
 
-  const handleMailClick = (mail) => {
+  const handleMailClick = async(mail) => {
     setSelectedMail(mail)
     if (!mail.isRead) {
-      markAsRead(mail.id)
+      try{
+        const response = await updateMailApi(`admin/user/mail/${mail.id}`)
+        console.log(response)
+       markAsRead(mail.id)
+
+      }
+      catch(err){
+        console.log(err)
+      }
     }
   }
 
@@ -37,23 +46,22 @@ export default function MailList({ mails, markAsRead, deleteMail }) {
     closeMailDetail()
   }
 
-  // Function to format date in the requested format: "15:45 · 5th of July 2023"
+  //function to formate the data
   const formatDate = (date) => {
     if (!date) return ""
 
     const mailDate = new Date(date)
 
-    // Format time in 24-hour format (15:45)
     const hours = mailDate.getHours().toString().padStart(2, "0")
     const minutes = mailDate.getMinutes().toString().padStart(2, "0")
     const timeStr = `${hours}:${minutes}`
 
-    // Format date (5th of July 2023)
+  
     const day = mailDate.getDate()
     const month = mailDate.toLocaleString("default", { month: "long" })
     const year = mailDate.getFullYear()
 
-    // Add ordinal suffix to day (1st, 2nd, 3rd, 4th, etc.)
+   
     const getOrdinalSuffix = (day) => {
       if (day > 3 && day < 21) return "th"
       switch (day % 10) {
@@ -81,7 +89,7 @@ export default function MailList({ mails, markAsRead, deleteMail }) {
           <button
             key={tab.id}
             className={`px-4 py-2 flex items-center gap-2 ${
-              activeTab === tab.id ? "border-b-2 border-black font-medium shadow-inner" : "text-gray-600"
+              activeTab === tab.id ? "border-b-2 border-black font-medium" : "text-gray-600"
             }`}
             onClick={() => setActiveTab(tab.id)}
           >
@@ -125,7 +133,10 @@ export default function MailList({ mails, markAsRead, deleteMail }) {
                   {mail.description.length > 60 ? mail.description.substring(0, 60) + "..." : mail.description}
                 </p>
                 <div className="flex justify-between mt-1 text-xs text-gray-500">
-                  <div>From: {mail.fromName || "Unknown"}</div>
+                  <div>
+                    From: {mail.fromName || "Unknown"} 
+                    {/* {mail.fromJobTitle && `(${mail.fromJobTitle})`} */}
+                  </div>
                   <div>To: {mail.to}</div>
                 </div>
               </div>

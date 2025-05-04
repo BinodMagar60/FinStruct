@@ -185,7 +185,7 @@ export default function AddUserForm({ onClose, onSubmit, userData = null }) {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Phone no.</label>
                 <input
-                  type="tel"
+                  type="number"
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleChange}

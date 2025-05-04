@@ -25,12 +25,14 @@ const Navbar = ({ isLogout, setLogout, user }) => {
     `/admin/profile/profileuser`,
     "/admin/profile/setting",
     "/admin/profile/activity",
+    "/admin/mail"
   ];
 
   const profileSidebarEmployee = [
     `/employee/profile/profileuser`,
     "/employee/profile/setting",
     "/employee/profile/activity",
+    "/employee/mail"
   ];
 
   const profile = isAdmin ? profileSidebarAdmin : profileSidebarEmployee;
@@ -319,12 +321,12 @@ const Navbar = ({ isLogout, setLogout, user }) => {
                 </div>
 
                 <div className="px-4 py-2 border-t border-gray-100 sticky bottom-0 bg-white z-20">
-                  <a
-                    href="#all-notifications"
+                  <Link to={profile[3]}>
+                  <button
                     className="block text-center text-sm text-blue-600 hover:text-blue-800"
                   >
                     View all notifications
-                  </a>
+                  </button></Link>
                 </div>
               </div>
             )}

@@ -26,19 +26,9 @@ export default function AddRoleModal({ onSave, onCancel }) {
 
   const handleSubmit = async(e) => {
     e.preventDefault()
+    onSave(formData)
     
 
-    try{
-      const response = await addRolesAndSalaries("admin/user/roles-salaries", formData)
-      onSave(formData)
-      // console.log(response)
-    }catch(err){
-      // console.log(err)
-      toast.error(err.message, {
-        theme: 'light',
-        autoClose: 1000
-      })
-    }
     
 
   }

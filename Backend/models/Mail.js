@@ -1,14 +1,13 @@
 const mongoose = require('mongoose');
 
-const expenseSchema = new mongoose.Schema({
+const mailSchema = new mongoose.Schema({
   companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company', required: true },
-  subject: {type: String, requried},
-  description: {type: String, required},
-  from: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required},
-  to: {type: String, required},
-  date: {type: Date, required},
-  isRead: {type: Boolean, required},
-  isSent: {type: Boolean, required},
+  subject: { type: String, required: true },
+  description: { type: String, required: true },
+  from: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  to: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  date: { type: Date, default: Date.now, required: true },
+  isRead: { type: Boolean, default: false },
 });
 
-module.exports = mongoose.model('Expense', expenseSchema);
+module.exports = mongoose.model('Mail', mailSchema);

@@ -125,7 +125,22 @@ const ProfileUser = () => {
       const response = await profileDetailsUpdate(`admin/user/profile/${user.email}`, userData);
       // console.log(response)
       setOriginalData(userData);
-      localStorage.setItem("userDetails", JSON.stringify(userData));
+      const sanatizeData = {
+        id: userData._id,
+      username: userData.username,
+      email: userData.email,
+      personalEmail: userData.personalEmail || null,
+      phoneNumber: userData.phoneNumber || null,
+      location: userData.location || null,
+      companyId: userData.companyId?._id || null,
+      companyName: userData.companyId?.name || null,
+      jobTitleId: userData.jobTitleId?._id,
+      jobTitle: userData.jobTitleId?.titleName,
+      photo: userData.photo,
+      role: userData.role,
+      isOwner: userData.isOwner,
+      }
+      localStorage.setItem("userDetails", JSON.stringify(sanatizeData));
       toast.success(response.message,{
         autoClose: 1000,
         theme: "light"

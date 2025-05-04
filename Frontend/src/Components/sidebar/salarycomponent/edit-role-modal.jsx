@@ -21,16 +21,10 @@ export default function EditRoleModal({ role, onSave, onCancel }) {
 
   const handleSubmit = async(e) => {
     e.preventDefault()
+    onSave(formData)
     
     // console.log(formData)
-    try{
-      const response = await updateRolesAndSalaries(`admin/user/roles-salaries/${formData._id}`, formData)
-      // console.log(response)
-      onSave(formData)
-    }
-    catch(err){
-      console.log(err)
-    }
+   
 
   }
 

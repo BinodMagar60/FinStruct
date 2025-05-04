@@ -34,7 +34,9 @@ export default function User() {
         console.log(err)
       }
       finally{
-        setLoading(false)
+        setTimeout(() => {
+          setLoading(false)
+        }, 200);
       }
     }
     getAllDetailsUsers()
@@ -71,10 +73,10 @@ export default function User() {
   }
 
   const handleDeleteUser = async(userId) => {
-    console.log(userId)
+    // console.log(userId)
     try{
       const response = await deleteUserDetails(`admin/user/users/${userId}`)
-      console.log(response)
+      // console.log(response)
     }catch(err){
       console.log(err)
     }
@@ -101,7 +103,7 @@ export default function User() {
       
       try{
         const response = await addUserFromCompany(`admin/user/users/${userSave.companyId}`, userData)
-        console.log(response)
+        // console.log(response)
       }catch(err){
         console.log(err)
       }
