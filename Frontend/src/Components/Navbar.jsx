@@ -144,7 +144,7 @@ const Navbar = ({ isLogout, setLogout, user }) => {
                 </div>
 
                 <div className="max-h-64 overflow-y-auto scroll cursor-pointer ">
-                  {notifications.map((notification, index) => (
+                  {notifications.slice(0,10).map((notification, index) => (
                     <div
                       key={notification.id}
                       className={`px-4 py-3 border-b border-gray-100 hover:bg-gray-50 ${
