@@ -34,9 +34,7 @@ export default function MailPage() {
       } catch (error) {
         console.error("Failed to load data:", error);
       } finally {
-        setTimeout(() => {
-          setLoading(false);
-        }, 200);
+        setLoading(false);
       }
     };
 

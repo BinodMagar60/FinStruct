@@ -50,9 +50,7 @@ export default function Salary() {
       } catch (err) {
         console.log(err);
       } finally {
-        setTimeout(() => {
-          setLoading(false);
-        }, 200);
+        setLoading(false);
       }
     };
     getData();

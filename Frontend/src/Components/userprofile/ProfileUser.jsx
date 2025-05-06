@@ -1,8 +1,9 @@
 import { Upload, User, Edit2, Save, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { profileDetails, profileDetailsUpdate } from "../../api/AdminApi";
-import {getInitials} from '../../utils/getInitials'
-import {toast} from 'react-toastify'
+import { getInitials } from "../../utils/getInitials";
+import { toast } from "react-toastify";
+
 const ProfileUser = () => {
   const user = JSON.parse(localStorage.getItem("userDetails"));
 
@@ -18,6 +19,7 @@ const ProfileUser = () => {
         const response = await profileDetails(`admin/user/profile/${user.email}`);
         setUserData(response);
         setOriginalData(response);
+        setProfileImage(response.photo);
       } catch (err) {
         console.log(err);
       }
@@ -28,8 +30,15 @@ const ProfileUser = () => {
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setProfileImage(imageUrl);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result); 
+        setUserData((prev) => ({
+          ...prev,
+          photo: reader.result,
+        }));
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -53,7 +62,6 @@ const ProfileUser = () => {
     if (name === "username" && !/^[A-Za-z][0-9A-Za-z\s]*$/.test(value)) {
       errorMsg = "Invalid Name.";
     }
-    
 
     if (name === "phoneNumber" && !/^(97|98)\d{8}$/.test(value)) {
       errorMsg = "Invalid Phone Number";
@@ -75,15 +83,13 @@ const ProfileUser = () => {
   const validateInputs = () => {
     const fieldsToValidate = ["username", "personalEmail", "phoneNumber"];
     let validationErrors = {};
-  
+
     fieldsToValidate.forEach((field) => {
-      const newValue = (userData[field] || "");
-      const originalValue = (originalData[field] || "");
-  
+      const newValue = userData[field] || "";
+      const originalValue = originalData[field] || "";
 
       if (newValue !== originalValue) {
         let errorMsg = "";
-  
 
         if (field === "username") {
           if (newValue === "") {
@@ -92,12 +98,11 @@ const ProfileUser = () => {
             errorMsg = "Invalid Name.";
           }
         }
-  
 
         if (field === "phoneNumber" && newValue !== "" && !/^(97|98)\d{8}$/.test(newValue)) {
           errorMsg = "Invalid Phone Number";
         }
-  
+
         if (
           field === "personalEmail" &&
           newValue !== "" &&
@@ -105,48 +110,55 @@ const ProfileUser = () => {
         ) {
           errorMsg = "Invalid Email";
         }
-  
+
         if (errorMsg) {
           validationErrors[field] = errorMsg;
         }
       }
     });
-  
+
     setErrors(validationErrors);
     return Object.keys(validationErrors).length === 0;
   };
-
 
   const handleSave = async () => {
     if (!validateInputs()) return;
 
     setIsEditing(false);
     try {
-      const response = await profileDetailsUpdate(`admin/user/profile/${user.email}`, userData);
-      // console.log(response)
-      setOriginalData(userData);
-      const sanatizeData = {
-        id: userData._id,
-      username: userData.username,
-      email: userData.email,
-      personalEmail: userData.personalEmail || null,
-      phoneNumber: userData.phoneNumber || null,
-      location: userData.location || null,
-      companyId: userData.companyId?._id || null,
-      companyName: userData.companyId?.name || null,
-      jobTitleId: userData.jobTitleId?._id,
-      jobTitle: userData.jobTitleId?.titleName,
-      photo: userData.photo,
-      role: userData.role,
-      isOwner: userData.isOwner,
-      }
-      localStorage.setItem("userDetails", JSON.stringify(sanatizeData));
-      toast.success(response.message,{
+      const updatedData = {
+        ...userData,
+        photo: profileImage, // base64
+      };
+
+      const response = await profileDetailsUpdate(`admin/user/profile/${user.email}`, updatedData);
+      setOriginalData(updatedData);
+
+      const sanitizeData = {
+        id: updatedData._id,
+        username: updatedData.username,
+        email: updatedData.email,
+        personalEmail: updatedData.personalEmail || null,
+        phoneNumber: updatedData.phoneNumber || null,
+        location: updatedData.location || null,
+        companyId: updatedData.companyId?._id || null,
+        companyName: updatedData.companyId?.name || null,
+        jobTitleId: updatedData.jobTitleId?._id,
+        jobTitle: updatedData.jobTitleId?.titleName,
+        photo: updatedData.photo,
+        role: updatedData.role,
+        isOwner: updatedData.isOwner,
+      };
+
+      localStorage.setItem("userDetails", JSON.stringify(sanitizeData));
+
+      toast.success(response.message, {
         autoClose: 1000,
-        theme: "light"
-      })
+        theme: "light",
+      });
+
       setTimeout(() => {
-        window.location.reload()
+        window.location.reload();
       }, 1000);
     } catch (err) {
       console.log(err);
@@ -157,6 +169,7 @@ const ProfileUser = () => {
     setUserData(originalData);
     setErrors({});
     setIsEditing(false);
+    setProfileImage(originalData.photo);
   };
 
   return (
@@ -167,19 +180,19 @@ const ProfileUser = () => {
             <div className="flex items-center space-x-4">
               <div className="relative">
                 <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
-                  {userData.photo ? (
-                                  <div className="h-full w-full rounded-full overflow-hidden">
-                                    <img
-                                      src={userData.photo}
-                                      alt={userData.username}
-                                      className="h-full w-full object-cover"
-                                    />
-                                  </div>
-                                ) : (
-                                  <div className="h-full w-full rounded-full bg-blue-600 text-white flex items-center justify-center text-4xl font-semibold">
-                                    {getInitials(userData.username)}
-                                  </div>
-                                )}
+                  {profileImage ? (
+                    <div className="h-full w-full rounded-full overflow-hidden">
+                      <img
+                        src={profileImage}
+                        alt={userData.username}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="h-full w-full rounded-full bg-blue-600 text-white flex items-center justify-center text-4xl font-semibold">
+                      {getInitials(userData.username)}
+                    </div>
+                  )}
                 </div>
                 {isEditing && (
                   <label
@@ -225,7 +238,7 @@ const ProfileUser = () => {
           <div className="space-y-6">
             <h3 className="text-lg font-medium">Personal Information</h3>
             <div className="grid grid-cols-2 gap-6">
-
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Full Name
@@ -245,7 +258,7 @@ const ProfileUser = () => {
                 )}
               </div>
 
-
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Email Address (Personal)
@@ -267,7 +280,7 @@ const ProfileUser = () => {
                 )}
               </div>
 
-
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Phone Number
@@ -289,7 +302,7 @@ const ProfileUser = () => {
                 )}
               </div>
 
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Location
@@ -304,7 +317,7 @@ const ProfileUser = () => {
                 />
               </div>
 
-
+             
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Email Address (Work)
@@ -332,7 +345,7 @@ const ProfileUser = () => {
                 />
               </div>
 
-
+            
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Job Title
@@ -341,7 +354,7 @@ const ProfileUser = () => {
                   type="text"
                   name="title"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
-                  value={userData.jobTitleId?.titleName || "" }
+                  value={userData.jobTitleId?.titleName || ""}
                   readOnly
                 />
               </div>
@@ -363,7 +376,7 @@ const ProfileUser = () => {
               ></textarea>
             </div>
 
-
+          
             {isEditing && (
               <div className="flex items-center justify-end pt-4 border-t border-gray-200 space-x-3">
                 <button

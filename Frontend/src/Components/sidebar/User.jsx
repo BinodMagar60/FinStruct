@@ -34,9 +34,7 @@ export default function User() {
         console.log(err)
       }
       finally{
-        setTimeout(() => {
-          setLoading(false)
-        }, 200);
+        setLoading(false)
       }
     }
     getAllDetailsUsers()

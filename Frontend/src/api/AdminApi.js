@@ -358,3 +358,69 @@ export const deleteMailApi = async(route) => {
 //************************ END ************************
 
 
+
+
+
+
+
+
+
+//======================== Document Section ========================
+
+//upload document in backend
+export const uploadAFile = async(route, data) => {
+  try{
+    const response = await axios.post(BackendURI+route, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    return response.data
+  }
+  catch(err){
+    throw err.response.data
+  }
+}
+
+//delete the existing file from backend
+export const deleteAFile = async(route) => {
+  try{
+    const response = await axios.delete(BackendURI+route)
+    return response.data
+  }
+  catch(err){
+    throw err.response.data
+  }
+}
+
+
+//get all the files in backend
+export const getFilesFromBackend = async(route) => {
+  try{
+    const response = await axios.get(BackendURI+route)
+    return response
+  }
+  catch(err){
+    throw err.response.data
+  }
+}
+
+
+//downlaod the file from backend
+export const downloadFileFromBackend = async(route) => {
+  try{
+    const response = await axios.get(BackendURI+route,
+      {
+        responseType: "blob"
+      })
+    return response
+  }
+  catch(err){
+    throw err
+  }
+}
+
+//************************ END ************************
+
+
+

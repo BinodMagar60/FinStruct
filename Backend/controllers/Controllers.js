@@ -4,8 +4,10 @@ const User = require("../models/User");
 const JobTitle = require("../models/JobTitle");
 const Company = require("../models/Company");
 const Note = require("../models/Note");
-const Mail = require('../models/Mail')
-
+const Mail = require("../models/Mail");
+const Document = require("../models/Document");
+const path = require("path");
+const fs = require("fs");
 const mongoose = require("mongoose");
 const {
   generateCustomSalt,
@@ -17,35 +19,34 @@ const {
 
 
 
+
 // ---------------------- NavBar ---------------
 
 //save notes in navbar
-const addNotes = async(req, res)=> {
-  try{
-    const {userId, companyId, content, date} =req.body
-    
-    const isUser = await User.findById(userId)
-    if(!isUser){
-      return res.status(404).json({message: "User not found"})
+const addNotes = async (req, res) => {
+  try {
+    const { userId, companyId, content, date } = req.body;
+
+    const isUser = await User.findById(userId);
+    if (!isUser) {
+      return res.status(404).json({ message: "User not found" });
     }
-    const isCompany = await Company.findById(companyId)
-    if(!isCompany){
-      return res.status(404).json({message: "Company not found"})
+    const isCompany = await Company.findById(companyId);
+    if (!isCompany) {
+      return res.status(404).json({ message: "Company not found" });
     }
     const newData = new Note({
       userId,
       companyId,
       content,
-      createdAt: date
-    })
-    await newData.save()
-    res.status(200).json({message: "Note Added", dataSaved: newData})
+      createdAt: date,
+    });
+    await newData.save();
+    res.status(200).json({ message: "Note Added", dataSaved: newData });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
   }
-  catch(error){
-    res.status(500).json({message: "Server Error"})
-  }
-}
-
+};
 
 //get data of saved notes in navbar
 const getNotes = async (req, res) => {
@@ -59,86 +60,81 @@ const getNotes = async (req, res) => {
 
     const notes = await Note.find({ userId: id }).lean();
 
-    const mappedNotes = notes.map(note => ({
+    const mappedNotes = notes.map((note) => ({
       ...note,
-      date: note.createdAt
+      date: note.createdAt,
     }));
 
-    res.status(200).json({ message: 'notes received', receivedData: mappedNotes });
+    res
+      .status(200)
+      .json({ message: "notes received", receivedData: mappedNotes });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
   }
-}
-
+};
 
 //update data of saved notes in navbar
-const updateNotes = async (req, res)=> {
-  try{
-    const {id} = req.params;
-    const {content} =req.body
+const updateNotes = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { content } = req.body;
 
-    const existNotes = await Note.findById(id)
-    if(!existNotes){
-      return res.status(404).json({message: "Note not found"})
+    const existNotes = await Note.findById(id);
+    if (!existNotes) {
+      return res.status(404).json({ message: "Note not found" });
     }
 
-    await Note.findByIdAndUpdate(id, {content}, {new: true})
-    res.status(200).json({message: "Notes Updated"})
-    
-
+    await Note.findByIdAndUpdate(id, { content }, { new: true });
+    res.status(200).json({ message: "Notes Updated" });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
   }
-  catch(error){
-    res.status(500).json({message: "Server Error"})
-  }
-}
-
+};
 
 //Delete note in navbar
-const deleteNotes = async(req,res)=> {
-  try{
-    const {id} = req.params;
+const deleteNotes = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-    const existNotes = await Note.findById(id)
-    if(!existNotes){
-      return res.status(404).json({message: "Note not found"})
+    const existNotes = await Note.findById(id);
+    if (!existNotes) {
+      return res.status(404).json({ message: "Note not found" });
     }
 
-    await Note.findByIdAndDelete(id)
-    res.status(200).json({message: "Deleted Successfully"})
+    await Note.findByIdAndDelete(id);
+    res.status(200).json({ message: "Deleted Successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Server Error" });
   }
-  catch(err){
-    res.status(500).json({message: "Server Error"})
-  }
-}
+};
 
 //get notification about mails in top
-const getNavbarNotification = async(req, res)=> {
-  try{
-    const {id} = req.params
+const getNavbarNotification = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-    const existingUser = await User.findById(id)
-    if(!existingUser){
-      return res.status(404).json({message: "User not found"})
+    const existingUser = await User.findById(id);
+    if (!existingUser) {
+      return res.status(404).json({ message: "User not found" });
     }
 
-    const mail = await Mail.find({to: id, companyId: existingUser.companyId}).sort({date: -1 })
-    
-    const mailData = mail.map(mail=> (
-      {
-        id: mail._id,
-        title: mail.subject,
-        description: mail.description,
-        time: mail.date,
-        read: mail.isRead,
-        
-      }
-    ))
-    return res.status(200).json({message: "data received", data: mailData})
+    const mail = await Mail.find({
+      to: id,
+      companyId: existingUser.companyId,
+    }).sort({ date: -1 });
+
+    const mailData = mail.map((mail) => ({
+      id: mail._id,
+      title: mail.subject,
+      description: mail.description,
+      time: mail.date,
+      read: mail.isRead,
+    }));
+    return res.status(200).json({ message: "data received", data: mailData });
+  } catch (err) {
+    return res.status(500).json({ message: "Server Error" });
   }
-  catch(err){
-    return res.status(500).json({message: "Server Error"})
-  }
-}
+};
 
 // ---------------------- Navbar End ---------------
 
@@ -149,9 +145,7 @@ const getNavbarNotification = async(req, res)=> {
 
 
 
-
 // ---------------------- User Profile ---------------
-
 
 //get the data for profile of the user logged in
 const getProfileDetails = async (req, res) => {
@@ -264,54 +258,56 @@ const updateProfilePassword = async (req, res) => {
 
 
 
-
-
-
 // ----------------------  Salary Section ---------------
 
 //get all the user data to Salary section
-const getAllUserToSalarySection = async(req, res)=>{
+const getAllUserToSalarySection = async (req, res) => {
   try {
-      const { id } = req.params;
-  
-      const existingCompany = await Company.findById(id);
-      if (!existingCompany) {
-        return res.status(404).json({ message: 'Company Id not found' });
-      }
-  
-      const users = await User.find({ companyId: id }).populate({path: 'jobTitleId'}).select('-password -salt')
-  
-      res.status(200).json({message: 'successfully pulled users data', receivedData: users});
-    } catch (error) {
-      res.status(500).json({ message: 'Server Error', error: error.message });
+    const { id } = req.params;
+
+    const existingCompany = await Company.findById(id);
+    if (!existingCompany) {
+      return res.status(404).json({ message: "Company Id not found" });
     }
-}
+
+    const users = await User.find({ companyId: id })
+      .populate({ path: "jobTitleId" })
+      .select("-password -salt");
+
+    res
+      .status(200)
+      .json({ message: "successfully pulled users data", receivedData: users });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
 
 //update users salary in salary section
-const updateUserSalaryInSalarySection = async(req, res)=> {
-  try{
-    const {id} = req.params;
+const updateUserSalaryInSalarySection = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-    const {salary} = req.body;
+    const { salary } = req.body;
 
     const newData = {
-      salary: salary
+      salary: salary,
+    };
+
+    const updatedData = await User.findByIdAndUpdate(id, newData, {
+      new: true,
+    });
+
+    if (!updatedData) {
+      return res.status(404).json({ message: "User doesnot exist" });
     }
 
-    const updatedData = await User.findByIdAndUpdate(id, newData, {new: true})
-
-    if(!updatedData){
-      return res.status(404).json({message: "User doesnot exist"})
-    }
-
-    res.status(200).json({message: "Salary Updated", recievedData: updatedData})
-    
+    res
+      .status(200)
+      .json({ message: "Salary Updated", recievedData: updatedData });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
   }
-  catch(error){
-    res.status(500).json({message: "Server Error", error: error.message})
-  }
-}
-
+};
 
 //add Roles and their salaries
 const addRolesAndSalaries = async (req, res) => {
@@ -414,8 +410,6 @@ const deleteRolesAndSalaries = async (req, res) => {
 };
 
 // ---------------------- Salary Section End ---------------
-
-
 
 
 
@@ -562,7 +556,6 @@ const getAllUserForUser = async (req, res) => {
   }
 };
 
-
 //update the user detail in User section.
 const updateTheUsersInUserSection = async (req, res) => {
   try {
@@ -624,7 +617,7 @@ const deleteUserDetailUserSection = async (req, res) => {
 
 
 
-// ----------------------  Mail Section ---------------
+// ---------------------- Mail Section ---------------
 
 //save mail about mails in mail section
 const addMails = async (req, res) => {
@@ -689,14 +682,12 @@ const addMails = async (req, res) => {
       isRead: false,
     };
 
-    res.status(200).json({message: "Mail sent", data: transformedMail})
-
+    res.status(200).json({ message: "Mail sent", data: transformedMail });
   } catch (err) {
     console.error("Failed to send mail:", err);
     res.status(500).send("Server Error");
   }
-}
-
+};
 
 //get Data about mails in mail section
 const getMailSection = async (req, res) => {
@@ -709,7 +700,7 @@ const getMailSection = async (req, res) => {
 
     const mails = await Mail.find({
       companyId: cid,
-      $or: [{ to: uid }, { from: uid }]
+      $or: [{ to: uid }, { from: uid }],
     })
       .sort({ date: -1 })
       .populate({
@@ -717,20 +708,20 @@ const getMailSection = async (req, res) => {
         select: "username email jobTitleId",
         populate: {
           path: "jobTitleId",
-          select: "titleName"
-        }
+          select: "titleName",
+        },
       })
       .populate({
         path: "to",
         select: "username email jobTitleId",
         populate: {
           path: "jobTitleId",
-          select: "titleName"
-        }
+          select: "titleName",
+        },
       })
       .lean();
 
-    const transformedMails = mails.map(mail => {
+    const transformedMails = mails.map((mail) => {
       const isSent = mail.from._id.toString() === uid;
       const isToUser = mail.to._id.toString() === uid;
 
@@ -745,19 +736,17 @@ const getMailSection = async (req, res) => {
         to: mail.to.username,
         toEmail: mail.to.email,
         date: mail.date.toISOString(),
-        isRead: !isToUser ? true : mail.isRead, 
+        isRead: !isToUser ? true : mail.isRead,
         isSent,
       };
     });
 
     res.status(200).json({ message: "Mail fetched", data: transformedMails });
-
   } catch (err) {
     console.error("Failed to fetch mail:", err);
     res.status(500).send("Server Error");
   }
-}
-
+};
 
 //get users data for showing recommend in compose mail
 const getRecommendedUsers = async (req, res) => {
@@ -772,14 +761,14 @@ const getRecommendedUsers = async (req, res) => {
     const data = await User.find({
       role: { $ne: "worker" },
       _id: { $ne: uid },
-      companyId: cid
-    }).populate({ path: 'jobTitleId', select: 'titleName' });
+      companyId: cid,
+    }).populate({ path: "jobTitleId", select: "titleName" });
 
     const sanitizeData = data.map((user) => ({
       id: user._id,
       name: user.username,
       email: user.email,
-      jobTitle: user.jobTitleId?.titleName || '',
+      jobTitle: user.jobTitleId?.titleName || "",
       companyId: user.companyId,
     }));
 
@@ -787,9 +776,7 @@ const getRecommendedUsers = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: "Server Error" });
   }
-}
-
-
+};
 
 //update if the mail is read or not
 const updateReadMails = async (req, res) => {
@@ -808,30 +795,158 @@ const updateReadMails = async (req, res) => {
     console.error("Error updating mail:", err);
     return res.status(500).json({ message: "Server Error" });
   }
-}
-
+};
 
 //delete mail
-const deleteMail = async(req, res)=> {
-  try{
-    const {id} = req.params
+const deleteMail = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-    const exists = await Mail.findById(id)
-    if(!exists){
-      return res.status(404).json({message: "Not found"})
+    const exists = await Mail.findById(id);
+    if (!exists) {
+      return res.status(404).json({ message: "Not found" });
     }
 
-    await Mail.findByIdAndDelete(id)
-    return res.status(200).json({message: "Mail deleted"})
-
+    await Mail.findByIdAndDelete(id);
+    return res.status(200).json({ message: "Mail deleted" });
+  } catch (err) {
+    return res.status(500).json({ message: "Server Error" });
   }
-  catch(err){
-    return res.status(500).json({message: "Server Error"})
-  }
-}
-
+};
 
 // ---------------------- Mail Section End ---------------
+
+
+
+
+
+
+
+// ---------------------- Document Section ---------------
+
+//uploading the file
+const uploadFileDocs = async (req, res) => {
+  try {
+    const { uid, cid } = req.query;
+
+    if (!uid || !cid) {
+      return res.status(400).json({ error: "Missing uid or cid" });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const { filename, originalname, size } = req.file;
+    const filePath = `/uploads/${filename}`;
+    const fileType = path.extname(originalname).slice(1).toLowerCase();
+    const readableSize =
+      size > 1024 * 1024
+        ? `${(size / (1024 * 1024)).toFixed(1)} MB`
+        : `${Math.round(size / 1024)} KB`;
+
+    const newDoc = new Document({
+      userId: uid,
+      companyId: cid,
+      name: originalname,
+      filePath,
+      fileType,
+      size: readableSize,
+    });
+
+    await newDoc.save();
+
+    res.status(201).json({ filePath, fileType, size: readableSize });
+  } catch (err) {
+    console.error("Upload error:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+//getting the files in the UI
+const getDataDocs = async (req, res) => {
+  try {
+    const { uid, cid } = req.query;
+
+    if (!uid || !cid) {
+      return res.status(400).json({ error: "Missing uid or cid" });
+    }
+
+    const documents = await Document.find({ userId: uid, companyId: cid });
+
+    const sanatizedData = documents.map((doc) => ({
+      _id: doc._id,
+      name: doc.name,
+      path: doc.filePath,
+      size: doc.size,
+      type: doc.fileType,
+      date: doc.uploadedAt,
+    }));
+
+    res.status(200).json(sanatizedData);
+  } catch (err) {
+    console.error("Error fetching documents:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// DELETE the document
+const deleteFileDocs = async (req, res) => {
+  try {
+    const doc = await Document.findById(req.params.id);
+    if (!doc) {
+      return res.status(404).json({ error: "Document not found" });
+    }
+
+    const filePath = path.join(
+      __dirname,
+      "../uploads",
+      path.basename(doc.filePath)
+    );
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error("Error deleting file:", err);
+      }
+    });
+
+    await doc.deleteOne();
+
+    res.status(200).json({ message: "Document deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting document:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+//Downlaod the document
+const downloadFileDoc = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const file = await Document.findById(id);
+
+    if (!file || !file.filePath) {
+      return res
+        .status(404)
+        .json({ message: "File not found or missing file path" });
+    }
+
+    const fullPath = path.join(__dirname, "..", file.filePath);
+
+    // Optionally check if file exists
+    if (!fs.existsSync(fullPath)) {
+      return res.status(404).json({ message: "File does not exist on disk" });
+    }
+
+    res.download(fullPath, file.originalName); // sets original filename
+  } catch (err) {
+    console.error("Error fetching document for download:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// ---------------------- Document Section End ---------------
+
+
 
 
 
@@ -860,5 +975,9 @@ module.exports = {
   getMailSection,
   getRecommendedUsers,
   updateReadMails,
-  deleteMail
+  deleteMail,
+  uploadFileDocs,
+  getDataDocs,
+  deleteFileDocs,
+  downloadFileDoc,
 };

@@ -1,27 +1,29 @@
-import React, { useState, useRef } from 'react';
-import { 
-  File, 
-  FileText, 
-  FileSpreadsheet, 
-  Image, 
-  Upload, 
-  Search, 
-  Plus, 
-  Download, 
-  Trash2, 
-  ArrowUp, 
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  File,
+  FileText,
+  FileSpreadsheet,
+  Image,
+  Upload,
+  Search,
+  Plus,
+  Download,
+  Trash2,
+  ArrowUp,
   ArrowDown,
   X
 } from 'lucide-react';
+import fileDownload from 'js-file-download'
+import Uploading from '../../utils/uploading';
+import Loading from './Loading';
+import { deleteAFile, downloadFileFromBackend, getFilesFromBackend, uploadAFile } from '../../api/AdminApi';
 
 const Docs = () => {
+
+  const locallySavedUser = JSON.parse(localStorage.getItem("userDetails"));
+
   const fileInputRef = useRef(null);
-  const [documents, setDocuments] = useState([
-    { id: 1, name: 'Financial Report Q1', type: 'pdf', size: '2.4 MB', date: '2025-03-15', content: 'Sample content for Financial Report' },
-    { id: 2, name: 'Budget Proposal', type: 'xlsx', size: '1.8 MB', date: '2025-03-10', content: 'Sample content for Budget Proposal' },
-    { id: 3, name: 'Invoice Template', type: 'docx', size: '856 KB', date: '2025-02-28', content: 'Sample content for Invoice Template' }
-  ]);
-  
+  const [documents, setDocuments] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
@@ -29,37 +31,29 @@ const Docs = () => {
   const [newFileName, setNewFileName] = useState('');
   const [newFileType, setNewFileType] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
+  const [change, setChange] = useState(true)
+  const [isUploading, setUploading] = useState(false)
+  const [isLoaidng, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        const res = await getFilesFromBackend(`admin/user/document/data?uid=${locallySavedUser.id}&cid=${locallySavedUser.companyId}`);
+        setDocuments(res.data);
+      } catch (err) {
+        console.error('Error fetching documents:', err);
+      }
+      finally{
+        setLoading(false);
+      }
+    };
+
+    fetchDocuments();
+  }, [change]);
+
   
-  // Filter documents based on search query
-  const filteredDocuments = documents.filter(doc => 
-    doc.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-  
-  // Sort documents
-  const sortedDocuments = [...filteredDocuments].sort((a, b) => {
-    if (sortBy === 'name') {
-      return sortOrder === 'asc' 
-        ? a.name.localeCompare(b.name) 
-        : b.name.localeCompare(a.name);
-    } else if (sortBy === 'date') {
-      return sortOrder === 'asc' 
-        ? new Date(a.date) - new Date(b.date) 
-        : new Date(b.date) - new Date(a.date);
-    } else if (sortBy === 'size') {
-      const getSizeInKB = (size) => {
-        if (size.includes('MB')) return parseFloat(size) * 1024;
-        return parseFloat(size);
-      };
-      return sortOrder === 'asc' 
-        ? getSizeInKB(a.size) - getSizeInKB(b.size) 
-        : getSizeInKB(b.size) - getSizeInKB(a.size);
-    }
-    return 0;
-  });
-  
-  // File type icon mapping using Lucide icons
   const getFileIcon = (type) => {
-    switch(type) {
+    switch (type) {
       case 'pdf': return <FileText size={18} className="text-red-500" />;
       case 'docx': return <FileText size={18} className="text-blue-500" />;
       case 'xlsx': return <FileSpreadsheet size={18} className="text-green-500" />;
@@ -68,63 +62,95 @@ const Docs = () => {
       default: return <File size={18} className="text-gray-500" />;
     }
   };
+
   
-  // Handle file selection
   const handleFileSelect = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
+    const file = e.target.files[0];
+    if (file) {
       setSelectedFile(file);
       setNewFileName(file.name);
-      
-      // Extract file type from extension
-      const fileExtension = file.name.split('.').pop().toLowerCase();
-      setNewFileType(fileExtension);
+      const extension = file.name.split('.').pop().toLowerCase();
+      setNewFileType(extension);
+    }
+  };
+
+
+  const handleUpload = async () => {
+    if (!selectedFile) return;
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      setUploading(true)
+      const res = await uploadAFile(`admin/user/document/data?uid=${locallySavedUser.id}&cid=${locallySavedUser.companyId}`, formData);
+
+      setNewFileName('');
+      setSelectedFile(null);
+      setShowUploadModal(false);
+    } catch (err) {
+      console.error('Upload failed:', err);
+    }
+    finally{
+        setChange(prev => !prev)
+        setUploading(false)
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteAFile(`admin/user/document/data/${id}`);
+    } catch (err) {
+      console.error('Error deleting document:', err);
+      alert('Failed to delete document. Please try again.');
+    }
+    finally{
+      setChange(prev=> !prev)
     }
   };
   
-  // Handle file upload
-  const handleUpload = () => {
-    if (!newFileName) return;
-    
-    // Format file size
-    let fileSize = '0 KB';
-    if (selectedFile) {
-      const size = selectedFile.size;
-      if (size > 1024 * 1024) {
-        fileSize = `${(size / (1024 * 1024)).toFixed(1)} MB`;
-      } else {
-        fileSize = `${Math.round(size / 1024)} KB`;
-      }
+
+
+
+
+  const handleDownload = async (doc) => {
+    try {
+      const { data } = await downloadFileFromBackend(`admin/user/document/data/download/${doc._id}`);
+      fileDownload(data, doc.name); 
+    } catch (err) {
+      console.log(err.response?.data || err.message);
+      alert("Failed to download file. Please try again.");
     }
-    
-    const newDoc = {
-      id: documents.length + 1,
-      name: newFileName,
-      type: newFileType || newFileName.split('.').pop() || 'unknown',
-      size: fileSize,
-      date: new Date().toISOString().split('T')[0],
-      content: selectedFile ? `Content of ${newFileName}` : 'Empty document'
+    finally{
+      setChange(prev=> !prev)
+    }
+  };
+  
+  
+
+  const filteredDocuments = documents.filter(doc =>
+    doc.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const sortedDocuments = [...filteredDocuments].sort((a, b) => {
+
+    const getSizeInKB = (size) => {
+      if (size.includes('MB')) return parseFloat(size) * 1024;
+      return parseFloat(size);
     };
-    
-    setDocuments([...documents, newDoc]);
-    setNewFileName('');
-    setNewFileType('');
-    setSelectedFile(null);
-    setShowUploadModal(false);
-  };
-  
-  // Handle document deletion
-  const handleDelete = (id) => {
-    setDocuments(documents.filter(doc => doc.id !== id));
-  };
-  
-  // Handle search
-  const handleSearch = (e) => {
-    e.preventDefault();
-    // Search functionality is already implemented through the searchQuery state
-  };
-  
-  // Toggle sort order
+
+    if (sortBy === 'name') {
+      return sortOrder === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+    } else if (sortBy === 'date') {
+      return sortOrder === 'asc' ? new Date(a.date) - new Date(b.date) : new Date(b.date) - new Date(a.date);
+    } else if (sortBy === 'size') {
+      return sortOrder === 'asc'
+        ? getSizeInKB(a.size) - getSizeInKB(b.size)
+        : getSizeInKB(b.size) - getSizeInKB(a.size);
+    }
+    return 0;
+  });
+
   const handleSort = (column) => {
     if (sortBy === column) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -134,61 +160,32 @@ const Docs = () => {
     }
   };
 
-  // Get sort icon
   const getSortIcon = (column) => {
     if (sortBy === column) {
       return sortOrder === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />;
     }
     return null;
   };
+
+  function formatDate(isoString) {
+    const date = new Date(isoString);
   
-  // Handle download document
-  const handleDownload = (doc) => {
-    // Create a blob with some content
-    const blob = new Blob([`Sample content for ${doc.name}`], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    
-    // Create temporary link and trigger download
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = doc.name;
-    document.body.appendChild(a);
-    a.click();
-    
-    // Clean up
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 0);
-  };
+    const options = { day: '2-digit', month: 'short', year: 'numeric' };
+    return date.toLocaleDateString('en-GB', options);
+  }
   
-  // Handle drag and drop
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-  
-  const handleDrop = (e) => {
-    e.preventDefault();
-    
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-      setSelectedFile(file);
-      setNewFileName(file.name);
-      
-      // Extract file type from extension
-      const fileExtension = file.name.split('.').pop().toLowerCase();
-      setNewFileType(fileExtension);
-    }
-  };
 
   return (
     <div className="p-6">
-      <div className="bg-white rounded shadow-md p-4 pb-8">
-        <div className="flex justify-between items-center mb-6">
+      <div className="bg-white rounded p-4 pb-8">
+        {
+          isLoaidng? <Loading/> : (
+            <>
+            <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Documents</h1>
-          
+
           <div className="flex items-center space-x-4 gap-10">
-            <form onSubmit={handleSearch} className="flex w-64">
+            <form onSubmit={(e) => e.preventDefault()} className="flex w-64">
               <input
                 type="text"
                 placeholder="Search..."
@@ -196,79 +193,57 @@ const Docs = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none"
               />
-              <button 
-                type="submit" 
-                className="bg-black text-white cursor-pointer hover:bg-gray-800 py-2 px-4 rounded-r-md focus:outline-none"
+              <button
+                className="bg-black text-white py-2 px-4 rounded-r-md"
               >
                 <Search size={18} />
               </button>
             </form>
 
-            <button 
-              className="bg-black cursor-pointer text-white px-4 py-2 rounded hover:bg-gray-700 flex items-center"
+            <button
+              className="bg-black text-white px-4 py-2 rounded hover:bg-gray-700 flex items-center"
               onClick={() => setShowUploadModal(true)}
             >
               <Plus size={18} className="mr-2" /> Upload Document
             </button>
           </div>
         </div>
-        
-        <div className="overflow-x-auto rounded-md shadow-md">
+
+        <div className="overflow-x-auto rounded-md ">
           <table className="min-w-full bg-white">
             <thead>
-              <tr className="p-4 border-b border-gray-200 font-medium leading-normal">
-                <th className="py-3 px-6 text-left cursor-pointer" onClick={() => handleSort('name')}>
-                  <div className="flex items-center">
-                    <span>Name</span>
-                    <span className="ml-1">{getSortIcon('name')}</span>
-                  </div>
+              <tr className="p-4 border-b border-gray-200 font-medium">
+                <th onClick={() => handleSort('name')} className="py-3 px-6 text-left cursor-pointer">
+                  <div className="flex items-center">Name {getSortIcon('name')}</div>
                 </th>
                 <th className="py-3 px-6 text-left">Type</th>
-                <th className="py-3 px-6 text-left cursor-pointer" onClick={() => handleSort('size')}>
-                  <div className="flex items-center">
-                    <span>Size</span>
-                    <span className="ml-1">{getSortIcon('size')}</span>
-                  </div>
+                <th onClick={() => handleSort('size')} className="py-3 px-6 text-left cursor-pointer">
+                  <div className="flex items-center">Size {getSortIcon('size')}</div>
                 </th>
-                <th className="py-3 px-6 text-left cursor-pointer" onClick={() => handleSort('date')}>
-                  <div className="flex items-center">
-                    <span>Date Modified</span>
-                    <span className="ml-1">{getSortIcon('date')}</span>
-                  </div>
+                <th onClick={() => handleSort('date')} className="py-3 px-6 text-left cursor-pointer">
+                  <div className="flex items-center">Date Modified {getSortIcon('date')}</div>
                 </th>
                 <th className="py-3 px-6 text-center">Actions</th>
               </tr>
             </thead>
             <tbody className="text-gray-600 text-base">
               {sortedDocuments.map(doc => (
-                <tr key={doc.id} className="border-b border-gray-200 hover:bg-gray-50 text-md">
-                  <td className="py-3 px-6 text-left whitespace-nowrap">
+                <tr key={doc._id} className="border-b border-gray-300 hover:bg-gray-50">
+                  <td className="py-3 px-6 text-left">
                     <div className="flex items-center">
                       <span className="mr-2">{getFileIcon(doc.type)}</span>
-                      <span>{doc.name}</span>
+                      <span>{doc.name.length > 30 ? doc.name.slice(0, 50) + '...' : doc.name}</span>
                     </div>
                   </td>
-                  <td className="py-3 px-6 text-left">
-                    {doc.type.toUpperCase()}
-                  </td>
-                  <td className="py-3 px-6 text-left">
-                    {doc.size}
-                  </td>
-                  <td className="py-3 px-6 text-left">
-                    {doc.date}
-                  </td>
+                  <td className="py-3 px-6 text-left">{String(doc.type).toLowerCase()}</td>
+                  <td className="py-3 px-6 text-left">{doc.size}</td>
+                  <td className="py-3 px-6 text-left">{formatDate(doc.date)}</td>
                   <td className="py-3 px-6 text-center">
-                    <div className="flex items-center justify-center space-x-3 gap-5">
-                      <button 
-                        className="transform hover:text-blue-500 hover:scale-110 cursor-pointer"
-                        onClick={() => handleDownload(doc)}
-                      >
+                    <div className="flex justify-center gap-4">
+                      <button onClick={() => handleDownload(doc)} className="hover:text-blue-500">
                         <Download size={18} />
                       </button>
-                      <button 
-                        className="transform hover:text-red-500 hover:scale-110 cursor-pointer"
-                        onClick={() => handleDelete(doc.id)}
-                      >
+                      <button onClick={() => handleDelete(doc._id)} className="hover:text-red-500">
                         <Trash2 size={18} />
                       </button>
                     </div>
@@ -278,17 +253,18 @@ const Docs = () => {
             </tbody>
           </table>
         </div>
-        
+
         {filteredDocuments.length === 0 && (
-          <div className="text-center py-10">
-            <p className="text-gray-500">No documents found</p>
-          </div>
+          <div className="text-center py-10 text-gray-500">No documents found</div>
         )}
+            </>
+          )
+        }
       </div>
-      
+
       {/* Upload Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 bg-[#7e7e7e50] bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-[#00000014   ] flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-96">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">Upload Document</h2>
@@ -296,31 +272,45 @@ const Docs = () => {
                 <X size={20} />
               </button>
             </div>
-            
+
             <input
               type="text"
-              placeholder="File name (e.g. Budget 2025.xlsx)"
-              className="w-full px-4 py-2 border rounded-lg mb-4"
+              placeholder="File name"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4"
               value={newFileName}
               onChange={(e) => setNewFileName(e.target.value)}
+              disabled
             />
-            
-            <div 
+
+            <div
               className="border-2 border-dashed border-gray-300 p-6 rounded-lg mb-4 text-center cursor-pointer"
               onClick={() => fileInputRef.current.click()}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
+              disabled={isUploading}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                  setSelectedFile(file);
+                  setNewFileName(file.name);
+                  setNewFileType(file.name.split('.').pop().toLowerCase());
+                }
+              }}
             >
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                className="hidden" 
+              {
+                isUploading? <Uploading/> : (
+                  <>
+                  <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
                 onChange={handleFileSelect}
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.txt"
               />
               <Upload size={24} className="mx-auto text-gray-400 mb-2" />
               {selectedFile ? (
                 <div>
-                  <p className="text-sm text-green-600 font-medium">{selectedFile.name} selected</p>
+                  <p className="text-sm text-green-600">{selectedFile.name}</p>
                   <p className="text-xs text-gray-500">
                     {selectedFile.size > 1024 * 1024
                       ? `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB`
@@ -329,11 +319,14 @@ const Docs = () => {
                 </div>
               ) : (
                 <p className="text-gray-500">Drag and drop files here or click to browse</p>
-              )}
+              )} 
+                  </>
+                )
+              }
             </div>
-            
+
             <div className="flex justify-end space-x-2">
-              <button 
+              <button
                 className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
                 onClick={() => {
                   setShowUploadModal(false);
@@ -343,10 +336,10 @@ const Docs = () => {
               >
                 Cancel
               </button>
-              <button 
-                className={`px-4 py-2 ${newFileName ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-indigo-400 cursor-not-allowed'} text-white rounded`}
+              <button
                 onClick={handleUpload}
-                disabled={!newFileName}
+                disabled={!selectedFile}
+                className={`px-4 py-2 text-white rounded ${selectedFile ? 'bg-black hover:bg-gray-800' : 'bg-gray-700 cursor-not-allowed'}`}
               >
                 Upload
               </button>
