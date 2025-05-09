@@ -1,6 +1,9 @@
-import { ChevronDown, FileText, Paperclip, CheckSquare } from "lucide-react";
+import { ChevronDown, FileText, Paperclip, CheckSquare } from "lucide-react"
+import { useTaskContext } from "../../context/taskContext"
 
-const ListView = ({ columns, onEditTask, onDeleteTask, onOpenTask, users }) => {
+const ListView = () => {
+  const { columns, handleEditTask, handleDeleteTask, users, openTaskDetail } = useTaskContext()
+
   // Flatten all tasks from all columns
   const allTasks = columns.reduce((acc, column) => {
     return [
@@ -10,35 +13,27 @@ const ListView = ({ columns, onEditTask, onDeleteTask, onOpenTask, users }) => {
         columnId: column.id,
         status: column.title,
       })),
-    ];
-  }, []);
+    ]
+  }, [])
 
   // Check if there are no tasks to display
-  const noTasksToShow = allTasks.length === 0;
+  const noTasksToShow = allTasks.length === 0
 
   return (
     <div className="overflow-x-auto pt-4">
       {noTasksToShow ? (
         <div className="flex flex-col items-center justify-center py-8">
           <p className="text-gray-500 text-lg">No tasks found</p>
-          <p className="text-gray-400 text-sm mt-2">
-            Add a new task to get started
-          </p>
+          <p className="text-gray-400 text-sm mt-2">Add a new task to get started</p>
         </div>
       ) : (
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-white">
             <tr>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider"
-              >
+              <th scope="col" className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">
                 Task Title
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider"
-              >
+              <th scope="col" className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">
                 Priority
               </th>
               <th
@@ -48,22 +43,13 @@ const ListView = ({ columns, onEditTask, onDeleteTask, onOpenTask, users }) => {
                 Created At
                 <ChevronDown size={14} />
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider"
-              >
+              <th scope="col" className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">
                 Assets
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider"
-              >
+              <th scope="col" className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">
                 Team
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider"
-              >
+              <th scope="col" className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -71,9 +57,7 @@ const ListView = ({ columns, onEditTask, onDeleteTask, onOpenTask, users }) => {
           <tbody className="bg-white divide-y divide-gray-200">
             {allTasks.map((task) => {
               // Find assigned users
-              const assignedUsers = task.assignees
-                ? users.filter((user) => task.assignees.includes(user.id))
-                : [];
+              const assignedUsers = task.assignees ? users.filter((user) => task.assignees.includes(user.id)) : []
 
               return (
                 <tr key={task.id}>
@@ -81,9 +65,7 @@ const ListView = ({ columns, onEditTask, onDeleteTask, onOpenTask, users }) => {
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-4 w-4 rounded-full bg-blue-500"></div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {task.title}
-                        </div>
+                        <div className="text-sm font-medium text-gray-900">{task.title}</div>
                       </div>
                     </div>
                   </td>
@@ -99,22 +81,24 @@ const ListView = ({ columns, onEditTask, onDeleteTask, onOpenTask, users }) => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      {new Date(task.createdAt).toLocaleDateString()}
-                    </div>
+                    <div className="text-sm text-gray-900">{new Date(task.createdAt).toLocaleDateString()}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <div className="flex items-center gap-2">
                       <span className="flex items-center gap-1">
-                        <span>0</span>
+                        <span>{task.activities?.length || 0}</span>
                         <FileText size={16} className="text-gray-400" />
                       </span>
                       <span className="flex items-center gap-1">
-                        <span>0</span>
+                        <span>{task.assets?.length || 0}</span>
                         <Paperclip size={16} className="text-gray-400" />
                       </span>
                       <span className="flex items-center gap-1">
-                        <span>0/1</span>
+                        <span>
+                          {task.subtasks
+                            ? `${task.subtasks.filter((s) => s.completed).length}/${task.subtasks.length}`
+                            : "0/0"}
+                        </span>
                         <CheckSquare size={16} className="text-gray-400" />
                       </span>
                     </div>
@@ -139,32 +123,32 @@ const ListView = ({ columns, onEditTask, onDeleteTask, onOpenTask, users }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
-                      onClick={() => onOpenTask && onOpenTask(task)}
+                      onClick={() => openTaskDetail(task.id)}
                       className="text-green-600 hover:text-green-900 mr-4"
                     >
                       Open
                     </button>
                     <button
-                      onClick={() => onEditTask(task, task.columnId)}
+                      onClick={() => handleEditTask(task, task.columnId)}
                       className="text-blue-600 hover:text-blue-900 mr-4"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => onDeleteTask(task.id, task.columnId)}
+                      onClick={() => handleDeleteTask(task.id, task.columnId)}
                       className="text-red-600 hover:text-red-900"
                     >
                       Delete
                     </button>
                   </td>
                 </tr>
-              );
+              )
             })}
           </tbody>
         </table>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default ListView;
+export default ListView

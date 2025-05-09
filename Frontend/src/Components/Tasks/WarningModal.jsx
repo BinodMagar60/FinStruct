@@ -1,4 +1,4 @@
-const WarningModal = ({ message, onClose }) => (
+const WarningModal = ({ message, onClose, actionText = "Close" }) => (
   <div className="fixed inset-0 flex items-center justify-center bg-[#7e7e7e50] bg-opacity-50 z-50" onClick={onClose}>
     <div className="bg-white p-6 rounded-md shadow-lg w-96 max-w-full mx-4" onClick={(e) => e.stopPropagation()}>
       <h3 className="text-red-600 font-bold text-xl flex items-center">
@@ -27,7 +27,7 @@ const WarningModal = ({ message, onClose }) => (
       </div>
       <div className="mt-4 flex justify-center">
         <button className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700" onClick={onClose}>
-          Close
+          {actionText}
         </button>
       </div>
     </div>
@@ -35,4 +35,3 @@ const WarningModal = ({ message, onClose }) => (
 )
 
 export default WarningModal
-

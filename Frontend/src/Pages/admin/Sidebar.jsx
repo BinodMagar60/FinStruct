@@ -43,7 +43,7 @@ const Sidebar = () => {
   useEffect(() => {
     const handleBackButton = (event) => {
       event.preventDefault();
-      navigate(1); 
+      navigate(1);
     };
 
     window.history.pushState(null, "", window.location.href);
@@ -120,7 +120,10 @@ const Sidebar = () => {
 
             <div className="h-[3px] w-full bg-[#efefef] my-3"></div>
             <div className="flex justify-center">
-              <button className="flex shadow-md py-3 px-4 rounded-md border-r border-b border-gray-300 cursor-pointer transition-all hover:bg-[#e4e4e488]" onClick={()=>setIsCreateOpen(!isCreateOpen)}>
+              <button
+                className="flex shadow-md py-3 px-4 rounded-md border-r border-b border-gray-300 cursor-pointer transition-all hover:bg-[#e4e4e488]"
+                onClick={() => setIsCreateOpen(!isCreateOpen)}
+              >
                 <span className="mr-1 flex items-center">
                   <Plus size={22} />
                 </span>
@@ -170,7 +173,12 @@ const Sidebar = () => {
           </ul>
         )}
       </div>
-      {isCreateOpen && <CreateProject isCreateOpen={isCreateOpen} setIsCreateOpen={setIsCreateOpen}/>}
+      {isCreateOpen && (
+        <CreateProject
+          isCreateOpen={isCreateOpen}
+          setIsCreateOpen={setIsCreateOpen}
+        />
+      )}
     </div>
   );
 };

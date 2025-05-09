@@ -1,34 +1,36 @@
 import { useDrop } from "react-dnd"
 import TaskCard from "./TaskCard"
+import { useTaskContext } from "../../context/taskContext"
 
-const BoardView = ({ columns, onMoveTask, onEditTask, onDeleteTask, onAddSubtask, users, setIsModalOpen }) => {
+const BoardView = () => {
+  const { columns, moveTask } = useTaskContext()
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
       {columns.map((column) => (
-        <Column
-          key={column.id}
-          column={column}
-          onMoveTask={onMoveTask}
-          onEditTask={onEditTask}
-          onDeleteTask={onDeleteTask}
-          onAddSubtask={onAddSubtask}
-          users={users}
-          setIsModalOpen={setIsModalOpen}
-        />
+        <Column key={column.id} column={column} onMoveTask={moveTask} />
       ))}
     </div>
   )
 }
 
-const Column = ({ column, onMoveTask, onEditTask, onDeleteTask, onAddSubtask, users, setIsModalOpen }) => {
+const Column = ({ column, onMoveTask }) => {
   const [{ isOver }, drop] = useDrop({
     accept: "TASK",
     drop: (item) => {
+      // Prevent dropping into the completed column directly
+      if (column.id === "completed") {
+        return
+      }
       onMoveTask(item.id, item.columnId, column.id)
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
     }),
+    // Disable dropping for completed tasks
+    canDrop: (item) => {
+      return item.columnId !== "completed"
+    },
   })
 
   const getColumnHeaderColor = (color) => {
@@ -71,36 +73,17 @@ const Column = ({ column, onMoveTask, onEditTask, onDeleteTask, onAddSubtask, us
           <span>{getColumnHeaderIcon(column.color)}</span>
           {column.title}
         </h3>
-        {/* <button className="text-gray-500 hover:text-gray-700 hover:bg-gray-200 p-2 rounded-full">
-          <MoreHorizontal size={18} />
-        </button> */}
       </div>
 
       <div className="p-2 min-h-[200px]">
         {column.tasks.length > 0 ? (
-          column.tasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              columnId={column.id}
-              onEditTask={onEditTask}
-              onDeleteTask={onDeleteTask}
-              onAddSubtask={onAddSubtask}
-              users={users}
-              setIsModalOpen={setIsModalOpen}
-            />
-          ))
+          column.tasks.map((task) => <TaskCard key={task.id} task={task} columnId={column.id} />)
         ) : (
           <div className="border border-dashed border-gray-200 rounded-lg p-4 text-center text-gray-400">No tasks</div>
         )}
-
-        {/* <button className="w-full mt-2 py-2 text-gray-500 hover:text-gray-700 text-sm flex items-center justify-center gap-1">
-          Add Task
-        </button> */}
       </div>
     </div>
   )
 }
 
 export default BoardView
-

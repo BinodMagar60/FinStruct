@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import {
   CheckCircle,
   MessageSquare,
@@ -15,84 +15,10 @@ import {
   UserPlus,
   Trash2,
 } from "lucide-react"
+import { useTaskContext } from "../../context/taskContext"
 
-const TaskDetail = () => {
-  
-    // Extract the first task from the data
-
-
-    const taskData = [
-        {
-          id: "todo",
-          title: "TO DO",
-          color: "blue",
-          tasks: [
-            {
-              id: "task-4",
-              title: "Project kickoff meeting",
-              priority: "normal",
-              startingDate: "2025-03-20",
-              dueDate: "2025-03-15",
-              assignees: [1, 2, 3, 4],
-              createdAt: "2025-03-10",
-              dependencies: [],
-              subtasks: [
-                {
-                  id: "subtask-4-1",
-                  title: "Prepare agenda",
-                  completed: true,
-                },
-                {
-                  id: "subtask-4-2",
-                  title: "Send invites",
-                  completed: false,
-                },
-              ],
-              // Additional properties for UI
-              assets: [
-                { id: 1, name: "Meeting Agenda", url: "/placeholder.svg?height=200&width=400" },
-                { id: 2, name: "Project Timeline", url: "/placeholder.svg?height=200&width=400" },
-              ],
-              activities: [
-                {
-                  type: "TaskCreated",
-                  user: "System",
-                  timestamp: "2025-03-10T10:00:00Z",
-                  message: "Task created!",
-                },
-                {
-                  type: "Commented",
-                  user: "Alex Johnson",
-                  timestamp: "2025-03-12T14:30:00Z",
-                  message: "Agenda has been prepared for the kickoff meeting.",
-                },
-                {
-                  type: "Commented",
-                  user: "Emily Wilson",
-                  timestamp: "2025-03-14T09:15:00Z",
-                  message: "Meeting invites have been sent to all stakeholders.",
-                },
-              ],
-              team: [
-                { id: 1, name: "Alex Johnson", role: "Project Manager", initials: "AJ" },
-                { id: 2, name: "Emily Wilson", role: "Business Analyst", initials: "EW" },
-                { id: 3, name: "Michael Brown", role: "Developer", initials: "MB" },
-                { id: 4, name: "Sarah Davis", role: "Designer", initials: "SD" },
-              ],
-              status: "IN PROGRESS",
-            },
-          ],
-        },
-      ]
-
-
-
-
-
-
-  const taskColumn = taskData[0]
-  const initialTask = taskColumn?.tasks[0]
-
+const TaskDetail = ({ task, columnId }) => {
+  const { updateTaskDetails, updateSubtask, deleteSubtask } = useTaskContext()
   const [activeTab, setActiveTab] = useState("detail")
   const [commentText, setCommentText] = useState("")
   const [activityStatus, setActivityStatus] = useState({
@@ -103,12 +29,7 @@ const TaskDetail = () => {
   })
 
   // State for assets - initialize from task data if available
-  const [assets, setAssets] = useState(
-    initialTask?.assets || [
-      { id: 1, name: "Meeting Agenda", url: "/placeholder.svg?height=200&width=400" },
-      { id: 2, name: "Project Timeline", url: "/placeholder.svg?height=200&width=400" },
-    ],
-  )
+  const [assets, setAssets] = useState(task?.assets || [])
 
   // State for new asset
   const [newAsset, setNewAsset] = useState({ name: "", url: "" })
@@ -118,14 +39,7 @@ const TaskDetail = () => {
   const [isDragging, setIsDragging] = useState(false)
 
   // State for team members - initialize from task data if available
-  const [team, setTeam] = useState(
-    initialTask?.team || [
-      { id: 1, name: "Alex Johnson", role: "Project Manager", initials: "AJ" },
-      { id: 2, name: "Emily Wilson", role: "Business Analyst", initials: "EW" },
-      { id: 3, name: "Michael Brown", role: "Developer", initials: "MB" },
-      { id: 4, name: "Sarah Davis", role: "Designer", initials: "SD" },
-    ],
-  )
+  const [team, setTeam] = useState(task?.team || [])
 
   // State for new team member
   const [newTeamMember, setNewTeamMember] = useState({ name: "", role: "", initials: "" })
@@ -135,34 +49,68 @@ const TaskDetail = () => {
   const [showTeamForm, setShowTeamForm] = useState(false)
 
   // State for activities - initialize from task data if available
-  const [activities, setActivities] = useState(
-    initialTask?.activities || [
-      {
-        type: "TaskCreated",
-        user: "System",
-        timestamp: new Date("2025-03-10").toISOString(),
-        message: "Task created!",
-      },
-      {
-        type: "Commented",
-        user: "Alex Johnson",
-        timestamp: new Date("2025-03-12").toISOString(),
-        message: "Agenda has been prepared for the kickoff meeting.",
-      },
-      {
-        type: "Commented",
-        user: "Emily Wilson",
-        timestamp: new Date("2025-03-14").toISOString(),
-        message: "Meeting invites have been sent to all stakeholders.",
-      },
-    ],
-  )
+  const [activities, setActivities] = useState(task?.activities || [])
 
   // Task status tracking
   const [taskStatus, setTaskStatus] = useState({
-    isStarted: true, // Assuming the task is already started based on activities
-    isCompleted: false,
+    isStarted: task?.status === "IN PROGRESS",
+    isCompleted: task?.status === "COMPLETED",
   })
+
+  // Add a ref to track if we need to update
+  const isInitialMount = useRef(true)
+  const prevAssetsRef = useRef(assets)
+  const prevTeamRef = useRef(team)
+  const prevActivitiesRef = useRef(activities)
+  const prevStatusRef = useRef(taskStatus)
+
+  useEffect(() => {
+    // Skip the first render
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      prevAssetsRef.current = assets
+      prevTeamRef.current = team
+      prevActivitiesRef.current = activities
+      prevStatusRef.current = taskStatus
+      return
+    }
+
+    // Only update if something actually changed
+    const assetsChanged = JSON.stringify(prevAssetsRef.current) !== JSON.stringify(assets)
+    const teamChanged = JSON.stringify(prevTeamRef.current) !== JSON.stringify(team)
+    const activitiesChanged = JSON.stringify(prevActivitiesRef.current) !== JSON.stringify(activities)
+    const statusChanged =
+      prevStatusRef.current.isCompleted !== taskStatus.isCompleted ||
+      prevStatusRef.current.isStarted !== taskStatus.isStarted
+
+    if (assetsChanged || teamChanged || activitiesChanged || statusChanged) {
+      // Update the refs
+      prevAssetsRef.current = JSON.parse(JSON.stringify(assets))
+      prevTeamRef.current = JSON.parse(JSON.stringify(team))
+      prevActivitiesRef.current = JSON.parse(JSON.stringify(activities))
+      prevStatusRef.current = { ...taskStatus }
+
+      // Check if the task is in the completed column
+      const isInCompletedColumn = columnId === "completed"
+
+      // Create a new object for the updates to avoid reference issues
+      const updates = {
+        assets: JSON.parse(JSON.stringify(assets)),
+        team: JSON.parse(JSON.stringify(team)),
+        activities: JSON.parse(JSON.stringify(activities)),
+        status: isInCompletedColumn
+          ? "COMPLETED"
+          : taskStatus.isCompleted
+            ? "COMPLETED"
+            : taskStatus.isStarted
+              ? "IN PROGRESS"
+              : "TO DO",
+      }
+
+      // Now update the task details
+      updateTaskDetails(task.id, updates)
+    }
+  }, [assets, team, activities, taskStatus, task.id, columnId])
 
   // Check if task is started or completed based on activities
   useEffect(() => {
@@ -182,30 +130,14 @@ const TaskDetail = () => {
     }
   }, [activities])
 
-  // Task data from provided JSON
-  const task = {
-    id: initialTask?.id || "task-4",
-    title: initialTask?.title || "Project kickoff meeting",
-    priority: (initialTask?.priority || "normal").toUpperCase() + " PRIORITY",
-    status: taskStatus.isCompleted ? "COMPLETED" : taskStatus.isStarted ? "IN PROGRESS" : "TO DO",
-    createdAt: initialTask?.createdAt || "2025-03-10",
-    startingDate: initialTask?.startingDate || "2025-03-20",
-    dueDate: initialTask?.dueDate || "2025-03-15",
-    subTasks: initialTask?.subtasks?.length || 2,
-    subTasksList: initialTask?.subtasks || [
-      { id: "subtask-4-1", title: "Prepare agenda", completed: true },
-      { id: "subtask-4-2", title: "Send invites", completed: false },
-    ],
-  }
-
   const handleStatusChange = (status) => {
     // Prevent changing Started status if task is already started
     if (status === "Started" && taskStatus.isStarted) {
       return
     }
 
-    // Prevent any status change if task is completed
-    if (taskStatus.isCompleted) {
+    // Prevent any status change if task is in completed column
+    if (columnId === "completed") {
       return
     }
 
@@ -226,8 +158,8 @@ const TaskDetail = () => {
   const handleSubmitComment = (e) => {
     e.preventDefault()
 
-    // Don't allow new activities if task is completed
-    if (taskStatus.isCompleted) {
+    // Don't allow new activities if task is in the completed column
+    if (columnId === "completed") {
       return
     }
 
@@ -247,6 +179,25 @@ const TaskDetail = () => {
         message: commentText.trim() || getDefaultMessage(activityType),
       }
 
+      // Add this comment in the handleSubmitComment function, right before setActivities
+      // API call to add a comment or activity
+      // Example:
+      // const addActivityOnServer = async (taskId, activityData) => {
+      //   try {
+      //     const response = await fetch(`/api/tasks/${taskId}/activities`, {
+      //       method: 'POST',
+      //       headers: { 'Content-Type': 'application/json' },
+      //       body: JSON.stringify(activityData)
+      //     });
+      //     const data = await response.json();
+      //     // Update activities with the returned data
+      //     setActivities((prev) => [data, ...prev]);
+      //   } catch (error) {
+      //     console.error('Error adding activity:', error);
+      //   }
+      // };
+      // addActivityOnServer(task.id, newActivity);
+
       // Add to activities at the beginning of the array
       setActivities((prev) => [newActivity, ...prev])
 
@@ -259,6 +210,25 @@ const TaskDetail = () => {
         SafetyConcern: false,
       })
     }
+  }
+
+  // Handle subtask status change
+  const handleSubtaskStatusChange = (subtaskId, isCompleted) => {
+    // Call the updateSubtask function from context
+    updateSubtask(task.id, columnId, subtaskId, { completed: isCompleted })
+  }
+
+  // Modify the handleDeleteSubtask function to prevent deletion of the special subtask
+  const handleDeleteSubtask = (subtaskId) => {
+    // Check if this is the special subtask that cannot be deleted
+    const subtask = task.subtasks.find((s) => s.id === subtaskId)
+    if (subtask && subtask.isMainSubtask) {
+      // This is the special subtask, don't allow deletion
+      return
+    }
+
+    // Call the deleteSubtask function from context
+    deleteSubtask(task.id, columnId, subtaskId)
   }
 
   // Handle file selection from browse dialog
@@ -316,6 +286,29 @@ const TaskDetail = () => {
         name: newAsset.name.trim(),
         url: newAsset.url,
       }
+
+      // Add this comment in the handleAddAsset function, right before setAssets
+      // API call to add an asset
+      // Example:
+      // const addAssetOnServer = async (taskId, assetData) => {
+      //   try {
+      //     // For file uploads, you'd use FormData instead of JSON
+      //     const formData = new FormData();
+      //     formData.append('name', assetData.name);
+      //     formData.append('file', assetFile); // You'd need to capture the actual file
+      //
+      //     const response = await fetch(`/api/tasks/${taskId}/assets`, {
+      //       method: 'POST',
+      //       body: formData
+      //     });
+      //     const data = await response.json();
+      //     // Update assets with the returned data
+      //     setAssets((prev) => [...prev, data]);
+      //   } catch (error) {
+      //     console.error('Error adding asset:', error);
+      //   }
+      // };
+      // addAssetOnServer(task.id, asset);
 
       setAssets((prev) => [...prev, asset])
 
@@ -378,6 +371,25 @@ const TaskDetail = () => {
         role: newTeamMember.role,
         initials: initials,
       }
+
+      // Add this comment in the handleAddTeamMember function, right before setTeam
+      // API call to add a team member
+      // Example:
+      // const addTeamMemberOnServer = async (taskId, memberData) => {
+      //   try {
+      //     const response = await fetch(`/api/tasks/${taskId}/team`, {
+      //       method: 'POST',
+      //       headers: { 'Content-Type': 'application/json' },
+      //       body: JSON.stringify(memberData)
+      //     });
+      //     const data = await response.json();
+      //     // Update team with the returned data
+      //     setTeam((prev) => [...prev, data]);
+      //   } catch (error) {
+      //     console.error('Error adding team member:', error);
+      //   }
+      // };
+      // addTeamMemberOnServer(task.id, member);
 
       setTeam((prev) => [...prev, member])
 
@@ -557,511 +569,539 @@ const TaskDetail = () => {
   return (
     <div className="p-6">
       <div className="container mx-auto p-4 bg-white pb-8 rounded">
-      <h1 className="text-2xl font-bold text-gray-700 mb-4">{task.title}</h1>
+        {/* Task title is now displayed in the parent component */}
 
-      {/* Tabs - Single set of tabs at the top level */}
-      <div className="flex border-b mb-6 border-gray-200">
-        <button
-          className={`flex items-center px-4 py-2 ${activeTab === "detail" ? "border-b-2 border-black text-black shadow-inner" : "text-gray-600"}`}
-          onClick={() => setActiveTab("detail")}
-        >
-          <List className="w-5 h-5 mr-2" />
-          Task Detail
-        </button>
-        <button
-          className={`flex items-center px-4 py-2 ${activeTab === "timeline" ? "border-b-2 border-black text-black shadow-inner" : "text-gray-600"}`}
-          onClick={() => setActiveTab("timeline")}
-        >
-          <Clock className="w-5 h-5 mr-2" />
-          Activities/Timeline
-        </button>
-      </div>
+        {/* Tabs - Single set of tabs at the top level */}
+        <div className="flex border-b mb-6 border-gray-200">
+          <button
+            className={`flex items-center px-4 py-2 ${activeTab === "detail" ? "border-b-2 border-black text-black shadow-inner" : "text-gray-600"}`}
+            onClick={() => setActiveTab("detail")}
+          >
+            <List className="w-5 h-5 mr-2" />
+            Task Detail
+          </button>
+          <button
+            className={`flex items-center px-4 py-2 ${activeTab === "timeline" ? "border-b-2 border-black text-black shadow-inner" : "text-gray-600"}`}
+            onClick={() => setActiveTab("timeline")}
+          >
+            <Clock className="w-5 h-5 mr-2" />
+            Activities/Timeline
+          </button>
+        </div>
 
-      {/* Task Detail Tab */}
-      {activeTab === "detail" && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center">
-              <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full flex items-center">
-                <ChevronUp className="w-4 h-4 mr-1" />
-                {task.priority}
-              </div>
-            </div>
-            <div className="flex items-center">
+        {/* Task Detail Tab */}
+        {activeTab === "detail" && (
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center justify-between mb-6">
               <div className="flex items-center">
-                <div
-                  className={`w-3 h-3 ${
-                    taskStatus.isCompleted ? "bg-green-500" : taskStatus.isStarted ? "bg-yellow-500" : "bg-gray-500"
-                  } rounded-full mr-2`}
-                ></div>
-                <span className="text-gray-700 font-medium">{task.status}</span>
+                <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full flex items-center">
+                  <ChevronUp className="w-4 h-4 mr-1" />
+                  {task.priority.toUpperCase()} PRIORITY
+                </div>
+              </div>
+              <div className="flex items-center">
+                <div className="flex items-center">
+                  <div
+                    className={`w-3 h-3 ${
+                      taskStatus.isCompleted ? "bg-green-500" : taskStatus.isStarted ? "bg-yellow-500" : "bg-gray-500"
+                    } rounded-full mr-2`}
+                  ></div>
+                  <span className="text-gray-700 font-medium">{task.status}</span>
+                </div>
               </div>
             </div>
-          </div>
-
-          <div className="text-gray-600 mb-6">Created At: {task.createdAt}</div>
-
-          <div className="flex items-center border-t border-b border-gray-200 py-4 mb-6">
-            <div className="flex items-center mr-8">
-              <span className="text-gray-700">Assets : {assets.length}</span>
+            <div className="text-gray-600 mb-6">Created At: {new Date(task.createdAt).toLocaleDateString()}</div>
+            <div className="flex items-center border-t border-b border-gray-200 py-4 mb-6">
+              <div className="flex items-center mr-8">
+                <span className="text-gray-700">Assets : {assets.length}</span>
+              </div>
+              <div className="border-l h-6 mx-4"></div>
+              <div className="flex items-center">
+                <span className="text-gray-700">Sub-Task : {task.subtasks ? task.subtasks.length : 0}</span>
+              </div>
             </div>
-            <div className="border-l h-6 mx-4"></div>
-            <div className="flex items-center">
-              <span className="text-gray-700">Sub-Task : {task.subTasks}</span>
-            </div>
-          </div>
-
-          {/* Team Members Section with Add/Remove */}
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-gray-500 font-medium">TASK TEAM</h3>
-              {!taskStatus.isCompleted && (
-                <button
-                  onClick={() => setShowTeamForm(!showTeamForm)}
-                  className="text-blue-500 hover:text-blue-700 flex items-center text-sm"
-                >
-                  {showTeamForm ? (
-                    <>
-                      <X className="w-4 h-4 mr-1" />
-                      Cancel
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus className="w-4 h-4 mr-1" />
-                      Add Team Member
-                    </>
-                  )}
-                </button>
-              )}
-            </div>
-
-            {/* Add Team Member Form */}
-            {showTeamForm && !taskStatus.isCompleted && (
-              <form onSubmit={handleAddTeamMember} className="bg-gray-50 p-4 rounded-md mb-4 border border-gray-200">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label htmlFor="memberName" className="block text-sm font-medium text-gray-700 mb-1">
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      id="memberName"
-                      value={newTeamMember.name}
-                      onChange={(e) => setNewTeamMember({ ...newTeamMember, name: e.target.value })}
-                      className="w-full p-2 border rounded-md"
-                      placeholder="John Doe"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="memberRole" className="block text-sm font-medium text-gray-700 mb-1">
-                      Role
-                    </label>
-                    <input
-                      type="text"
-                      id="memberRole"
-                      value={newTeamMember.role}
-                      onChange={(e) => setNewTeamMember({ ...newTeamMember, role: e.target.value })}
-                      className="w-full p-2 border rounded-md"
-                      placeholder="Project Manager"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="memberInitials" className="block text-sm font-medium text-gray-700 mb-1">
-                      Initials (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      id="memberInitials"
-                      value={newTeamMember.initials}
-                      onChange={(e) => setNewTeamMember({ ...newTeamMember, initials: e.target.value })}
-                      className="w-full p-2 border rounded-md"
-                      placeholder="JD"
-                      maxLength={2}
-                    />
-                  </div>
-                </div>
-                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-                  Add Team Member
-                </button>
-              </form>
-            )}
-
-            {/* Team Members List */}
-            <div className="space-y-4">
-              {team.map((member) => (
-                <div key={member.id} className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium mr-3">
-                      {member.initials}
-                    </div>
-                    <div>
-                      <div className="font-medium text-gray-800">{member.name}</div>
-                      <div className="text-gray-500 text-sm">{member.role}</div>
-                    </div>
-                  </div>
-                  {!taskStatus.isCompleted && (
-                    <button
-                      onClick={() => handleRemoveTeamMember(member.id)}
-                      className="text-red-500 hover:text-red-700"
-                      title="Remove team member"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              ))}
-
-              {team.length === 0 && (
-                <div className="text-gray-500 text-sm italic">No team members assigned to this task.</div>
-              )}
-            </div>
-          </div>
-
-          <div className="mb-8">
-            <h3 className="text-gray-500 font-medium mb-4">SUB-TASKS</h3>
-            <div className="space-y-4">
-              {task.subTasksList.map((subTask, index) => (
-                <div key={index} className="flex items-start">
-                  <div className="mt-1 mr-3">
-                    <CheckSquare className={`w-5 h-5 ${subTask.completed ? "text-black" : "text-gray-400"}`} />
-                  </div>
-                  <div>
-                    <div className="text-gray-500">{task.createdAt}</div>
-                    <div className="text-gray-500 font-medium">{subTask.title}</div>
-                    <div className="text-gray-700">{subTask.description}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Assets Section with Add/Remove */}
-          <div>
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-gray-700 font-medium">ASSETS</h3>
-              {!taskStatus.isCompleted && (
-                <button
-                  onClick={() => setShowAssetForm(!showAssetForm)}
-                  className="text-blue-500 hover:text-blue-700 flex items-center text-sm"
-                >
-                  {showAssetForm ? (
-                    <>
-                      <X className="w-4 h-4 mr-1" />
-                      Cancel
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-4 h-4 mr-1" />
-                      Add Asset
-                    </>
-                  )}
-                </button>
-              )}
-            </div>
-
-            {/* Add Asset Form */}
-            {showAssetForm && !taskStatus.isCompleted && (
-              <div className="bg-gray-50 p-4 rounded-md mb-4 border border-gray-200">
-                <form onSubmit={handleAddAsset} className="mb-4">
-                  <div className="mb-4">
-                    <label htmlFor="assetName" className="block text-sm font-medium text-gray-700 mb-1">
-                      Asset Name
-                    </label>
-                    <input
-                      type="text"
-                      id="assetName"
-                      value={newAsset.name}
-                      onChange={(e) => setNewAsset({ ...newAsset, name: e.target.value })}
-                      className="w-full p-2 border rounded-md"
-                      placeholder="Document Name"
-                      required
-                    />
-                  </div>
-
-                  {/* File Upload Area */}
-                  <div
-                    className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-                      isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400"
-                    }`}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
+            {/* Team Members Section with Add/Remove */}
+            <div className="mb-8">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-gray-500 font-medium">TASK TEAM</h3>
+                {!taskStatus.isCompleted && (
+                  <button
+                    onClick={() => setShowTeamForm(!showTeamForm)}
+                    className="text-blue-500 hover:text-blue-700 flex items-center text-sm"
                   >
-                    {uploadPreview ? (
-                      <div className="mb-4">
-                        <img
-                          src={uploadPreview || "/placeholder.svg"}
-                          alt="Upload preview"
-                          className="max-h-40 mx-auto border rounded"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setUploadPreview(null)
-                            setNewAsset((prev) => ({ ...prev, url: "" }))
-                          }}
-                          className="mt-2 text-red-500 text-sm hover:text-red-700"
-                        >
-                          Remove image
-                        </button>
-                      </div>
+                    {showTeamForm ? (
+                      <>
+                        <X className="w-4 h-4 mr-1" />
+                        Cancel
+                      </>
                     ) : (
                       <>
-                        <Upload className="w-12 h-12 mx-auto text-gray-400 mb-2" />
-                        <p className="text-gray-600 mb-2">Drag and drop an image here, or</p>
+                        <UserPlus className="w-4 h-4 mr-1" />
+                        Add Team Member
                       </>
                     )}
+                  </button>
+                )}
+              </div>
 
-                    <div className="flex justify-center">
-                      <label
-                        htmlFor="fileUpload"
-                        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 cursor-pointer"
-                      >
-                        Browse Files
+              {/* Add Team Member Form */}
+              {showTeamForm && !taskStatus.isCompleted && (
+                <form onSubmit={handleAddTeamMember} className="bg-gray-50 p-4 rounded-md mb-4 border border-gray-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label htmlFor="memberName" className="block text-sm font-medium text-gray-700 mb-1">
+                        Name
                       </label>
                       <input
-                        type="file"
-                        id="fileUpload"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleFileSelect}
+                        type="text"
+                        id="memberName"
+                        value={newTeamMember.name}
+                        onChange={(e) => setNewTeamMember({ ...newTeamMember, name: e.target.value })}
+                        className="w-full p-2 border rounded-md"
+                        placeholder="John Doe"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="memberRole" className="block text-sm font-medium text-gray-700 mb-1">
+                        Role
+                      </label>
+                      <input
+                        type="text"
+                        id="memberRole"
+                        value={newTeamMember.role}
+                        onChange={(e) => setNewTeamMember({ ...newTeamMember, role: e.target.value })}
+                        className="w-full p-2 border rounded-md"
+                        placeholder="Project Manager"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="memberInitials" className="block text-sm font-medium text-gray-700 mb-1">
+                        Initials (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        id="memberInitials"
+                        value={newTeamMember.initials}
+                        onChange={(e) => setNewTeamMember({ ...newTeamMember, initials: e.target.value })}
+                        className="w-full p-2 border rounded-md"
+                        placeholder="JD"
+                        maxLength={2}
                       />
                     </div>
                   </div>
-
-                  <div className="mt-4 flex justify-end">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowAssetForm(false)
-                        setUploadPreview(null)
-                        setNewAsset({ name: "", url: "" })
-                      }}
-                      className="mr-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className={`px-4 py-2 rounded-md ${
-                        newAsset.name && uploadPreview
-                          ? "bg-blue-500 text-white hover:bg-blue-600"
-                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      }`}
-                      disabled={!newAsset.name || !uploadPreview}
-                    >
-                      Add Asset
-                    </button>
-                  </div>
+                  <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                    Add Team Member
+                  </button>
                 </form>
-              </div>
-            )}
+              )}
 
-            {/* Assets Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {assets.map((asset) => (
-                <div key={asset.id} className="relative rounded-lg overflow-hidden border border-gray-200 group">
-                  <img src={asset.url || "/placeholder.svg"} alt={asset.name} className="w-full h-48 object-cover" />
-                  <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white p-2">
-                    <div className="flex justify-between items-center">
-                      <span>{asset.name}</span>
-                      {!taskStatus.isCompleted && (
+              {/* Team Members List */}
+              <div className="space-y-4">
+                {team.map((member) => (
+                  <div key={member.id} className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium mr-3">
+                        {member.initials}
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-800">{member.name}</div>
+                        <div className="text-gray-500 text-sm">{member.role}</div>
+                      </div>
+                    </div>
+                    {!taskStatus.isCompleted && (
+                      <button
+                        onClick={() => handleRemoveTeamMember(member.id)}
+                        className="text-red-500 hover:text-red-700"
+                        title="Remove team member"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+
+                {team.length === 0 && (
+                  <div className="text-gray-500 text-sm italic">No team members assigned to this task.</div>
+                )}
+              </div>
+            </div>
+            // Add a visual indicator for the main subtask
+            <div className="mb-8">
+              <h3 className="text-gray-500 font-medium mb-4">SUB-TASKS</h3>
+              <div className="space-y-4">
+                {task.subtasks &&
+                  task.subtasks.map((subTask) => (
+                    <div key={subTask.id} className="flex items-start justify-between border-b border-gray-100 pb-3">
+                      <div className="flex items-start">
+                        <div className="mt-1 mr-3">
+                          <input
+                            type="checkbox"
+                            id={`subtask-${subTask.id}`}
+                            checked={subTask.completed}
+                            onChange={() => handleSubtaskStatusChange(subTask.id, !subTask.completed)}
+                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <div className="text-gray-500">{new Date(task.createdAt).toLocaleDateString()}</div>
+                          <div
+                            className={`text-gray-700 font-medium ${subTask.completed ? "line-through text-gray-400" : ""}`}
+                          >
+                            {subTask.title}
+                            {subTask.isMainSubtask && (
+                              <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                                Main
+                              </span>
+                            )}
+                          </div>
+                          {subTask.description && <div className="text-gray-600">{subTask.description}</div>}
+                        </div>
+                      </div>
+                      {!subTask.isMainSubtask ? (
                         <button
-                          onClick={() => handleRemoveAsset(asset.id)}
-                          className="text-red-400 hover:text-red-300"
-                          title="Remove asset"
+                          onClick={() => handleDeleteSubtask(subTask.id)}
+                          className="text-red-500 hover:text-red-700 mt-1"
+                          title="Delete subtask"
                         >
-                          <X className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
+                      ) : (
+                        <div className="text-gray-400 mt-1 text-xs italic">Cannot delete</div>
                       )}
                     </div>
-                  </div>
-                </div>
-              ))}
+                  ))}
 
-              {assets.length === 0 && (
-                <div className="col-span-2 text-center py-8 border border-dashed border-gray-300 rounded-lg">
-                  <Upload className="w-12 h-12 mx-auto text-gray-400 mb-2" />
-                  <p className="text-gray-500">No assets added to this task.</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Timeline Tab - Side by side layout */}
-      {activeTab === "timeline" && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-gray-700 font-medium">Activities & Timeline</h3>
-            {!taskStatus.isCompleted && (
-              <div
-                className={`px-3 py-1 rounded-full ${
-                  taskStatus.isCompleted
-                    ? "bg-green-100 text-green-800"
-                    : taskStatus.isStarted
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-gray-100 text-gray-800"
-                }`}
-              >
-                {task.status}
+                {(!task.subtasks || task.subtasks.length === 0) && (
+                  <div className="text-gray-500 text-sm italic">No subtasks for this task.</div>
+                )}
               </div>
-            )}
-          </div>
+            </div>
+            {/* Assets Section with Add/Remove */}
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-gray-700 font-medium">ASSETS</h3>
+                {!taskStatus.isCompleted && (
+                  <button
+                    onClick={() => setShowAssetForm(!showAssetForm)}
+                    className="text-blue-500 hover:text-blue-700 flex items-center text-sm"
+                  >
+                    {showAssetForm ? (
+                      <>
+                        <X className="w-4 h-4 mr-1" />
+                        Cancel
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-4 h-4 mr-1" />
+                        Add Asset
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
 
-          <div className="flex flex-col md:flex-row gap-6">
-            {/* Timeline - Left side */}
-            <div className="md:w-1/2 relative pb-8">
-              {/* Vertical line */}
-              <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200"></div>
-
-              {/* Timeline items - Newest first */}
-              <div className="space-y-8">
-                {sortedActivities.map((activity, index) => (
-                  <div key={index} className="relative flex items-start">
-                    {/* Timeline dot */}
-                    <div
-                      className={`absolute left-6 w-3 h-3 rounded-full ${getActivityColor(activity.type)} transform -translate-x-1.5 mt-1.5 z-10 ring-4 ring-white`}
-                    ></div>
-
-                    {/* Activity icon */}
-                    <div
-                      className={`ml-12 ${getActivityColor(activity.type)} w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0`}
-                    >
-                      {getActivityIcon(activity.type)}
+              {/* Add Asset Form */}
+              {showAssetForm && !taskStatus.isCompleted && (
+                <div className="bg-gray-50 p-4 rounded-md mb-4 border border-gray-200">
+                  <form onSubmit={handleAddAsset} className="mb-4">
+                    <div className="mb-4">
+                      <label htmlFor="assetName" className="block text-sm font-medium text-gray-700 mb-1">
+                        Asset Name
+                      </label>
+                      <input
+                        type="text"
+                        id="assetName"
+                        value={newAsset.name}
+                        onChange={(e) => setNewAsset({ ...newAsset, name: e.target.value })}
+                        className="w-full p-2 border rounded-md"
+                        placeholder="Document Name"
+                        required
+                      />
                     </div>
 
-                    {/* Activity content */}
-                    <div className="ml-4 flex-1">
-                      <div className="flex items-center">
-                        <span className="font-medium text-gray-800">{activity.user || "Unknown user"}</span>
-                        <span className="ml-2 text-sm text-gray-500">{formatDate(activity.timestamp)}</span>
-                      </div>
-                      <div className="text-gray-700 mt-1">{activity.message || ""}</div>
+                    {/* File Upload Area */}
+                    <div
+                      className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                        isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400"
+                      }`}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                    >
+                      {uploadPreview ? (
+                        <div className="mb-4">
+                          <img
+                            src={uploadPreview || "/placeholder.svg"}
+                            alt="Upload preview"
+                            className="max-h-40 mx-auto border rounded"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setUploadPreview(null)
+                              setNewAsset((prev) => ({ ...prev, url: "" }))
+                            }}
+                            className="mt-2 text-red-500 text-sm hover:text-red-700"
+                          >
+                            Remove image
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <Upload className="w-12 h-12 mx-auto text-gray-400 mb-2" />
+                          <p className="text-gray-600 mb-2">Drag and drop an image here, or</p>
+                        </>
+                      )}
 
-                      {/* Activity card */}
-                      <div className="mt-2 p-3 bg-gray-50 rounded-md border border-gray-200">
-                        <div className="text-sm text-gray-600">{getActivityLabel(activity.type)}</div>
+                      <div className="flex justify-center">
+                        <label
+                          htmlFor="fileUpload"
+                          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 cursor-pointer"
+                        >
+                          Browse Files
+                        </label>
+                        <input
+                          type="file"
+                          id="fileUpload"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={handleFileSelect}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowAssetForm(false)
+                          setUploadPreview(null)
+                          setNewAsset({ name: "", url: "" })
+                        }}
+                        className="mr-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className={`px-4 py-2 rounded-md ${
+                          newAsset.name && uploadPreview
+                            ? "bg-blue-500 text-white hover:bg-blue-600"
+                            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        }`}
+                        disabled={!newAsset.name || !uploadPreview}
+                      >
+                        Add Asset
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* Assets Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {assets.map((asset) => (
+                  <div key={asset.id} className="relative rounded-lg overflow-hidden border border-gray-200 group">
+                    <img src={asset.url || "/placeholder.svg"} alt={asset.name} className="w-full h-48 object-cover" />
+                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white p-2">
+                      <div className="flex justify-between items-center">
+                        <span>{asset.name}</span>
+                        {!taskStatus.isCompleted && (
+                          <button
+                            onClick={() => handleRemoveAsset(asset.id)}
+                            className="text-red-400 hover:text-red-300"
+                            title="Remove asset"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
                 ))}
 
-                {/* If task is completed, show completion message */}
-                {taskStatus.isCompleted && (
-                  <div className="relative flex items-start">
-                    <div className="absolute left-6 w-3 h-3 rounded-full bg-green-500 transform -translate-x-1.5 mt-1.5 z-10 ring-4 ring-white"></div>
-                    <div className="ml-12 bg-green-500 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="ml-4 flex-1">
-                      <div className="p-3 bg-green-50 rounded-md border border-green-200">
-                        <div className="text-green-700 font-medium">Task completed</div>
-                        <div className="text-sm text-green-600">No further updates can be made</div>
-                      </div>
-                    </div>
+                {assets.length === 0 && (
+                  <div className="col-span-2 text-center py-8 border border-dashed border-gray-300 rounded-lg">
+                    <Upload className="w-12 h-12 mx-auto text-gray-400 mb-2" />
+                    <p className="text-gray-500">No assets added to this task.</p>
                   </div>
                 )}
               </div>
             </div>
+          </div>
+        )}
 
-            {/* Add Comment Form - Right side */}
-            <div className="md:w-1/2">
-              {taskStatus.isCompleted ? (
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <div className="text-center text-gray-500">
-                    <CheckCircle className="w-12 h-12 mx-auto text-green-500 mb-2" />
-                    <h3 className="text-lg font-medium text-gray-700 mb-1">Task Completed</h3>
-                    <p>This task has been marked as completed and cannot be modified further.</p>
-                  </div>
+        {/* Timeline Tab - Side by side layout */}
+        {activeTab === "timeline" && (
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-gray-700 font-medium">Activities & Timeline</h3>
+              {!taskStatus.isCompleted && (
+                <div
+                  className={`px-3 py-1 rounded-full ${
+                    taskStatus.isCompleted
+                      ? "bg-green-100 text-green-800"
+                      : taskStatus.isStarted
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-gray-100 text-gray-800"
+                  }`}
+                >
+                  {task.status}
                 </div>
-              ) : (
-                <>
-                  <h3 className="text-gray-700 font-medium mb-4">Add Update or Change Status</h3>
-
-                  {/* Radio-style activity selection for construction */}
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div className="flex items-center">
-                      <input
-                        type="radio"
-                        id="commented"
-                        name="activityType"
-                        checked={activityStatus.Commented}
-                        onChange={() => handleStatusChange("Commented")}
-                        className="mr-2 h-4 w-4"
-                      />
-                      <label htmlFor="commented" className="text-gray-700">
-                        Comment
-                      </label>
-                    </div>
-                    <div className="flex items-center">
-                      <input
-                        type="radio"
-                        id="inspection"
-                        name="activityType"
-                        checked={activityStatus.Inspection}
-                        onChange={() => handleStatusChange("Inspection")}
-                        className="mr-2 h-4 w-4"
-                      />
-                      <label htmlFor="inspection" className="text-gray-700">
-                        Inspection
-                      </label>
-                    </div>
-                    <div className="flex items-center">
-                      <input
-                        type="radio"
-                        id="materialdelivery"
-                        name="activityType"
-                        checked={activityStatus.MaterialDelivery}
-                        onChange={() => handleStatusChange("MaterialDelivery")}
-                        className="mr-2 h-4 w-4"
-                      />
-                      <label htmlFor="materialdelivery" className="text-gray-700">
-                        Material Delivery
-                      </label>
-                    </div>
-                    <div className="flex items-center">
-                      <input
-                        type="radio"
-                        id="safetyconcern"
-                        name="activityType"
-                        checked={activityStatus.SafetyConcern}
-                        onChange={() => handleStatusChange("SafetyConcern")}
-                        className="mr-2 h-4 w-4"
-                      />
-                      <label htmlFor="safetyconcern" className="text-gray-700">
-                        Safety Concern
-                      </label>
-                    </div>
-                  </div>
-
-                  <form onSubmit={handleSubmitComment} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <textarea
-                      className="w-full border rounded-md p-3 mb-4 h-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Add details about the meeting update..."
-                      value={commentText}
-                      onChange={(e) => setCommentText(e.target.value)}
-                    ></textarea>
-                    <button
-                      type="submit"
-                      className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors"
-                    >
-                      Submit Update
-                    </button>
-                  </form>
-                </>
               )}
             </div>
+
+            <div className="flex flex-col md:flex-row gap-6">
+              {/* Timeline - Left side */}
+              <div className="md:w-1/2 relative pb-8">
+                {/* Vertical line */}
+                <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+
+                {/* Timeline items - */}
+                <div className="space-y-8">
+                  {sortedActivities.map((activity, index) => (
+                    <div key={index} className="relative flex items-start">
+                      {/* Timeline dot */}
+                      <div
+                        className={`absolute left-6 w-3 h-3 rounded-full ${getActivityColor(activity.type)} transform -translate-x-1.5 mt-1.5 z-10 ring-4 ring-white`}
+                      ></div>
+
+                      {/* Activity icon */}
+                      <div
+                        className={`ml-12 ${getActivityColor(activity.type)} w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0`}
+                      >
+                        {getActivityIcon(activity.type)}
+                      </div>
+
+                      {/* Activity content */}
+                      <div className="ml-4 flex-1">
+                        <div className="flex items-center">
+                          <span className="font-medium text-gray-800">{activity.user || "Unknown user"}</span>
+                          <span className="ml-2 text-sm text-gray-500">{formatDate(activity.timestamp)}</span>
+                        </div>
+                        <div className="text-gray-700 mt-1">{activity.message || ""}</div>
+
+                        {/* Activity card */}
+                        <div className="mt-2 p-3 bg-gray-50 rounded-md border border-gray-200">
+                          <div className="text-sm text-gray-600">{getActivityLabel(activity.type)}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* If task is completed, show completion message */}
+                  {taskStatus.isCompleted && (
+                    <div className="relative flex items-start">
+                      <div className="absolute left-6 w-3 h-3 rounded-full bg-green-500 transform -translate-x-1.5 mt-1.5 z-10 ring-4 ring-white"></div>
+                      <div className="ml-12 bg-green-500 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
+                        <CheckCircle className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="ml-4 flex-1">
+                        <div className="p-3 bg-green-50 rounded-md border border-green-200">
+                          <div className="text-green-700 font-medium">Task completed</div>
+                          <div className="text-sm text-green-600">No further updates can be made</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Add Comment Form - Right side */}
+              <div className="md:w-1/2">
+                {columnId === "completed" ? (
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div className="text-center text-gray-500">
+                      <CheckCircle className="w-12 h-12 mx-auto text-green-500 mb-2" />
+                      <h3 className="text-lg font-medium text-gray-700 mb-1">Task Completed</h3>
+                      <p>This task has been marked as completed. Add a subtask to reopen it.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <h3 className="text-gray-700 font-medium mb-4">Add Update or Change Status</h3>
+
+                    {/* Radio-style activity selection for construction */}
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="flex items-center">
+                        <input
+                          type="radio"
+                          id="commented"
+                          name="activityType"
+                          checked={activityStatus.Commented}
+                          onChange={() => handleStatusChange("Commented")}
+                          className="mr-2 h-4 w-4"
+                        />
+                        <label htmlFor="commented" className="text-gray-700">
+                          Comment
+                        </label>
+                      </div>
+                      <div className="flex items-center">
+                        <input
+                          type="radio"
+                          id="inspection"
+                          name="activityType"
+                          checked={activityStatus.Inspection}
+                          onChange={() => handleStatusChange("Inspection")}
+                          className="mr-2 h-4 w-4"
+                        />
+                        <label htmlFor="inspection" className="text-gray-700">
+                          Inspection
+                        </label>
+                      </div>
+                      <div className="flex items-center">
+                        <input
+                          type="radio"
+                          id="materialdelivery"
+                          name="activityType"
+                          checked={activityStatus.MaterialDelivery}
+                          onChange={() => handleStatusChange("MaterialDelivery")}
+                          className="mr-2 h-4 w-4"
+                        />
+                        <label htmlFor="materialdelivery" className="text-gray-700">
+                          Material Delivery
+                        </label>
+                      </div>
+                      <div className="flex items-center">
+                        <input
+                          type="radio"
+                          id="safetyconcern"
+                          name="activityType"
+                          checked={activityStatus.SafetyConcern}
+                          onChange={() => handleStatusChange("SafetyConcern")}
+                          className="mr-2 h-4 w-4"
+                        />
+                        <label htmlFor="safetyconcern" className="text-gray-700">
+                          Safety Concern
+                        </label>
+                      </div>
+                    </div>
+
+                    <form onSubmit={handleSubmitComment} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                      <textarea
+                        className="w-full border rounded-md p-3 mb-4 h-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Add details about the meeting update..."
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                      ></textarea>
+                      <button
+                        type="submit"
+                        className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors"
+                      >
+                        Submit Update
+                      </button>
+                    </form>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
     </div>
   )
 }
 
 export default TaskDetail
-
