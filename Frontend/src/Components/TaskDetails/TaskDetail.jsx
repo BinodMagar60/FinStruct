@@ -624,24 +624,6 @@ const TaskDetail = ({ task, columnId }) => {
             <div className="mb-8">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-gray-500 font-medium">TASK TEAM</h3>
-                {!taskStatus.isCompleted && (
-                  <button
-                    onClick={() => setShowTeamForm(!showTeamForm)}
-                    className="text-blue-500 hover:text-blue-700 flex items-center text-sm"
-                  >
-                    {showTeamForm ? (
-                      <>
-                        <X className="w-4 h-4 mr-1" />
-                        Cancel
-                      </>
-                    ) : (
-                      <>
-                        <UserPlus className="w-4 h-4 mr-1" />
-                        Add Team Member
-                      </>
-                    )}
-                  </button>
-                )}
               </div>
 
               {/* Add Team Member Form */}
@@ -727,7 +709,7 @@ const TaskDetail = ({ task, columnId }) => {
                 )}
               </div>
             </div>
-            // Add a visual indicator for the main subtask
+            
             <div className="mb-8">
               <h3 className="text-gray-500 font-medium mb-4">SUB-TASKS</h3>
               <div className="space-y-4">
@@ -815,7 +797,8 @@ const TaskDetail = ({ task, columnId }) => {
                         id="assetName"
                         value={newAsset.name}
                         onChange={(e) => setNewAsset({ ...newAsset, name: e.target.value })}
-                        className="w-full p-2 border rounded-md"
+                        className="w-full p-2 border border-gray-300 rounded-md"
+                        disabled
                         placeholder="Document Name"
                         required
                       />

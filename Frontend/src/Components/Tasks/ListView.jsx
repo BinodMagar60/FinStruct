@@ -1,8 +1,13 @@
-import { ChevronDown, FileText, Paperclip, CheckSquare } from "lucide-react"
+import { useState } from "react"
+import { ChevronDown, ChevronUp, FileText, Paperclip, CheckSquare } from "lucide-react"
 import { useTaskContext } from "../../context/taskContext"
 
 const ListView = () => {
   const { columns, handleEditTask, handleDeleteTask, users, openTaskDetail } = useTaskContext()
+  
+  // Add sorting state
+  const [sortField, setSortField] = useState("createdAt")
+  const [sortDirection, setSortDirection] = useState("desc")
 
   // Flatten all tasks from all columns
   const allTasks = columns.reduce((acc, column) => {
@@ -16,8 +21,51 @@ const ListView = () => {
     ]
   }, [])
 
+  // Apply sorting
+  const sortedTasks = [...allTasks].sort((a, b) => {
+    // Sort by title (case insensitive)
+    if (sortField === "title") {
+      return sortDirection === "asc"
+        ? a.title.toLowerCase().localeCompare(b.title.toLowerCase())
+        : b.title.toLowerCase().localeCompare(a.title.toLowerCase())
+    }
+    
+    // Sort by priority
+    if (sortField === "priority") {
+      const priorityValues = { high: 3, normal: 2, low: 1 }
+      const aValue = priorityValues[a.priority] || 0
+      const bValue = priorityValues[b.priority] || 0
+      return sortDirection === "asc" ? aValue - bValue : bValue - aValue
+    }
+    
+    // Sort by creation date
+    if (sortField === "createdAt") {
+      return sortDirection === "asc" 
+        ? new Date(a.createdAt) - new Date(b.createdAt)
+        : new Date(b.createdAt) - new Date(a.createdAt)
+    }
+    
+    return 0
+  })
+
+  // Helper function to toggle sort
+  const toggleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+    } else {
+      setSortField(field)
+      setSortDirection("asc")
+    }
+  }
+
   // Check if there are no tasks to display
-  const noTasksToShow = allTasks.length === 0
+  const noTasksToShow = sortedTasks.length === 0
+
+  // Helper to render sort icon
+  const renderSortIcon = (field) => {
+    if (sortField !== field) return <ChevronDown size={14} className="text-gray-300" />
+    return sortDirection === "asc" ? <ChevronUp size={14} /> : <ChevronDown size={14} />
+  }
 
   return (
     <div className="overflow-x-auto pt-4">
@@ -30,18 +78,35 @@ const ListView = () => {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-white">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">
-                Task Title
+              <th 
+                scope="col" 
+                className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                onClick={() => toggleSort("title")}
+              >
+                <div className="flex items-center gap-1">
+                  Task Title
+                  {renderSortIcon("title")}
+                </div>
               </th>
-              <th scope="col" className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">
-                Priority
+              <th 
+                scope="col" 
+                className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                onClick={() => toggleSort("priority")}
+              >
+                <div className="flex items-center gap-1">
+                  Priority
+                  {renderSortIcon("priority")}
+                </div>
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider flex items-center gap-1"
+                className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                onClick={() => toggleSort("createdAt")}
               >
-                Created At
-                <ChevronDown size={14} />
+                <div className="flex items-center gap-1">
+                  Created At
+                  {renderSortIcon("createdAt")}
+                </div>
               </th>
               <th scope="col" className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">
                 Assets
@@ -55,7 +120,7 @@ const ListView = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {allTasks.map((task) => {
+            {sortedTasks.map((task) => {
               // Find assigned users
               const assignedUsers = task.assignees ? users.filter((user) => task.assignees.includes(user.id)) : []
 

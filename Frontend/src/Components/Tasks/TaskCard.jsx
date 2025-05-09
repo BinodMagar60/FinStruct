@@ -32,7 +32,7 @@ const TaskCard = ({ task, columnId }) => {
     // Only allow editing if the task is not in the completed column
     if (columnId !== "completed") {
       handleEditTask(task, columnId)
-      setIsModalOpen(false)
+      setIsModalOpen(true)
     }
   }
 
@@ -154,7 +154,7 @@ const TaskCard = ({ task, columnId }) => {
         </div>
 
         {task.dueDate && (
-          <div className="text-gray-500 text-xs mt-2">{new Date(task.dueDate).toLocaleDateString()}</div>
+          <div className="text-gray-500 text-xs mt-2">Due Date: {new Date(task.dueDate).toLocaleDateString()}</div>
         )}
 
         {task.subtasks && task.subtasks.length > 0 && (
