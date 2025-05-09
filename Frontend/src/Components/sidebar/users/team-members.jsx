@@ -240,7 +240,7 @@ export default function TeamMembers(props) {
                         )}`}
                       >
                         {item.photo ? (
-                          <img src={item.photo} alt={item.username} />
+                          <img src={item.photo} alt={item.username} className="rounded-full"/>
                         ) : (
                           getInitials(item.username)
                         )}

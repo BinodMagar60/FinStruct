@@ -56,7 +56,15 @@ export default function UserDetail({ userId, users = [], onBack }) {
         <div className="p-6 flex justify-between items-start border-b border-gray-300">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white text-2xl">
-              {getInitials(user.username)}
+              {
+                user.photo? (
+                  <>
+                  <img src={user.photo} className="rounded-full"/>
+                  </>
+                ) : (
+                  <>{getInitials(user.username)}</>
+                )
+              }
             </div>
             <div>
               <h1 className="text-2xl font-bold">{user.username}</h1>
