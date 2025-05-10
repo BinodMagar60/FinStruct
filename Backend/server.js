@@ -28,7 +28,12 @@ app.get("/", (req, res) => {
 
 
 const authRoutes = require("./Routes/LoginSignupRoutes");
+const AdminRoutes = require('./Routes/Routes')
+const ProjectRoutes = require('./Routes/ProjectRoutes')
 app.use("/auth", authRoutes);
+app.use('/admin/user', AdminRoutes)
+app.use('/projects', ProjectRoutes)
+
 
 
 const PORT = process.env.PORT || 5000;
@@ -36,9 +41,7 @@ app.listen(PORT,() => console.log(`Server running on port ${PORT}`));
 
 
 
-const AdminRoutes = require('./Routes/Routes')
 
-app.use('/admin/user', AdminRoutes)
 
 
 

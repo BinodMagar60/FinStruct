@@ -28,6 +28,7 @@ const Logout = ({isLogout, setLogout}) => {
 
   const handleLogout = () =>{
     localStorage.removeItem("token")
+    localStorage.removeItem("projectId")
     localStorage.removeItem("userDetails")
     navigate('/')
     toast.success("Logged Out Successful",{

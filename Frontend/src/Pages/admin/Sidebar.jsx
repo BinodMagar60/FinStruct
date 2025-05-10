@@ -16,55 +16,20 @@ import { RiMoneyDollarCircleLine } from "react-icons/ri";
 import { PiMoneyWavyBold } from "react-icons/pi";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import CreateProject from "../../Components/sidebar/CreateProject";
+import { getAllProjects } from "../../api/ProjectApi";
 
 const Sidebar = () => {
+  const locallySavedUser = JSON.parse(localStorage.getItem("userDetails"));
   const admin = true;
+
   const navigate = useNavigate();
   const location = useLocation();
+
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-
-  const dummyData = [
-    { name: "Task 1", status: "complete" },
-    { name: "Task 2", status: "incomplete" },
-    { name: "Task 3", status: "incomplete" },
-  ];
-
-  const [selectedTask, setSelectedTask] = useState(dummyData[0]);
+  const [dummyData, setDummyData] = useState([]);
+  const [selectedTask, setSelectedTask] = useState(null);
   const [activeTab, setActiveTab] = useState("Dashboard");
-
-  useEffect(() => {
-    if (dummyData.length > 0) {
-      setSelectedTask(dummyData[0]);
-      setActiveTab("Overview");
-      navigate("/admin/overview");
-    }
-  }, []);
-
-  useEffect(() => {
-    const handleBackButton = (event) => {
-      event.preventDefault();
-      navigate(1);
-    };
-
-    window.history.pushState(null, "", window.location.href);
-    window.addEventListener("popstate", handleBackButton);
-
-    return () => {
-      window.removeEventListener("popstate", handleBackButton);
-    };
-  }, [navigate]);
-
-  useEffect(() => {
-    const currentPath = location.pathname;
-    const foundTab = [...adminLists[0], ...adminLists[1]].find(
-      (item) => item.url === currentPath
-    );
-    if (foundTab) {
-      setActiveTab(foundTab.name);
-    }
-  }, [location.pathname]);
-
-  const handleTabClick = (tabName) => setActiveTab(tabName);
+  
 
   const adminLists = [
     [
@@ -92,12 +57,56 @@ const Sidebar = () => {
     ],
   ];
 
+  useEffect(() => {
+    const getAllDatas = async () => {
+      try {
+        const response = await getAllProjects(`projects/project/${locallySavedUser.companyId}`);
+        console.log(response.data)
+        setDummyData(response.data);
+        if (response.data.length > 0) {
+          const firstProject = response.data[0];
+          setSelectedTask(firstProject);
+          localStorage.setItem("projectId", firstProject._id);
+          setActiveTab("Overview");
+          navigate("/admin/overview");
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getAllDatas();
+  }, [isCreateOpen]);
+
+  useEffect(() => {
+    const handleBackButton = (event) => {
+      event.preventDefault();
+      navigate(1);
+    };
+
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", handleBackButton);
+
+    return () => {
+      window.removeEventListener("popstate", handleBackButton);
+    };
+  }, [navigate]);
+
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const foundTab = [...adminLists[0], ...adminLists[1]].find(
+      (item) => item.url === currentPath
+    );
+    if (foundTab) {
+      setActiveTab(foundTab.name);
+    }
+  }, [location.pathname]);
+
+  const handleTabClick = (tabName) => setActiveTab(tabName);
+
   return (
     <div
       className="h-screen w-75 bg-white pt-24 overflow-y-auto max-h-screen"
-      style={{
-        scrollbarWidth: "none",
-      }}
+      style={{ scrollbarWidth: "none" }}
     >
       <div className="h-full">
         {admin && (
@@ -106,9 +115,7 @@ const Sidebar = () => {
               <Link to={item.url} key={item.name}>
                 <li
                   className={`flex w-full pl-10 cursor-pointer py-4 hover:bg-[#6e6e6e88] transition-all ${
-                    activeTab === item.name
-                      ? "bg-black text-white hover:text-black"
-                      : ""
+                    activeTab === item.name ? "bg-black text-white hover:text-black" : ""
                   }`}
                   onClick={() => handleTabClick(item.name)}
                 >
@@ -131,20 +138,25 @@ const Sidebar = () => {
               </button>
             </div>
 
-            {dummyData.length > 0 && (
+            {dummyData.length > 0 && selectedTask && (
               <div className="relative w-full py-3 mt-1 hover:bg-[#e4e4e488] transition-all">
                 <select
                   className="pl-9 pr-7 w-full appearance-none bg-transparent cursor-pointer"
-                  value={selectedTask.name}
-                  onChange={(e) =>
-                    setSelectedTask(
-                      dummyData.find((item) => item.name === e.target.value)
-                    )
-                  }
+                  value={selectedTask.projectName || ""}
+                  onChange={(e) => {
+                    const selected = dummyData.find(
+                      (item) => item.projectName === e.target.value
+                    );
+                    if (selected) {
+                      setSelectedTask(selected);
+                      localStorage.setItem("projectId", selected._id); 
+                    }
+
+                  }}
                 >
                   {dummyData.map((item) => (
-                    <option key={item.name} value={item.name}>
-                      {item.name}
+                    <option key={item._id} value={item.projectName}>
+                      {item.projectName}
                     </option>
                   ))}
                 </select>
@@ -159,9 +171,7 @@ const Sidebar = () => {
                 <Link to={item.url} key={item.name}>
                   <li
                     className={`flex w-full pl-10 cursor-pointer py-4 hover:bg-[#6e6e6e88] transition-all ${
-                      activeTab === item.name
-                        ? "bg-black text-white hover:bg-black"
-                        : ""
+                      activeTab === item.name ? "bg-black text-white hover:bg-black" : ""
                     }`}
                     onClick={() => handleTabClick(item.name)}
                   >
@@ -173,6 +183,7 @@ const Sidebar = () => {
           </ul>
         )}
       </div>
+
       {isCreateOpen && (
         <CreateProject
           isCreateOpen={isCreateOpen}

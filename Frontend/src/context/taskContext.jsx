@@ -322,6 +322,7 @@ export function TaskProvider({ children }) {
 
   const handleEditTask = (task, columnId) => {
     setCurrentTask({ ...task, columnId })
+    console.log({ ...task, columnId })
     setModalMode("edit")
     setIsModalOpen(true)
   }
