@@ -1,5 +1,5 @@
   import { createContext, useContext, useEffect, useState } from "react"
-import { getAllAssignableUsers } from "../api/ProjectApi"
+import { addNewTask, getAllAssignableUsers, getAllTasksBackend } from "../api/ProjectApi"
 
 // Create the context
 const TaskContext = createContext(null)
@@ -222,7 +222,7 @@ const initialColumns = [
 //   { id: 2, name: "Jane Smith", initials: "JS", color: "bg-blue-500" },
 //   { id: 3, name: "Alex Johnson", initials: "AJ", color: "bg-purple-500" },
 //   { id: 4, name: "New User", initials: "NU", color: "bg-red-500" },
-// ]
+// ]  
 
 // Utility functions
 export const getTaskById = (taskData, taskId) => {
@@ -292,7 +292,7 @@ const areAllSubtasksCompleted = (task) => {
 export function TaskProvider({ children }) {
   const locallySavedUser = JSON.parse(localStorage.getItem("userDetails"));
   const locallySavedProject = localStorage.getItem("projectId")
-  const [columns, setColumns] = useState(initialColumns)
+  const [columns, setColumns] = useState([])
   const [users, setUsers] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [currentTask, setCurrentTask] = useState(null)
@@ -318,21 +318,20 @@ export function TaskProvider({ children }) {
 
 
 
+
   // Initial data loading - Replace the useState initializations with API calls
-  // Example:
-  // useEffect(() => {
-  //   const fetchInitialData = async () => {
-  //     try {
-  //       const response = await fetch('/api/tasks');
-  //       const data = await response.json();
-  //       setColumns(data.columns);
-  //       setUsers(data.users);
-  //     } catch (error) {
-  //       console.error('Error fetching initial data:', error);
-  //     }
-  //   };
-  //   fetchInitialData();
-  // }, []);
+  useEffect(() => {
+    const fetchInitialData = async() => {
+      try {
+        const response = await getAllTasksBackend(`projects/tasks/task/${locallySavedProject}`)
+        // console.log(response)
+        setColumns(response)
+      } catch (error) {
+        console.log(error)
+      }
+    };
+    fetchInitialData();
+  }, []);
 
   // Task manipulation functions
   const handleCreateTask = () => {
@@ -376,7 +375,7 @@ export function TaskProvider({ children }) {
   }
 
   // Modify the handleAddTask function to automatically add a subtask with the same title
-  const handleAddTask = (task) => {
+  const handleAddTask = async(task) => {
     // Create a special subtask with the same title as the task
     const specialSubtask = {
       id: `subtask-main-${Date.now()}`,
@@ -410,10 +409,17 @@ export function TaskProvider({ children }) {
             }
           })
         : [],
-      status: "TO DO",
+      status: task.stage === "todo"? "TO DO": task.stage === "inprogress"? "IN PROGRESS": task.stage === "completed"? "COMPLETED": "ON HOLD",
     }
 
     console.log(newTask)
+
+    try{
+      const response = await addNewTask(`projects/tasks/task/${locallySavedProject}`,newTask)
+      }
+    catch(error){
+      console.log(error)
+    }
 
     // API call to create a new task
     // Example:

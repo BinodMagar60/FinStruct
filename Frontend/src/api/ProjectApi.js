@@ -54,6 +54,31 @@ export const getAllAssignableUsers = async(route) => {
     }
 }
 
+//add new task
+export const addNewTask = async(route, data) => {
+    try{
+        const response = await axios.post(BackendURI+route, data)
+        // console.log(response.data)
+        return response.data
+    }
+    catch(err){
+        return err.response.data
+    }
+}
+
+
+//get all the tasks from backend
+export const getAllTasksBackend = async(route) => {
+    try{
+        const response = await axios.get(BackendURI+route)
+        // console.log(response)
+        return response.data
+    }
+    catch(err){
+        return err.response.data
+    }
+}
+
 
 
 

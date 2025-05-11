@@ -1,16 +1,27 @@
 const mongoose = require('mongoose');
 
-const taskSchema = new mongoose.Schema({
-  projectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: true },
-  companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company', required: true },
-  taskName: { type: String, required: true },
-  description: { type: String },
-  assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  priority: { type: String, enum: ['Low', 'Medium', 'High'], default: 'Medium' },
-  status: { type: String, enum: ['Not Started', 'In Progress', 'Completed'], default: 'Not Started' },
-  startDate: { type: Date },
-  dueDate: { type: Date },
-  createdAt: { type: Date, default: Date.now }
+const ActivitySchema = require('./Activity');
+const AssetSchema = require('./Asset');
+const SubtaskSchema = require('./Subtask');
+const TeamMemberSchema = require('./TeamMember');
+
+const TaskSchema = new mongoose.Schema({
+  projectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Project' },
+  title: { type: String, required: true },
+  priority: { type: String, enum: ['low', 'normal', 'high'], default: 'normal' },
+  startingDate: { type: String, required: true },
+  dueDate: { type: String, required: true },
+  status: { type: String, enum: ['TO DO', 'IN PROGRESS', 'COMPLETED', 'ON HOLD'], default: 'TO DO' },
+  stage: { type: String, default: 'todo' },
+  createdAt: { type: Date, default: Date.now },
+
+  assignees: [{ type: String, required: true }],
+  dependencies: [{ type: String }],
+
+  subtasks: [SubtaskSchema],
+  assets: [AssetSchema],
+  activities: [ActivitySchema],
+  team: [TeamMemberSchema]
 });
 
-module.exports = mongoose.model('Task', taskSchema);
+module.exports = mongoose.model('Task', TaskSchema);
