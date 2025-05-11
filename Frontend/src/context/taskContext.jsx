@@ -1,4 +1,5 @@
-  import { createContext, useContext, useState } from "react"
+  import { createContext, useContext, useEffect, useState } from "react"
+import { getAllAssignableUsers } from "../api/ProjectApi"
 
 // Create the context
 const TaskContext = createContext(null)
@@ -216,12 +217,12 @@ const initialColumns = [
   },
 ]
 
-const initialUsers = [
-  { id: 1, name: "John Doe", initials: "JD", color: "bg-green-500" },
-  { id: 2, name: "Jane Smith", initials: "JS", color: "bg-blue-500" },
-  { id: 3, name: "Alex Johnson", initials: "AJ", color: "bg-purple-500" },
-  { id: 4, name: "New User", initials: "NU", color: "bg-red-500" },
-]
+// const initialUsers = [
+//   { id: 1, name: "John Doe", initials: "JD", color: "bg-green-500" },
+//   { id: 2, name: "Jane Smith", initials: "JS", color: "bg-blue-500" },
+//   { id: 3, name: "Alex Johnson", initials: "AJ", color: "bg-purple-500" },
+//   { id: 4, name: "New User", initials: "NU", color: "bg-red-500" },
+// ]
 
 // Utility functions
 export const getTaskById = (taskData, taskId) => {
@@ -232,54 +233,54 @@ export const getTaskById = (taskData, taskId) => {
   return null
 }
 
-export const getAllTeamMembers = (taskData) => {
-  const teamMembers = new Map()
+// export const getAllTeamMembers = (taskData) => {
+//   const teamMembers = new Map()
 
-  for (const column of taskData) {
-    for (const task of column.tasks) {
-      for (const assigneeId of task.assignees) {
-        if (!teamMembers.has(assigneeId)) {
-          // In a real app, you would fetch user details from your user database
-          // This is just a placeholder
-          teamMembers.set(assigneeId, {
-            id: assigneeId,
-            name: `Team Member ${assigneeId}`,
-            initials: `TM${assigneeId}`,
-            role: "Team Member",
-          })
-        }
-      }
-    }
-  }
+//   for (const column of taskData) {
+//     for (const task of column.tasks) {
+//       for (const assigneeId of task.assignees) {
+//         if (!teamMembers.has(assigneeId)) {
+//           // In a real app, you would fetch user details from your user database
+//           // This is just a placeholder
+//           teamMembers.set(assigneeId, {
+//             id: assigneeId,
+//             name: `Team Member ${assigneeId}`,
+//             initials: `TM${assigneeId}`,
+//             role: "Team Member",
+//           })
+//         }
+//       }
+//     }
+//   }
 
-  return Array.from(teamMembers.values())
-}
+//   return Array.from(teamMembers.values())
+// }
 
-export const addCommentToTask = (taskData, taskId, comment) => {
-  const newTaskData = JSON.parse(JSON.stringify(taskData)) // Deep clone
+// export const addCommentToTask = (taskData, taskId, comment) => {
+//   const newTaskData = JSON.parse(JSON.stringify(taskData)) // Deep clone
 
-  for (const column of newTaskData) {
-    const taskIndex = column.tasks.findIndex((task) => task.id === taskId)
-    if (taskIndex !== -1) {
-      // If the task doesn't have a comments array, create one
-      if (!column.tasks[taskIndex].comments) {
-        column.tasks[taskIndex].comments = []
-      }
+//   for (const column of newTaskData) {
+//     const taskIndex = column.tasks.findIndex((task) => task.id === taskId)
+//     if (taskIndex !== -1) {
+//       // If the task doesn't have a comments array, create one
+//       if (!column.tasks[taskIndex].comments) {
+//         column.tasks[taskIndex].comments = []
+//       }
 
-      column.tasks[taskIndex].comments.push({
-        id: `comment-${Date.now()}`,
-        text: comment.text,
-        userId: comment.userId,
-        createdAt: new Date().toISOString(),
-        status: comment.status,
-      })
+//       column.tasks[taskIndex].comments.push({
+//         id: `comment-${Date.now()}`,
+//         text: comment.text,
+//         userId: comment.userId,
+//         createdAt: new Date().toISOString(),
+//         status: comment.status,
+//       })
 
-      return newTaskData
-    }
-  }
+//       return newTaskData
+//     }
+//   }
 
-  return taskData // Return original if task not found
-}
+//   return taskData // Return original if task not found
+// }
 
 // Add a new function to check if all subtasks are completed
 const areAllSubtasksCompleted = (task) => {
@@ -289,13 +290,33 @@ const areAllSubtasksCompleted = (task) => {
 
 // Create the provider component
 export function TaskProvider({ children }) {
+  const locallySavedUser = JSON.parse(localStorage.getItem("userDetails"));
+  const locallySavedProject = localStorage.getItem("projectId")
   const [columns, setColumns] = useState(initialColumns)
-  const [users, setUsers] = useState(initialUsers)
+  const [users, setUsers] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [currentTask, setCurrentTask] = useState(null)
   const [modalMode, setModalMode] = useState("add") // 'add', 'edit'
   const [selectedTaskId, setSelectedTaskId] = useState(null)
   const [showTaskDetail, setShowTaskDetail] = useState(false)
+
+
+
+  useEffect(()=> {
+    const fetchAssignableUsers = async() => {
+      try{
+        const response = await getAllAssignableUsers(`projects/tasks/users/${locallySavedUser.companyId}`)
+        setUsers(response)
+      }
+      catch(error){
+        console.log(error)
+      }
+    }
+    fetchAssignableUsers()
+  },[])
+
+
+
 
   // Initial data loading - Replace the useState initializations with API calls
   // Example:
@@ -391,6 +412,8 @@ export function TaskProvider({ children }) {
         : [],
       status: "TO DO",
     }
+
+    console.log(newTask)
 
     // API call to create a new task
     // Example:

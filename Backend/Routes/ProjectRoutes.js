@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const Company = require("../models/Company");
 const Project = require("../models/Project");
+const User = require("../models/User")
 
 
 
@@ -56,6 +57,58 @@ router.get("/project/:id", async(req, res)=> {
 })
 
 // ---------------------- Project End ---------------
+
+
+
+
+
+
+
+
+
+
+
+// ---------------------- Tasks ---------------
+
+function getInitials(name) {
+    if (!name) return "";
+    const parts = name.trim().split(" ");
+    if (parts.length === 1) {
+        return parts[0][0].toUpperCase();
+    }
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+
+
+//get assignable users in tasks
+router.get('/tasks/users/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const existingCompany = await Company.findById(id);
+        if (!existingCompany) {
+            return res.status(404).json({ message: "Company not found" });
+        }
+
+        const users = await User.find({ companyId: id, role: { $ne: "worker" } });
+
+        const newUser = users.map((user) => ({
+            id: user._id,
+            name: user.username,
+            color: "bg-blue-500",
+            initials: getInitials(user.username)
+        }));
+
+        return res.status(200).json(newUser);
+    } catch (err) {
+        return res.status(500).json({ message: "Server Error" });
+    }
+});
+
+
+
+
+
+// ---------------------- Tasks End ---------------
 
 
 
