@@ -26,25 +26,34 @@ const EmployeeSidebar = () => {
 
 
   useEffect(() => {
-    const getAllDatas = async () => {
-      try {
-        const response = await getAllProjects(
-          `projects/project/${locallySavedUser.companyId}`
-        );
-        setDummyData(response.data);
-        if (response.data.length > 0) {
+  const getAllDatas = async () => {
+    try {
+      const response = await getAllProjects(`projects/project/${locallySavedUser.companyId}`);
+      setDummyData(response.data);
+
+      if (response.data.length > 0) {
+        const existingProjectId = localStorage.getItem("projectId");
+        const existingProject = response.data.find((p) => p._id === existingProjectId);
+
+        if (existingProject) {
+          setSelectedTask(existingProject);
+        } else {
           const firstProject = response.data[0];
           setSelectedTask(firstProject);
           localStorage.setItem("projectId", firstProject._id);
-          setActiveTab("Overview");
-          navigate("/employee/overview");
         }
-      } catch (err) {
-        console.error("Failed to fetch projects:", err);
+
+        setActiveTab("Overview");
+        navigate("/employee/overview");
       }
-    };
-    getAllDatas();
-  }, [isChanging]);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  getAllDatas();
+}, [isCreateOpen]);
+
 
   useEffect(() => {
     const handleBackButton = (event) => {
@@ -132,6 +141,7 @@ const EmployeeSidebar = () => {
                   if (selected) {
                     setSelectedTask(selected);
                     localStorage.setItem("projectId", selected._id);
+                    window.location.reload()
                   }
                 }}
               >

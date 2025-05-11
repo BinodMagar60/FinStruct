@@ -10,73 +10,73 @@ const initialColumns = [
     title: "TO DO",
     color: "blue",
     tasks: [
-      {
-        id: "task-1",
-        title: "Research competitors",
-        priority: "high",
-        startingDate: "2025-03-20",
-        dueDate: "2025-04-15",
-        assignees: [1, 2],
-        createdAt: "2025-03-20",
-        dependencies: [],
-        subtasks: [
-          {
-            id: "subtask-1-1",
-            title: "Identify top 5 competitors",
-            completed: true,
-          },
-          {
-            id: "subtask-1-2",
-            title: "Analyze pricing strategies",
-            completed: false,
-          },
-        ],
-        assets: [
-          { id: 1, name: "Competitor Analysis", url: "/placeholder.svg?height=200&width=400" },
-          { id: 2, name: "Market Research", url: "/placeholder.svg?height=200&width=400" },
-        ],
-        activities: [
-          {
-            type: "TaskCreated",
-            user: "System",
-            timestamp: "2025-03-20T10:00:00Z",
-            message: "Task created!",
-          },
-          {
-            type: "Commented",
-            user: "John Doe",
-            timestamp: "2025-03-21T14:30:00Z",
-            message: "Started researching top competitors in the market.",
-          },
-        ],
-        team: [
-          { id: 1, name: "John Doe", role: "Marketing Specialist", initials: "JD" },
-          { id: 2, name: "Jane Smith", role: "Market Analyst", initials: "JS" },
-        ],
-        status: "IN PROGRESS",
-      },
-      {
-        id: "task-2",
-        title: "User interviews",
-        priority: "normal",
-        startingDate: "2025-03-20",
-        dueDate: "2025-04-10",
-        assignees: [3],
-        createdAt: "2025-03-22",
-        dependencies: ["task-1"],
-        subtasks: [],
-        assets: [],
-        activities: [
-          {
-            type: "TaskCreated",
-            user: "System",
-            timestamp: "2025-03-22T10:00:00Z",
-            message: "Task created!",
-          },
-        ],
-        team: [{ id: 3, name: "Alex Johnson", role: "UX Researcher", initials: "AJ" }],
-        status: "TO DO",
-      },
+    //   {
+    //     id: "task-1",
+    //     title: "Research competitors",
+    //     priority: "high",
+    //     startingDate: "2025-03-20",
+    //     dueDate: "2025-04-15",
+    //     assignees: [1, 2],
+    //     createdAt: "2025-03-20",
+    //     dependencies: [],
+    //     subtasks: [
+    //       {
+    //         id: "subtask-1-1",
+    //         title: "Identify top 5 competitors",
+    //         completed: true,
+    //       },
+    //       {
+    //         id: "subtask-1-2",
+    //         title: "Analyze pricing strategies",
+    //         completed: false,
+    //       },
+    //     ],
+    //     assets: [
+    //       { id: 1, name: "Competitor Analysis", url: "/placeholder.svg?height=200&width=400" },
+    //       { id: 2, name: "Market Research", url: "/placeholder.svg?height=200&width=400" },
+    //     ],
+    //     activities: [
+    //       {
+    //         type: "TaskCreated",
+    //         user: "System",
+    //         timestamp: "2025-03-20T10:00:00Z",
+    //         message: "Task created!",
+    //       },
+    //       {
+    //         type: "Commented",
+    //         user: "John Doe",
+    //         timestamp: "2025-03-21T14:30:00Z",
+    //         message: "Started researching top competitors in the market.",
+    //       },
+    //     ],
+    //     team: [
+    //       { id: 1, name: "John Doe", role: "Marketing Specialist", initials: "JD" },
+    //       { id: 2, name: "Jane Smith", role: "Market Analyst", initials: "JS" },
+    //     ],
+    //     status: "IN PROGRESS",
+    //   },
+    //   {
+    //     id: "task-2",
+    //     title: "User interviews",
+    //     priority: "normal",
+    //     startingDate: "2025-03-20",
+    //     dueDate: "2025-04-10",
+    //     assignees: [3],
+    //     createdAt: "2025-03-22",
+    //     dependencies: ["task-1"],
+    //     subtasks: [],
+    //     assets: [],
+    //     activities: [
+    //       {
+    //         type: "TaskCreated",
+    //         user: "System",
+    //         timestamp: "2025-03-22T10:00:00Z",
+    //         message: "Task created!",
+    //       },
+    //     ],
+    //     team: [{ id: 3, name: "Alex Johnson", role: "UX Researcher", initials: "AJ" }],
+    //     status: "TO DO",
+    //   },
     ],
   },
   {
@@ -84,62 +84,62 @@ const initialColumns = [
     title: "IN PROGRESS",
     color: "orange",
     tasks: [
-      {
-        id: "task-3",
-        title: "Create wireframes",
-        priority: "high",
-        startingDate: "2025-03-20",
-        dueDate: "2025-04-05",
-        assignees: [2, 4],
-        createdAt: "2025-03-18",
-        dependencies: [],
-        subtasks: [
-          {
-            id: "subtask-3-1",
-            title: "Homepage design",
-            completed: true,
-          },
-          {
-            id: "subtask-3-2",
-            title: "Product page layout",
-            completed: true,
-          },
-          {
-            id: "subtask-3-3",
-            title: "Checkout flow",
-            completed: false,
-          },
-        ],
-        assets: [
-          { id: 1, name: "Homepage Wireframe", url: "/placeholder.svg?height=200&width=400" },
-          { id: 2, name: "Product Page Wireframe", url: "/placeholder.svg?height=200&width=400" },
-        ],
-        activities: [
-          {
-            type: "TaskCreated",
-            user: "System",
-            timestamp: "2025-03-18T10:00:00Z",
-            message: "Task created!",
-          },
-          {
-            type: "Commented",
-            user: "Jane Smith",
-            timestamp: "2025-03-19T14:30:00Z",
-            message: "Started working on homepage wireframes.",
-          },
-          {
-            type: "Commented",
-            user: "New User",
-            timestamp: "2025-03-20T09:15:00Z",
-            message: "Product page wireframes completed for review.",
-          },
-        ],
-        team: [
-          { id: 2, name: "Jane Smith", role: "UI Designer", initials: "JS" },
-          { id: 4, name: "New User", role: "UX Designer", initials: "NU" },
-        ],
-        status: "IN PROGRESS",
-      },
+    //   {
+    //     id: "task-3",
+    //     title: "Create wireframes",
+    //     priority: "high",
+    //     startingDate: "2025-03-20",
+    //     dueDate: "2025-04-05",
+    //     assignees: [2, 4],
+    //     createdAt: "2025-03-18",
+    //     dependencies: [],
+    //     subtasks: [
+    //       {
+    //         id: "subtask-3-1",
+    //         title: "Homepage design",
+    //         completed: true,
+    //       },
+    //       {
+    //         id: "subtask-3-2",
+    //         title: "Product page layout",
+    //         completed: true,
+    //       },
+    //       {
+    //         id: "subtask-3-3",
+    //         title: "Checkout flow",
+    //         completed: false,
+    //       },
+    //     ],
+    //     assets: [
+    //       { id: 1, name: "Homepage Wireframe", url: "/placeholder.svg?height=200&width=400" },
+    //       { id: 2, name: "Product Page Wireframe", url: "/placeholder.svg?height=200&width=400" },
+    //     ],
+    //     activities: [
+    //       {
+    //         type: "TaskCreated",
+    //         user: "System",
+    //         timestamp: "2025-03-18T10:00:00Z",
+    //         message: "Task created!",
+    //       },
+    //       {
+    //         type: "Commented",
+    //         user: "Jane Smith",
+    //         timestamp: "2025-03-19T14:30:00Z",
+    //         message: "Started working on homepage wireframes.",
+    //       },
+    //       {
+    //         type: "Commented",
+    //         user: "New User",
+    //         timestamp: "2025-03-20T09:15:00Z",
+    //         message: "Product page wireframes completed for review.",
+    //       },
+    //     ],
+    //     team: [
+    //       { id: 2, name: "Jane Smith", role: "UI Designer", initials: "JS" },
+    //       { id: 4, name: "New User", role: "UX Designer", initials: "NU" },
+    //     ],
+    //     status: "IN PROGRESS",
+    //   }
     ],
   },
   {
@@ -147,65 +147,65 @@ const initialColumns = [
     title: "COMPLETED",
     color: "green",
     tasks: [
-      {
-        id: "task-4",
-        title: "Project kickoff meeting",
-        priority: "normal",
-        startingDate: "2025-03-20",
-        dueDate: "2025-03-15",
-        assignees: [1, 2, 3, 4],
-        createdAt: "2025-03-10",
-        dependencies: [],
-        subtasks: [
-          {
-            id: "subtask-4-1",
-            title: "Prepare agenda",
-            completed: true,
-          },
-          {
-            id: "subtask-4-2",
-            title: "Send invites",
-            completed: true,
-          },
-        ],
-        assets: [
-          { id: 1, name: "Meeting Agenda", url: "/placeholder.svg?height=200&width=400" },
-          { id: 2, name: "Project Timeline", url: "/placeholder.svg?height=200&width=400" },
-        ],
-        activities: [
-          {
-            type: "TaskCreated",
-            user: "System",
-            timestamp: "2025-03-10T10:00:00Z",
-            message: "Task created!",
-          },
-          {
-            type: "Commented",
-            user: "Alex Johnson",
-            timestamp: "2025-03-12T14:30:00Z",
-            message: "Agenda has been prepared for the kickoff meeting.",
-          },
-          {
-            type: "Commented",
-            user: "Emily Wilson",
-            timestamp: "2025-03-14T09:15:00Z",
-            message: "Meeting invites have been sent to all stakeholders.",
-          },
-          {
-            type: "Completed",
-            user: "John Doe",
-            timestamp: "2025-03-15T16:00:00Z",
-            message: "Meeting completed successfully.",
-          },
-        ],
-        team: [
-          { id: 1, name: "John Doe", role: "Project Manager", initials: "JD" },
-          { id: 2, name: "Jane Smith", role: "Business Analyst", initials: "JS" },
-          { id: 3, name: "Alex Johnson", role: "Developer", initials: "AJ" },
-          { id: 4, name: "New User", role: "Designer", initials: "NU" },
-        ],
-        status: "COMPLETED",
-      },
+      // {
+      //   id: "task-4",
+      //   title: "Project kickoff meeting",
+      //   priority: "normal",
+      //   startingDate: "2025-03-20",
+      //   dueDate: "2025-03-15",
+      //   assignees: [1, 2, 3, 4],
+      //   createdAt: "2025-03-10",
+      //   dependencies: [],
+      //   subtasks: [
+      //     {
+      //       id: "subtask-4-1",
+      //       title: "Prepare agenda",
+      //       completed: true,
+      //     },
+      //     {
+      //       id: "subtask-4-2",
+      //       title: "Send invites",
+      //       completed: true,
+      //     },
+      //   ],
+      //   assets: [
+      //     { id: 1, name: "Meeting Agenda", url: "/placeholder.svg?height=200&width=400" },
+      //     { id: 2, name: "Project Timeline", url: "/placeholder.svg?height=200&width=400" },
+      //   ],
+      //   activities: [
+      //     {
+      //       type: "TaskCreated",
+      //       user: "System",
+      //       timestamp: "2025-03-10T10:00:00Z",
+      //       message: "Task created!",
+      //     },
+      //     {
+      //       type: "Commented",
+      //       user: "Alex Johnson",
+      //       timestamp: "2025-03-12T14:30:00Z",
+      //       message: "Agenda has been prepared for the kickoff meeting.",
+      //     },
+      //     {
+      //       type: "Commented",
+      //       user: "Emily Wilson",
+      //       timestamp: "2025-03-14T09:15:00Z",
+      //       message: "Meeting invites have been sent to all stakeholders.",
+      //     },
+      //     {
+      //       type: "Completed",
+      //       user: "John Doe",
+      //       timestamp: "2025-03-15T16:00:00Z",
+      //       message: "Meeting completed successfully.",
+      //     },
+      //   ],
+      //   team: [
+      //     { id: 1, name: "John Doe", role: "Project Manager", initials: "JD" },
+      //     { id: 2, name: "Jane Smith", role: "Business Analyst", initials: "JS" },
+      //     { id: 3, name: "Alex Johnson", role: "Developer", initials: "AJ" },
+      //     { id: 4, name: "New User", role: "Designer", initials: "NU" },
+      //   ],
+      //   status: "COMPLETED",
+      // },
     ],
   },
   {
