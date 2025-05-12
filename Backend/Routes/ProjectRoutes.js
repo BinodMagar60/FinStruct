@@ -587,7 +587,11 @@ router.get('/tasks/taskdetails/:id', async (req, res) => {
         timestamp: act.timestamp,
         message: act.message
       })),
-      assets: task.assets,
+      assets: task.assets.map(as => ({
+        id: as._id,
+        name: as.name,
+        url: as.url
+      })),
       subtasks: task.subtasks.map(st => ({
         id: st.id,
         title: st.title,
@@ -609,6 +613,70 @@ router.get('/tasks/taskdetails/:id', async (req, res) => {
   }
 });
 
+
+
+//add image as assets 
+router.post('/tasks/addasset/:taskId', async (req, res) => {
+  const { taskId } = req.params;
+  const { asset, newActivity } = req.body;
+  const imgdata = asset
+  const activities = newActivity
+  if (!imgdata || !imgdata.name || !imgdata.url || !activities || !activities.message || !activities.user) {
+    return res.status(400).json({ message: 'Missing required data.' });
+  }
+
+  try {
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found.' });
+    }
+    task.assets.push({
+      name: imgdata.name,
+      url: imgdata.url
+    });
+
+    // Add the activity
+    task.activities.push({
+      type: activities.type,
+      user: activities.user,
+      message: activities.message,
+      timestamp: activities.timestamp || new Date()
+    });
+
+    await task.save();
+    res.status(200).json({ message: 'Asset and activity added successfully.', task });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error.' });
+  }
+});
+
+
+
+// delete assets
+router.delete('/tasks/:taskId/delete-asset/:assetId', async (req, res) => {
+  const { taskId, assetId } = req.params;
+
+  try {
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found.' });
+    }
+
+    const assetIndex = task.assets.findIndex(asset => asset._id.toString() === assetId);
+    if (assetIndex === -1) {
+      return res.status(404).json({ message: 'Asset not found in task.' });
+    }
+
+    task.assets.splice(assetIndex, 1);
+    await task.save();
+
+    res.status(200).json({ message: 'Asset deleted successfully.', task });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error.' });
+  }
+});
 
 
 

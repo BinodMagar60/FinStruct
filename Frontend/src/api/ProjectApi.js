@@ -155,7 +155,7 @@ export const updateSubTaskBackend = async (route, updates, user) => {
 export const addComments = async (route, data) => {
   try {
     const response = await axios.post(BackendURI + route, data);
-    console.log(response)
+    // console.log(response)
     return response;
   } catch (error) {
     return error.response?.data;
@@ -175,6 +175,28 @@ export const getTaskDetailsForDetailsSection = async(route) => {
 };
 
 
+//add image as assets
+export const addImgAsAssets = async (route, data) => {
+  try {
+    const response = await axios.post(BackendURI + route, data);
+    // console.log(response)
+    return response;
+  } catch (error) {
+    return error.response?.data;
+  }
+};
+
+
+//delete Assets 
+export const deleteAssetsBackend = async (route) => {
+  try {
+    const response = await axios.delete(BackendURI+route);
+    return response.data;
+  } catch (err) {
+    return err.response?.data || { message: "Unknown error" };
+  }
+  
+};
 
 
 //************************ END ************************

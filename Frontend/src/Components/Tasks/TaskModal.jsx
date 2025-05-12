@@ -167,9 +167,12 @@ const TaskModal = () => {
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
               >
                 {columns.map((column) => (
-                  <option key={column.id} value={column.id}>
+                    column.title !== 'COMPLETED' &&  (
+                      <option key={column.id} value={column.id}>
                     {column.title}
                   </option>
+                    )
+                  
                 ))}
               </select>
             </div>

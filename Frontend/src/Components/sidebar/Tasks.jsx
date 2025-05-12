@@ -41,7 +41,7 @@ const TasksContent = () => {
               <h1 className="text-2xl font-bold">{selectedTaskData.task.title}</h1>
               <button
                 onClick={closeTaskDetail}
-                className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 flex items-center"
+                className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 flex items-center"
               >
                 ← Back to Tasks
               </button>

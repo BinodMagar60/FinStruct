@@ -116,8 +116,6 @@ export function TaskProvider({ children }) {
       status: task.stage === "todo"? "TO DO": task.stage === "inprogress"? "IN PROGRESS": task.stage === "completed"? "COMPLETED": "ON HOLD",
     }
 
-    console.log(newTask)
-
     try{
       await addNewTask(`projects/tasks/task/${locallySavedProject}`,newTask)
       setChange(prev => !prev)
