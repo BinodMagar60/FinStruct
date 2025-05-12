@@ -80,6 +80,101 @@ export const getAllTasksBackend = async(route) => {
 }
 
 
+//Update Task
+export const updateTheTaskBackend  = async(route, data) => {
+    try{
+        const response = await axios.put(BackendURI+route, data)
+        // console.log(response.data)
+        return response.data
+    }
+    catch(err){
+        return err.response.data
+    }
+}
+
+
+//delete tasks
+export const deleteTaskFromBackend = async(route) => {
+    try{
+        const response = await axios.delete(BackendURI+route)
+        // console.log(response.data)
+        return response.data
+    }
+    catch(err){
+        return err.response.data
+    }
+}
+
+
+//adding Subtask 
+export const addNewSubTask = async (route, data, activity) => {
+  try {
+    const response = await axios.post(BackendURI + route, {
+      ...data,
+      activity, 
+    });
+    return response.data;
+  } catch (err) {
+    return err.response.data;
+  }
+};
+
+
+
+//deleting subtask
+export const deleteSubtaskBackend = async (taskId, subtaskId, user) => {
+  try {
+    const response = await axios.delete(`${BackendURI}projects/tasks/subtask/${taskId}/${subtaskId}`, {
+      data: { user },
+    });
+    return response.data;
+  } catch (err) {
+    return err.response?.data || { message: "Unknown error" };
+  }
+  
+};
+
+
+
+//updating subtask
+export const updateSubTaskBackend = async (route, updates, user) => {
+  try {
+    const response = await axios.put(BackendURI + route, {
+      ...updates,
+      user,
+    });
+    return response;
+  } catch (error) {
+    return error.response?.data || { message: 'Unknown error' };
+  }
+};
+
+
+
+//add comments 
+export const addComments = async (route, data) => {
+  try {
+    const response = await axios.post(BackendURI + route, data);
+    console.log(response)
+    return response;
+  } catch (error) {
+    return error.response?.data;
+  }
+};
+
+
+//get task details for taskDetails section
+export const getTaskDetailsForDetailsSection = async(route) => {
+  try {
+    const response = await axios.get(BackendURI + route);
+    // console.log(response)
+    return response.data;
+  } catch (error) {
+    return error.response?.data;
+  }
+};
+
+
 
 
 //************************ END ************************

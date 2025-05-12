@@ -12,13 +12,21 @@ import {
   Plus,
   X,
   Upload,
-  UserPlus,
   Trash2,
 } from "lucide-react"
 import { useTaskContext } from "../../context/taskContext"
+import { addComments, getTaskDetailsForDetailsSection } from "../../api/ProjectApi";
+import Loading from '../sidebar/Loading'
+import { formatDateToReadable } from "../../utils/formateDates";
 
-const TaskDetail = ({ task, columnId }) => {
+const TaskDetail = ({ tasks, columnId }) => {
+  const locallySavedUser = JSON.parse(localStorage.getItem("userDetails"));
   const { updateTaskDetails, updateSubtask, deleteSubtask } = useTaskContext()
+  const [task, setTask] = useState()
+  const [change, setChange] = useState(false)
+  const [isLoading, setLoading] = useState(true)
+  
+
   const [activeTab, setActiveTab] = useState("detail")
   const [commentText, setCommentText] = useState("")
   const [activityStatus, setActivityStatus] = useState({
@@ -29,7 +37,7 @@ const TaskDetail = ({ task, columnId }) => {
   })
 
   // State for assets - initialize from task data if available
-  const [assets, setAssets] = useState(task?.assets || [])
+  const [assets, setAssets] = useState([])
 
   // State for new asset
   const [newAsset, setNewAsset] = useState({ name: "", url: "" })
@@ -39,7 +47,7 @@ const TaskDetail = ({ task, columnId }) => {
   const [isDragging, setIsDragging] = useState(false)
 
   // State for team members - initialize from task data if available
-  const [team, setTeam] = useState(task?.team || [])
+  const [team, setTeam] = useState([])
 
   // State for new team member
   const [newTeamMember, setNewTeamMember] = useState({ name: "", role: "", initials: "" })
@@ -49,13 +57,39 @@ const TaskDetail = ({ task, columnId }) => {
   const [showTeamForm, setShowTeamForm] = useState(false)
 
   // State for activities - initialize from task data if available
-  const [activities, setActivities] = useState(task?.activities || [])
+  const [activities, setActivities] = useState([])
 
   // Task status tracking
   const [taskStatus, setTaskStatus] = useState({
     isStarted: task?.status === "IN PROGRESS",
     isCompleted: task?.status === "COMPLETED",
   })
+
+
+
+  useEffect(()=> {
+    const fetchData = async() => {
+      try{
+        const response = await getTaskDetailsForDetailsSection(`projects/tasks/taskdetails/${tasks.id}`)
+        setTask(response)
+        setAssets(response.assets)
+        setTeam(response.team)
+        setActivities(response.activities)
+      }
+      catch(error){
+        console.log(error)
+      }
+      finally{
+        setLoading(false)
+      }
+    }
+    fetchData()
+  },[assets, team, activities, taskStatus, change])
+
+ 
+
+
+
 
   // Add a ref to track if we need to update
   const isInitialMount = useRef(true)
@@ -110,17 +144,17 @@ const TaskDetail = ({ task, columnId }) => {
       // Now update the task details
       updateTaskDetails(task.id, updates)
     }
-  }, [assets, team, activities, taskStatus, task.id, columnId])
+  }, [assets, team, activities, taskStatus, change, columnId])
 
   // Check if task is started or completed based on activities
   useEffect(() => {
     const isStarted = activities.some((activity) => activity.type === "Started") || activities.length > 0
     const isCompleted = activities.some((activity) => activity.type === "Completed")
-
     setTaskStatus({
       isStarted,
       isCompleted,
     })
+    
 
     // Disable Started checkbox if task is already started
     if (isStarted) {
@@ -155,6 +189,7 @@ const TaskDetail = ({ task, columnId }) => {
     setActivityStatus(newActivityStatus)
   }
 
+  //adding comment
   const handleSubmitComment = (e) => {
     e.preventDefault()
 
@@ -174,34 +209,26 @@ const TaskDetail = ({ task, columnId }) => {
       // Create new activity
       const newActivity = {
         type: activityType,
-        user: "Current User", // In a real app, this would be the logged-in user
+        user: locallySavedUser.username,
         timestamp: new Date().toISOString(),
-        message: commentText.trim() || getDefaultMessage(activityType),
+        message: commentText.trim(),
       }
 
-      // Add this comment in the handleSubmitComment function, right before setActivities
-      // API call to add a comment or activity
-      // Example:
-      // const addActivityOnServer = async (taskId, activityData) => {
-      //   try {
-      //     const response = await fetch(`/api/tasks/${taskId}/activities`, {
-      //       method: 'POST',
-      //       headers: { 'Content-Type': 'application/json' },
-      //       body: JSON.stringify(activityData)
-      //     });
-      //     const data = await response.json();
-      //     // Update activities with the returned data
-      //     setActivities((prev) => [data, ...prev]);
-      //   } catch (error) {
-      //     console.error('Error adding activity:', error);
-      //   }
-      // };
-      // addActivityOnServer(task.id, newActivity);
+      const addActivityOnServer = async (taskId, activityData) => {
+        try {
+          const response = await addComments(`projects/tasks/activity/${taskId}`, activityData)
+        } catch (error) {
+          console.error('Error adding activity:', error);
+        }
+        finally{
+       
 
-      // Add to activities at the beginning of the array
-      setActivities((prev) => [newActivity, ...prev])
+        }
+      };
+      addActivityOnServer(task.id, newActivity);
 
-      // Reset form
+      // setActivities((prev) => [newActivity, ...prev])
+
       setCommentText("")
       setActivityStatus({
         Commented: false,
@@ -315,13 +342,13 @@ const TaskDetail = ({ task, columnId }) => {
       // Add activity for asset addition
       const newActivity = {
         type: "Commented",
-        user: "Current User",
+        user: locallySavedUser.username,
         timestamp: new Date().toISOString(),
         message: `Added new asset: ${newAsset.name}`,
       }
 
       setActivities((prev) => [newActivity, ...prev])
-
+      
       // Reset form
       setNewAsset({ name: "", url: "" })
       setUploadPreview(null)
@@ -350,105 +377,6 @@ const TaskDetail = ({ task, columnId }) => {
     }
   }
 
-  // Handle adding a new team member
-  const handleAddTeamMember = (e) => {
-    e.preventDefault()
-
-    if (newTeamMember.name.trim() && newTeamMember.role.trim()) {
-      // Generate initials if not provided
-      const initials =
-        newTeamMember.initials.trim() ||
-        newTeamMember.name
-          .split(" ")
-          .map((n) => n[0])
-          .join("")
-          .toUpperCase()
-
-      // Add new team member
-      const member = {
-        id: team.length + 1,
-        name: newTeamMember.name,
-        role: newTeamMember.role,
-        initials: initials,
-      }
-
-      // Add this comment in the handleAddTeamMember function, right before setTeam
-      // API call to add a team member
-      // Example:
-      // const addTeamMemberOnServer = async (taskId, memberData) => {
-      //   try {
-      //     const response = await fetch(`/api/tasks/${taskId}/team`, {
-      //       method: 'POST',
-      //       headers: { 'Content-Type': 'application/json' },
-      //       body: JSON.stringify(memberData)
-      //     });
-      //     const data = await response.json();
-      //     // Update team with the returned data
-      //     setTeam((prev) => [...prev, data]);
-      //   } catch (error) {
-      //     console.error('Error adding team member:', error);
-      //   }
-      // };
-      // addTeamMemberOnServer(task.id, member);
-
-      setTeam((prev) => [...prev, member])
-
-      // Add activity for team member addition
-      const newActivity = {
-        type: "Commented",
-        user: "Current User",
-        timestamp: new Date().toISOString(),
-        message: `Added ${newTeamMember.name} (${newTeamMember.role}) to the team`,
-      }
-
-      setActivities((prev) => [newActivity, ...prev])
-
-      // Reset form
-      setNewTeamMember({ name: "", role: "", initials: "" })
-      setShowTeamForm(false)
-    }
-  }
-
-  // Handle removing a team member
-  const handleRemoveTeamMember = (memberId) => {
-    // Get member name before removal
-    const memberToRemove = team.find((member) => member.id === memberId)
-
-    // Remove team member
-    setTeam((prev) => prev.filter((member) => member.id !== memberId))
-
-    // Add activity for team member removal
-    if (memberToRemove) {
-      const newActivity = {
-        type: "Commented",
-        user: "Current User",
-        timestamp: new Date().toISOString(),
-        message: `Removed ${memberToRemove.name} from the team`,
-      }
-
-      setActivities((prev) => [newActivity, ...prev])
-    }
-  }
-
-  // Get default message for activity type
-  const getDefaultMessage = (type) => {
-    switch (type) {
-      case "TaskCreated":
-        return "Task created"
-      case "Commented":
-        return "Added a comment to the task"
-      case "Inspection":
-        return "Meeting inspection conducted"
-      case "MaterialDelivery":
-        return "Materials delivered for meeting"
-      case "SafetyConcern":
-        return "Issue reported"
-      case "Completed":
-        return "Meeting completed successfully"
-      default:
-        return "Update on meeting preparation"
-    }
-  }
 
   const getActivityIcon = (type) => {
     switch (type?.toLowerCase()) {
@@ -514,24 +442,27 @@ const TaskDetail = ({ task, columnId }) => {
   }
 
   const formatDate = (dateString) => {
-    if (!dateString) return "unknown date"
+  if (!dateString) return "unknown date";
 
-    try {
-      const date = new Date(dateString)
-      const now = new Date()
-      const diffTime = Math.abs(now - date)
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date)) return "invalid date";
 
-      if (diffDays < 1) return "today"
-      if (diffDays === 1) return "yesterday"
-      if (diffDays < 7) return `${diffDays} days ago`
-      if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`
-      if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`
-      return `${Math.floor(diffDays / 365)} years ago`
-    } catch (e) {
-      return "invalid date"
-    }
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'long' }); 
+    const year = date.getFullYear();
+
+    let hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12; 
+
+    return `${day} ${month}, ${year} (${hours}:${minutes} ${ampm})`;
+  } catch (e) {
+    return "invalid date";
   }
+};
+
 
   // Sort activities by timestamp (newest first)
   const sortedActivities = [...activities].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
@@ -567,11 +498,12 @@ const TaskDetail = ({ task, columnId }) => {
   }
 
   return (
-    <div className="p-6">
-      <div className="container mx-auto p-4 bg-white pb-8 rounded">
-        {/* Task title is now displayed in the parent component */}
-
-        {/* Tabs - Single set of tabs at the top level */}
+    <>
+    {
+      isLoading? <Loading/> : (
+        <div>
+      <div className="container mx-auto p-4 bg-white rounded">
+        
         <div className="flex border-b mb-6 border-gray-200">
           <button
             className={`flex items-center px-4 py-2 ${activeTab === "detail" ? "border-b-2 border-black text-black shadow-inner" : "text-gray-600"}`}
@@ -591,7 +523,7 @@ const TaskDetail = ({ task, columnId }) => {
 
         {/* Task Detail Tab */}
         {activeTab === "detail" && (
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-white rounded-lg">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center">
                 <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full flex items-center">
@@ -626,59 +558,6 @@ const TaskDetail = ({ task, columnId }) => {
                 <h3 className="text-gray-500 font-medium">TASK TEAM</h3>
               </div>
 
-              {/* Add Team Member Form */}
-              {showTeamForm && !taskStatus.isCompleted && (
-                <form onSubmit={handleAddTeamMember} className="bg-gray-50 p-4 rounded-md mb-4 border border-gray-200">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label htmlFor="memberName" className="block text-sm font-medium text-gray-700 mb-1">
-                        Name
-                      </label>
-                      <input
-                        type="text"
-                        id="memberName"
-                        value={newTeamMember.name}
-                        onChange={(e) => setNewTeamMember({ ...newTeamMember, name: e.target.value })}
-                        className="w-full p-2 border rounded-md"
-                        placeholder="John Doe"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="memberRole" className="block text-sm font-medium text-gray-700 mb-1">
-                        Role
-                      </label>
-                      <input
-                        type="text"
-                        id="memberRole"
-                        value={newTeamMember.role}
-                        onChange={(e) => setNewTeamMember({ ...newTeamMember, role: e.target.value })}
-                        className="w-full p-2 border rounded-md"
-                        placeholder="Project Manager"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="memberInitials" className="block text-sm font-medium text-gray-700 mb-1">
-                        Initials (Optional)
-                      </label>
-                      <input
-                        type="text"
-                        id="memberInitials"
-                        value={newTeamMember.initials}
-                        onChange={(e) => setNewTeamMember({ ...newTeamMember, initials: e.target.value })}
-                        className="w-full p-2 border rounded-md"
-                        placeholder="JD"
-                        maxLength={2}
-                      />
-                    </div>
-                  </div>
-                  <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-                    Add Team Member
-                  </button>
-                </form>
-              )}
-
               {/* Team Members List */}
               <div className="space-y-4">
                 {team.map((member) => (
@@ -692,15 +571,7 @@ const TaskDetail = ({ task, columnId }) => {
                         <div className="text-gray-500 text-sm">{member.role}</div>
                       </div>
                     </div>
-                    {!taskStatus.isCompleted && (
-                      <button
-                        onClick={() => handleRemoveTeamMember(member.id)}
-                        className="text-red-500 hover:text-red-700"
-                        title="Remove team member"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
+                    
                   </div>
                 ))}
 
@@ -727,18 +598,20 @@ const TaskDetail = ({ task, columnId }) => {
                           />
                         </div>
                         <div>
-                          <div className="text-gray-500">{new Date(task.createdAt).toLocaleDateString()}</div>
-                          <div
-                            className={`text-gray-700 font-medium ${subTask.completed ? "line-through text-gray-400" : ""}`}
+                          <div className="flex justify-center">
+                            <div
+                            className={`text-gray-700 text-md font-medium ${subTask.completed ? "line-through text-gray-400" : ""}`}
                           >
                             {subTask.title}
-                            {subTask.isMainSubtask && (
-                              <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                          </div>
+                          {subTask.isMainSubtask && (
+                              <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 pt-1 rounded-full decoration-none" >
                                 Main
                               </span>
                             )}
                           </div>
                           {subTask.description && <div className="text-gray-600">{subTask.description}</div>}
+                          <div className="text-gray-500 text-sm">{formatDateToReadable(task.createdAt)}</div>
                         </div>
                       </div>
                       {!subTask.isMainSubtask ? (
@@ -750,7 +623,7 @@ const TaskDetail = ({ task, columnId }) => {
                           <Trash2 className="w-4 h-4" />
                         </button>
                       ) : (
-                        <div className="text-gray-400 mt-1 text-xs italic">Cannot delete</div>
+                        ""
                       )}
                     </div>
                   ))}
@@ -764,7 +637,7 @@ const TaskDetail = ({ task, columnId }) => {
             <div>
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-gray-700 font-medium">ASSETS</h3>
-                {!taskStatus.isCompleted && (
+                
                   <button
                     onClick={() => setShowAssetForm(!showAssetForm)}
                     className="text-blue-500 hover:text-blue-700 flex items-center text-sm"
@@ -781,11 +654,11 @@ const TaskDetail = ({ task, columnId }) => {
                       </>
                     )}
                   </button>
-                )}
+                
               </div>
 
               {/* Add Asset Form */}
-              {showAssetForm && !taskStatus.isCompleted && (
+              {showAssetForm && (
                 <div className="bg-gray-50 p-4 rounded-md mb-4 border border-gray-200">
                   <form onSubmit={handleAddAsset} className="mb-4">
                     <div className="mb-4">
@@ -918,7 +791,7 @@ const TaskDetail = ({ task, columnId }) => {
 
         {/* Timeline Tab - Side by side layout */}
         {activeTab === "timeline" && (
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-white rounded-lg">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-gray-700 font-medium">Activities & Timeline</h3>
               {!taskStatus.isCompleted && (
@@ -973,22 +846,6 @@ const TaskDetail = ({ task, columnId }) => {
                       </div>
                     </div>
                   ))}
-
-                  {/* If task is completed, show completion message */}
-                  {taskStatus.isCompleted && (
-                    <div className="relative flex items-start">
-                      <div className="absolute left-6 w-3 h-3 rounded-full bg-green-500 transform -translate-x-1.5 mt-1.5 z-10 ring-4 ring-white"></div>
-                      <div className="ml-12 bg-green-500 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
-                        <CheckCircle className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="ml-4 flex-1">
-                        <div className="p-3 bg-green-50 rounded-md border border-green-200">
-                          <div className="text-green-700 font-medium">Task completed</div>
-                          <div className="text-sm text-green-600">No further updates can be made</div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -1064,14 +921,15 @@ const TaskDetail = ({ task, columnId }) => {
 
                     <form onSubmit={handleSubmitComment} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                       <textarea
-                        className="w-full border rounded-md p-3 mb-4 h-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-gray-300 rounded-md p-3 mb-4 h-32 focus:outline-none"
                         placeholder="Add details about the meeting update..."
                         value={commentText}
                         onChange={(e) => setCommentText(e.target.value)}
+                        required
                       ></textarea>
                       <button
                         type="submit"
-                        className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors"
+                        className="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800 transition-colors"
                       >
                         Submit Update
                       </button>
@@ -1084,6 +942,9 @@ const TaskDetail = ({ task, columnId }) => {
         )}
       </div>
     </div>
+      )
+    }
+    </>
   )
 }
 

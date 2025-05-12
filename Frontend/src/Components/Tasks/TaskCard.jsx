@@ -3,6 +3,7 @@ import { useDrag } from "react-dnd"
 import { MoreHorizontal, MessageSquare, Paperclip, CheckSquare, Plus } from "lucide-react"
 import TaskMenu from "./TaskMenu"
 import { useTaskContext } from "../../context/taskContext"
+import { formatDateToReadable } from "../../utils/formateDates"
 
 const TaskCard = ({ task, columnId }) => {
   const { handleEditTask, handleDeleteTask, addSubtask, users, setIsModalOpen, openTaskDetail, updateSubtask } =
@@ -19,7 +20,7 @@ const TaskCard = ({ task, columnId }) => {
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
-    // Disable dragging for completed tasks
+ 
     canDrag: () => columnId !== "completed",
   })
 
@@ -29,7 +30,7 @@ const TaskCard = ({ task, columnId }) => {
   }
 
   const handleEdit = () => {
-    // Only allow editing if the task is not in the completed column
+
     if (columnId !== "completed") {
       handleEditTask(task, columnId)
       setIsModalOpen(true)
@@ -49,7 +50,6 @@ const TaskCard = ({ task, columnId }) => {
   const toggleSubtaskForm = (e) => {
     e.stopPropagation()
     setShowSubtaskForm(!showSubtaskForm)
-    // Focus on the input field when showing the form
     if (!showSubtaskForm) {
       setTimeout(() => {
         if (subtaskInputRef.current) {
@@ -62,14 +62,10 @@ const TaskCard = ({ task, columnId }) => {
   const submitSubtask = (e) => {
     e.preventDefault()
     if (subtaskTitle.trim()) {
-      // Call the parent function to add the subtask
       addSubtask(task.id, columnId, {
         title: subtaskTitle,
         completed: false,
-        id: Date.now().toString(), // Generate a temporary ID
       })
-
-      // Reset form
       setSubtaskTitle("")
       setShowSubtaskForm(false)
     }
@@ -83,31 +79,20 @@ const TaskCard = ({ task, columnId }) => {
 
   // Handle subtask checkbox change
   const handleSubtaskChange = (e, subtaskId) => {
-    e.stopPropagation() // Prevent opening task detail
+    e.stopPropagation()
 
-    // Get the subtask
     const subtask = task.subtasks.find((s) => s.id === subtaskId)
 
-    // If this is the main subtask and the task is in the completed column,
-    // and we're trying to uncheck it, we should prevent this if it's the only subtask
     if (subtask && subtask.isMainSubtask && columnId === "completed" && !e.target.checked) {
-      // Check if this is the only completed subtask
       const completedSubtasks = task.subtasks.filter((s) => s.completed)
       if (completedSubtasks.length === 1 && completedSubtasks[0].id === subtaskId) {
-        // This would cause the task to move back to TO DO, but we'll allow it
-        // We just want to make sure the user knows this is the main subtask
-        // No need to prevent the action
       }
     }
-
-    // Update the subtask status
     updateSubtask(task.id, columnId, subtaskId, { completed: e.target.checked })
   }
 
-  // Find assigned users
   const assignedUsers = task.assignees ? users.filter((user) => task.assignees.includes(user.id)) : []
 
-  // Calculate subtask completion stats
   const totalSubtasks = task.subtasks ? task.subtasks.length : 0
   const completedSubtasks = task.subtasks ? task.subtasks.filter((subtask) => subtask.completed).length : 0
 
@@ -154,7 +139,7 @@ const TaskCard = ({ task, columnId }) => {
         </div>
 
         {task.dueDate && (
-          <div className="text-gray-500 text-xs mt-2">Due Date: {new Date(task.dueDate).toLocaleDateString()}</div>
+          <div className="text-gray-500 text-xs mt-2">Due Date: {formatDateToReadable(task.dueDate)}</div>
         )}
 
         {task.subtasks && task.subtasks.length > 0 && (

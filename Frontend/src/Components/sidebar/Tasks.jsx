@@ -46,7 +46,7 @@ const TasksContent = () => {
                 ← Back to Tasks
               </button>
             </div>
-            <TaskDetail task={selectedTaskData.task} columnId={selectedTaskData.columnId} />
+            <TaskDetail tasks={selectedTaskData.task} columnId={selectedTaskData.columnId} />
           </div>
         ) : (
           <>

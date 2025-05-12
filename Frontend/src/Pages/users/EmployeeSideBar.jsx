@@ -52,7 +52,7 @@ const EmployeeSidebar = () => {
   };
 
   getAllDatas();
-}, [isCreateOpen]);
+}, []);
 
 
   useEffect(() => {

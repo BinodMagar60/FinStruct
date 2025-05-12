@@ -72,16 +72,15 @@ const TaskModal = () => {
     if (modalMode === "add") {
       handleAddTask(formData)
     } else {
-      // When updating, make sure we update the main subtask title if it exists
+      
       if (currentTask && currentTask.subtasks) {
         const mainSubtask = currentTask.subtasks.find((s) => s.isMainSubtask)
         if (mainSubtask) {
-          // Update the main subtask title to match the new task title
+          
           const updatedSubtasks = currentTask.subtasks.map((s) =>
             s.isMainSubtask ? { ...s, title: formData.title } : s,
           )
 
-          // Include the updated subtasks in the form data
           handleUpdateTask({
             ...formData,
             subtasks: updatedSubtasks,
@@ -89,8 +88,6 @@ const TaskModal = () => {
           return
         }
       }
-
-      // If no main subtask exists, just update normally
       handleUpdateTask(formData)
     }
   }
@@ -115,7 +112,8 @@ const TaskModal = () => {
               name="title"
               value={formData.title}
               onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled = {modalMode === "edit"}
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
               placeholder="Task Title"
               required
             />
@@ -166,7 +164,7 @@ const TaskModal = () => {
                 name="stage"
                 value={formData.stage}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
               >
                 {columns.map((column) => (
                   <option key={column.id} value={column.id}>
@@ -184,7 +182,7 @@ const TaskModal = () => {
                   name="startingDate"
                   value={formData.startingDate}
                   onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
                 />
               </div>
             </div>
@@ -199,7 +197,7 @@ const TaskModal = () => {
                   name="dueDate"
                   value={formData.dueDate}
                   onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
                 />
               </div>
             </div>
@@ -210,7 +208,7 @@ const TaskModal = () => {
                 name="priority"
                 value={formData.priority}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none  "
               >
                 <option value="normal">NORMAL</option>
                 <option value="high">HIGH</option>
