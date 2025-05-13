@@ -3,6 +3,7 @@ import { Gantt, ViewMode } from "gantt-task-react"
 import "gantt-task-react/dist/index.css"
 import WarningModal from "./WarningModal"
 import { useTaskContext } from "../../context/taskContext"
+import { updateTheTaskBackendOnMovedGanttChart, updateTheTaskBackendOnMovedGanttChartDependencies } from "../../api/ProjectApi"
 
 const ChartView = () => {
   const { columns, updateColumns } = useTaskContext()
@@ -12,12 +13,8 @@ const ChartView = () => {
   const [warningMessage, setWarningMessage] = useState("")
   const [tasks, setTasks] = useState([])
   const [changeHistory, setChangeHistory] = useState([])
-
-  // Store the previous valid state to revert to
   const [previousValidState, setPreviousValidState] = useState([])
-  // Flag to indicate if we should revert on warning close
   const shouldRevertRef = useRef(false)
-  // Ref to store previous columns for comparison
   const prevColumnsRef = useRef(null)
 
   const sortBoardByCreationDate = useCallback((board) => {
@@ -132,7 +129,6 @@ const ChartView = () => {
       updatedTask.dependencies.forEach((depId) => {
         const parentTask = allTasks.find((t) => t.id === depId)
         if (parentTask) {
-          // Check if the task starts before its dependency STARTS (not ends)
           if (updatedTask.start < parentTask.start) {
             invalidDeps.push(
               `Task "${updatedTask.name}" cannot start before its dependency "${parentTask.name}" has started.`,
@@ -167,14 +163,11 @@ const ChartView = () => {
   // Function to validate all dependencies in the task list
   const validateAllDependencies = useCallback((taskList) => {
     const allErrors = []
-
-    // Check each task against its dependencies
     taskList.forEach((task) => {
       if (task.dependencies && task.dependencies.length > 0) {
         task.dependencies.forEach((depId) => {
           const parentTask = taskList.find((t) => t.id === depId)
           if (parentTask) {
-            // Check if the task starts before its dependency starts
             if (task.start < parentTask.start) {
               allErrors.push(`Task "${task.name}" cannot start before its dependency "${parentTask.name}" has started.`)
             }
@@ -197,20 +190,13 @@ const ChartView = () => {
 
   const syncTasksWithContext = useCallback(
     (updatedTasks) => {
-      // Create a deep copy to avoid direct mutation
       const updatedColumns = JSON.parse(JSON.stringify(columns))
       let hasChanges = false
-
-      // Process each updated task
       updatedTasks.forEach((chartTask) => {
-        // Find the task in the columns data structure
         for (const column of updatedColumns) {
           const taskIndex = column.tasks.findIndex((task) => task.id === chartTask.id)
           if (taskIndex !== -1) {
-            // Found the task, update its properties
             const currentTask = column.tasks[taskIndex]
-
-            // Update dates if they exist and are valid
             if (
               chartTask.start &&
               chartTask.end &&
@@ -221,21 +207,15 @@ const ChartView = () => {
               column.tasks[taskIndex].dueDate = chartTask.end.toISOString()
               hasChanges = true
             }
-
-            // Update dependencies if they exist
             if (chartTask.dependencies !== undefined) {
               column.tasks[taskIndex].dependencies = chartTask.dependencies
               hasChanges = true
             }
-
-            // If the task has a progress value that's different, update it
             if (
               chartTask.progress !== undefined &&
               calculateProgress(currentTask) !== chartTask.progress &&
               chartTask.progress !== 100
             ) {
-              // We can't directly set progress, but we could update subtasks if needed
-              // This would require more complex logic to determine which subtasks to mark as completed
               hasChanges = true
             }
 
@@ -243,25 +223,21 @@ const ChartView = () => {
           }
         }
       })
-
-      // Only update if there are actual changes
       if (hasChanges) {
-        // API call to update task dates and dependencies in the Gantt chart
-        // Example:
-        // const updateTasksOnServer = async (updatedTasks) => {
-        //   try {
-        //     await fetch('/api/tasks/batch-update', {
-        //       method: 'PUT',
-        //       headers: { 'Content-Type': 'application/json' },
-        //       body: JSON.stringify(updatedTasks)
-        //     });
-        //     // Continue with context update after successful API call
-        //   } catch (error) {
-        //     console.error('Error updating tasks from chart:', error);
-        //   }
-        // };
-        // updateTasksOnServer(updatedTasks);
-        // Update the context with the new data
+        const updateTasksOnServer = async (updatedTasks) => {
+          try {
+            const startingDate = updatedTasks.start
+            const dueDate = updatedTasks.end
+            const newData = {
+              startingDate,
+              dueDate
+            }
+            const response = await updateTheTaskBackendOnMovedGanttChart(`projects/tasks/ganttchart/dates/${updatedTasks.id}`,newData)
+          } catch (error) {
+            console.error('Error updating tasks from chart:', error);
+          }
+        };
+        updateTasksOnServer(updatedTasks[0]);
         updateColumns(updatedColumns)
       }
     },
@@ -279,15 +255,12 @@ const ChartView = () => {
       }
 
       if (taskToUpdate.isCompleted || fromTask.isCompleted) {
-        // Store the current state before showing the warning
         setPreviousValidState([...tasks])
         shouldRevertRef.current = true
         setWarningMessage("Completed tasks cannot be modified. Your changes will be reverted.")
         setShowWarning(true)
         return
       }
-
-      // Store the current state before making changes
       setPreviousValidState([...tasks])
 
       const dependencies = taskToUpdate.dependencies || []
@@ -302,38 +275,21 @@ const ChartView = () => {
       }
 
       const updatedTasks = tasks.map((task) => (task.id === toTaskId ? updatedTask : task))
-
-      // Validate the updated dependencies
       const isValid = validateDependencies(updatedTask, updatedTasks)
-
-      // Update tasks to show the change visually
       setTasks(updatedTasks)
-
-      // Only sync with context if validation passes
       if (isValid) {
         shouldRevertRef.current = false
         setPreviousValidState(updatedTasks)
-
-        // API call to update task dependencies
-        // Example:
-        // const updateDependencyOnServer = async (taskId, dependencies) => {
-        //   try {
-        //     await fetch(`/api/tasks/${taskId}/dependencies`, {
-        //       method: 'PUT',
-        //       headers: { 'Content-Type': 'application/json' },
-        //       body: JSON.stringify({ dependencies })
-        //     });
-        //     // Continue with context update after successful API call
-        //   } catch (error) {
-        //     console.error('Error updating task dependencies:', error);
-        //   }
-        // };
-        // updateDependencyOnServer(toTaskId, newDependencies);
-        // Sync with context - this will update the main data source
+        const updateDependencyOnServer = async (taskId, dependencies) => {
+          try {
+            const response = await updateTheTaskBackendOnMovedGanttChartDependencies(taskId, dependencies)
+          } catch (error) {
+            console.error('Error updating task dependencies:', error);
+          }
+        };
+        updateDependencyOnServer(toTaskId, newDependencies);
         syncTasksWithContext([updatedTask])
       }
-
-      // Record the change in history
       const changeRecord = {
         timestamp: new Date().toISOString(),
         action: isAdding ? "ADD_DEPENDENCY" : "REMOVE_DEPENDENCY",
@@ -398,29 +354,15 @@ const ChartView = () => {
         updatedTask.end = new Date(updatedTask.start)
         updatedTask.end.setDate(updatedTask.end.getDate() + 1)
       }
-
-      // Store the current state before making changes
       setPreviousValidState([...tasks])
-
-      // Create a new array with the updated task
       const updatedTasks = tasks.map((t) => (t.id === updatedTask.id ? updatedTask : t))
-
-      // Validate dependencies for the updated task
       const isValid = validateDependencies(updatedTask, updatedTasks)
-
-      // Update tasks to show the change visually
       setTasks(updatedTasks)
-
-      // Only sync with context if validation passes
       if (isValid) {
         shouldRevertRef.current = false
         setPreviousValidState(updatedTasks)
-
-        // Sync with context - this will update the main data source
         syncTasksWithContext([updatedTask])
       }
-
-      // Record the change in history
       setChangeHistory((prev) => [
         ...prev,
         {
@@ -438,23 +380,16 @@ const ChartView = () => {
 
   // Main effect to initialize tasks and handle columns changes
   useEffect(() => {
-    // Check if columns have actually changed to avoid unnecessary updates
     const columnsJson = JSON.stringify(columns)
     if (prevColumnsRef.current === columnsJson) {
-      return // No change, skip update
+      return 
     }
-
-    // Update the ref with current columns
     prevColumnsRef.current = columnsJson
 
     const sortedTaskBoard = sortBoardByCreationDate(columns)
     const extractedTasks = extractTasks(sortedTaskBoard)
-
-    // Set tasks and store as previous valid state
     setTasks(extractedTasks)
     setPreviousValidState(extractedTasks)
-
-    // Record the initialization in history only once
     if (changeHistory.length === 0) {
       setChangeHistory([
         {
@@ -464,8 +399,6 @@ const ChartView = () => {
         },
       ])
     }
-
-    // Validate all dependencies when tasks are loaded
     setTimeout(() => {
       validateAllDependencies(extractedTasks)
     }, 500)
@@ -474,14 +407,9 @@ const ChartView = () => {
   const closeWarning = () => {
     setShowWarning(false)
     setWarningMessage("")
-
-    // If we should revert, restore the previous valid state
     if (shouldRevertRef.current) {
       setTasks(previousValidState)
       shouldRevertRef.current = false
-
-      // Also ensure the context data is in sync with our local state
-      // by extracting the task IDs and properties that need to be synced
       const tasksToSync = previousValidState.map((task) => ({
         id: task.id,
         start: task.start,
@@ -551,7 +479,10 @@ const ChartView = () => {
           />
         </div>
       ) : (
-        <p className="text-red-500">Loading tasks...</p>
+        <div className="flex flex-col items-center justify-center py-8">
+          <p className="text-gray-500 text-lg">No tasks found</p>
+          <p className="text-gray-400 text-sm mt-2">Add a new task to get started</p>
+        </div>
       )}
 
       {showWarning && (

@@ -461,8 +461,79 @@ router.delete("/tasks/subtask/:taskId/:subtaskId", async (req, res) => {
 
 
 
+//update task when moved from one to another column
+router.put('/tasks/movetask', async(req, res)=>{
+  try{
+    const {targetColumnId, taskId} = req.body
+
+    const result = await Task.findByIdAndUpdate(taskId,{
+      stage: targetColumnId,
+      status: targetColumnId === "todo"? "TO DO": targetColumnId === "inprogress"? "IN PROGRESS": targetColumnId === "completed"? "COMPLETED" : "ON HOLD"
+    },{
+      new: true
+    })
+    if(!result){
+      return res.status(404).json({message: "Task not found"})
+    }
+
+    return res.status(200).json(result)
+  }
+  catch(error){
+    return res.status(500).json({message: "Server Error"})
+  }
+})
 
 
+
+
+//update the date in gantt chart section
+router.put('/tasks/ganttchart/dates/:id', async (req, res) => {
+  const { startingDate, dueDate } = req.body;
+  const { id } = req.params;
+
+  if (!startingDate || !dueDate) {
+    return res.status(400).json({ message: 'Both startingDate and dueDate are required' });
+  }
+
+  try {
+    const updatedTask = await Task.findByIdAndUpdate(
+      id,
+      { startingDate, dueDate },
+      { new: true }
+    );
+
+    if (!updatedTask) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+
+    res.status(200).json({ message: 'Task dates updated', task: updatedTask });
+  } catch (error) {
+    console.error('Error updating task dates:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+
+
+//update the dependencies  in gantt chart section
+router.put('/tasks/ganttchart/dependencies/:id', async(req, res)=> {
+const {dependencies} = req.body
+const {id} = req.params
+
+try{
+  const updatedTask = await Task.findByIdAndUpdate(id, {dependencies: dependencies}, {new: true})
+  if(!updatedTask){
+    return res.status(404).json({message: "Task not found"})
+  }
+
+  return res.status(200).json({message:"Updated", task: updatedTask})
+}
+catch(error){
+  return res.status(500).json({message: "Server Error"})
+}
+
+})
 
 
 

@@ -1,5 +1,5 @@
   import { createContext, useContext, useEffect, useState } from "react"
-import { addNewSubTask, addNewTask, deleteSubtaskBackend, deleteTaskFromBackend, getAllAssignableUsers, getAllTasksBackend, updateSubTaskBackend, updateTheTaskBackend } from "../api/ProjectApi"
+import { addNewSubTask, addNewTask, deleteSubtaskBackend, deleteTaskFromBackend, getAllAssignableUsers, getAllTasksBackend, updateSubTaskBackend, updateTheTaskBackend, updateTheTaskBackendOnMoved } from "../api/ProjectApi"
 
 // Create the context
 const TaskContext = createContext(null)
@@ -169,21 +169,19 @@ export function TaskProvider({ children }) {
       status: columns.find((col) => col.id === targetColumnId).title,
     }
 
-    // API call to move a task between columns
-    // Example:
-    // const moveTaskOnServer = async (taskId, sourceColumnId, targetColumnId) => {
-    //   try {
-    //     await fetch(`/api/tasks/${taskId}/move`, {
-    //       method: 'PUT',
-    //       headers: { 'Content-Type': 'application/json' },
-    //       body: JSON.stringify({ sourceColumnId, targetColumnId })
-    //     });
-    //     // Continue with state update after successful API call
-    //   } catch (error) {
-    //     console.error('Error moving task:', error);
-    //   }
-    // };
-    // moveTaskOnServer(taskId, sourceColumnId, targetColumnId);
+    // console.log(targetColumnId, taskId)
+
+    const newData = {targetColumnId, taskId}
+
+    const moveTaskOnServer = async (data) => {
+      try {
+        const response  = await updateTheTaskBackendOnMoved(`projects/tasks/movetask`,data)
+        
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    moveTaskOnServer(newData);
     setColumns(
       columns.map((column) => {
         // Remove from source column

@@ -92,6 +92,47 @@ export const updateTheTaskBackend  = async(route, data) => {
     }
 }
 
+//updating task when moved to another column
+export const updateTheTaskBackendOnMoved  = async(route, data) => {
+    try{
+        const response = await axios.put(BackendURI+route, data)
+        // console.log(response.data)
+        return response.data
+    }
+    catch(err){
+        return err.response.data
+    }
+}
+
+
+//updating task when moved on ganttchart
+export const updateTheTaskBackendOnMovedGanttChart  = async(route, data) => {
+    try{
+        const response = await axios.put(BackendURI+route, data)
+        // console.log(response.data)
+        return response.data
+    }
+    catch(err){
+        return err.response.data
+    }
+}
+
+
+
+//updating task when moved on ganttchart dependencies
+export const updateTheTaskBackendOnMovedGanttChartDependencies  = async(id, dependencies) => {
+    try{
+        const response = await axios.put(`${BackendURI}projects/tasks/ganttchart/dependencies/${id}`, {dependencies})
+        // console.log(response.data)
+        return response.data
+    }
+    catch(err){
+        return err.response.data
+    }
+}
+
+
+
 
 //delete tasks
 export const deleteTaskFromBackend = async(route) => {

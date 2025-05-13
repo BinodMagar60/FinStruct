@@ -3,8 +3,16 @@ import { X, ChevronDown } from "lucide-react"
 import { useTaskContext } from "../../context/taskContext"
 
 const TaskModal = () => {
-  const { isModalOpen, currentTask, modalMode, columns, users, handleAddTask, handleUpdateTask, setIsModalOpen } =
-    useTaskContext()
+  const {
+    isModalOpen,
+    currentTask,
+    modalMode,
+    columns,
+    users,
+    handleAddTask,
+    handleUpdateTask,
+    setIsModalOpen,
+  } = useTaskContext()
 
   const [formData, setFormData] = useState({
     title: "",
@@ -17,6 +25,12 @@ const TaskModal = () => {
 
   const [showAssigneeDropdown, setShowAssigneeDropdown] = useState(false)
 
+  const formatDate = (dateString) => {
+    if (!dateString) return ""
+    const date = new Date(dateString)
+    return date.toISOString().split("T")[0]
+  }
+
   useEffect(() => {
     if (currentTask) {
       setFormData({
@@ -24,8 +38,8 @@ const TaskModal = () => {
         title: currentTask.title || "",
         assignees: currentTask.assignees || [],
         stage: currentTask.columnId || "todo",
-        dueDate: currentTask.dueDate || "",
-        startingDate: currentTask.startingDate || "",
+        dueDate: formatDate(currentTask.dueDate),
+        startingDate: formatDate(currentTask.startingDate),
         priority: currentTask.priority || "normal",
         columnId: currentTask.columnId,
         subtasks: currentTask.subtasks || [],
@@ -69,26 +83,31 @@ const TaskModal = () => {
   const handleSubmit = (e) => {
     e.preventDefault()
 
+    // convert dates to ISO before sending
+    const taskToSubmit = {
+      ...formData,
+      startingDate: new Date(formData.startingDate).toISOString(),
+      dueDate: new Date(formData.dueDate).toISOString(),
+    }
+
     if (modalMode === "add") {
-      handleAddTask(formData)
+      handleAddTask(taskToSubmit)
     } else {
-      
       if (currentTask && currentTask.subtasks) {
         const mainSubtask = currentTask.subtasks.find((s) => s.isMainSubtask)
         if (mainSubtask) {
-          
           const updatedSubtasks = currentTask.subtasks.map((s) =>
             s.isMainSubtask ? { ...s, title: formData.title } : s,
           )
 
           handleUpdateTask({
-            ...formData,
+            ...taskToSubmit,
             subtasks: updatedSubtasks,
           })
           return
         }
       }
-      handleUpdateTask(formData)
+      handleUpdateTask(taskToSubmit)
     }
   }
 
@@ -112,7 +131,7 @@ const TaskModal = () => {
               name="title"
               value={formData.title}
               onChange={handleChange}
-              disabled = {modalMode === "edit"}
+              disabled={modalMode === "edit"}
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
               placeholder="Task Title"
               required
@@ -167,42 +186,37 @@ const TaskModal = () => {
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
               >
                 {columns.map((column) => (
-                    column.title !== 'COMPLETED' &&  (
-                      <option key={column.id} value={column.id}>
-                    {column.title}
-                  </option>
-                    )
-                  
+                  column.title !== "COMPLETED" && (
+                    <option key={column.id} value={column.id}>
+                      {column.title}
+                    </option>
+                  )
                 ))}
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Starting Date</label>
-              <div className="relative">
-                <input
-                  type="date"
-                  name="startingDate"
-                  value={formData.startingDate}
-                  onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
-                />
-              </div>
+              <input
+                type="date"
+                name="startingDate"
+                value={formData.startingDate}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
-              <div className="relative">
-                <input
-                  type="date"
-                  name="dueDate"
-                  value={formData.dueDate}
-                  onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
-                />
-              </div>
+              <input
+                type="date"
+                name="dueDate"
+                value={formData.dueDate}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
+              />
             </div>
 
             <div>
@@ -211,7 +225,7 @@ const TaskModal = () => {
                 name="priority"
                 value={formData.priority}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none  "
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
               >
                 <option value="normal">NORMAL</option>
                 <option value="high">HIGH</option>
