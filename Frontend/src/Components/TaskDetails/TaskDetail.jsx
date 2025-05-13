@@ -579,9 +579,9 @@ const TaskDetail = ({ tasks, columnId }) => {
                               />
                             </div>
                             <div>
-                              <div className="flex justify-center">
+                              <div className="flex ">
                                 <div
-                                  className={`text-gray-700 text-md font-medium ${
+                                  className={`text-gray-700 text-md font-medium capitalize ${
                                     subTask.completed
                                       ? "line-through text-gray-400"
                                       : ""

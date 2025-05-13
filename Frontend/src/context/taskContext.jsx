@@ -1,12 +1,8 @@
   import { createContext, useContext, useEffect, useState } from "react"
 import { addNewSubTask, addNewTask, deleteSubtaskBackend, deleteTaskFromBackend, getAllAssignableUsers, getAllTasksBackend, updateSubTaskBackend, updateTheTaskBackend, updateTheTaskBackendOnMoved } from "../api/ProjectApi"
 
-// Create the context
 const TaskContext = createContext(null)
 
-
-
-// Create the provider component
 export function TaskProvider({ children }) {
   const locallySavedUser = JSON.parse(localStorage.getItem("userDetails"));
   const locallySavedProject = localStorage.getItem("projectId")
@@ -184,14 +180,12 @@ export function TaskProvider({ children }) {
     moveTaskOnServer(newData);
     setColumns(
       columns.map((column) => {
-        // Remove from source column
         if (column.id === sourceColumnId) {
           return {
             ...column,
             tasks: column.tasks.filter((t) => t.id !== taskId),
           }
         }
-        // Add to target column
         if (column.id === targetColumnId) {
           return {
             ...column,
@@ -257,7 +251,6 @@ export function TaskProvider({ children }) {
 };
 
 
-
   // Get all tasks across all columns
   const getAllTasks = () => {
     return columns.flatMap((column) =>
@@ -281,9 +274,7 @@ export function TaskProvider({ children }) {
     setShowTaskDetail(false)
   }
 
-  // Modify the updateTaskDetails function to prevent unnecessary updates
-  // Replace the current updateTaskDetails function with this implementation:
-
+  
   // Update task details from task detail view
   const updateTaskDetails = (taskId, updates) => {
     // First check if there's actually a change to avoid unnecessary updates
@@ -302,8 +293,6 @@ export function TaskProvider({ children }) {
 
           if (assetsChanged || teamChanged || activitiesChanged || statusChanged) {
             needsUpdate = true
-
-            // Create a new task object with the updates
             const updatedTask = {
               ...task,
               assets: updates.assets || task.assets,
@@ -312,7 +301,6 @@ export function TaskProvider({ children }) {
               status: updates.status || task.status,
             }
 
-            // Update the task in our copy of columns
             updatedColumns[columnIndex].tasks[taskIndex] = updatedTask
           }
         }
@@ -321,21 +309,6 @@ export function TaskProvider({ children }) {
 
     // Only update state if something changed
     if (needsUpdate) {
-      // API call to update task details
-      // Example:
-      // const updateTaskDetailsOnServer = async (taskId, updates) => {
-      //   try {
-      //     await fetch(`/api/tasks/${taskId}/details`, {
-      //       method: 'PUT',
-      //       headers: { 'Content-Type': 'application/json' },
-      //       body: JSON.stringify(updates)
-      //     });
-      //     // Continue with state update after successful API call
-      //   } catch (error) {
-      //     console.error('Error updating task details:', error);
-      //   }
-      // };
-      // updateTaskDetailsOnServer(taskId, updates);
       setColumns(updatedColumns)
     }
   }
