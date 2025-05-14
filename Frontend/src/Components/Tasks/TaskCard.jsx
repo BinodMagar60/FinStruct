@@ -211,10 +211,10 @@ const TaskCard = ({ task, columnId }) => {
               placeholder="Enter subtask title"
             />
             <div className="flex gap-2 justify-end outline-none">
-              <button type="button" onClick={handleCancel} className="px-2 py-1 text-gray-600 bg-gray-100 rounded">
+              <button type="button" onClick={handleCancel} className="px-2 py-1 text-gray-700 bg-gray-100 rounded">
                 Cancel
               </button>
-              <button type="submit" className="px-2 py-1 text-white bg-blue-500 rounded">
+              <button type="submit" className="px-2 py-1 text-white bg-black hover:bg-gray-800 rounded">
                 Add Subtask
               </button>
             </div>

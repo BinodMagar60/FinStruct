@@ -1,11 +1,9 @@
 import { useEffect, useRef } from "react"
-import { Edit, Trash2, ExternalLink} from "lucide-react"
-import { Link } from "react-router-dom"
+import { Edit, Trash2, ExternalLink, Plus } from "lucide-react"
 
-const StaticTaskMenu = ({ onEdit, onDelete, onClose }) => {
+const StaticTaskMenu = ({ onEdit, onDelete, onAddSubtask, onOpenTask, onClose, isCompleted }) => {
   const menuRef = useRef(null)
-  const user = JSON.parse(localStorage.getItem("userDetails"));
-  
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -14,7 +12,7 @@ const StaticTaskMenu = ({ onEdit, onDelete, onClose }) => {
     }
 
     document.addEventListener("mousedown", handleClickOutside)
-    
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
@@ -24,22 +22,20 @@ const StaticTaskMenu = ({ onEdit, onDelete, onClose }) => {
     <div
       ref={menuRef}
       className="absolute right-0 top-6 z-10 bg-white shadow-lg rounded-md border border-gray-200 w-40"
+      onClick={(e) => e.stopPropagation()}
     >
       <ul className="py-1">
         <li>
-          <Link to={user.role=== 'admin'? '/admin/details': "/employee/details"}>
           <button
-            // onClick={(e) => {
-            //   e.stopPropagation()
-            //   onClose()
-            //   // Open task implementation would go here
-            // }}
+            onClick={(e) => {
+              e.stopPropagation()
+              onOpenTask()
+            }}
             className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
           >
             <ExternalLink size={14} />
             Open Task
           </button>
-          </Link>
         </li>
         <li>
           <button
@@ -47,19 +43,27 @@ const StaticTaskMenu = ({ onEdit, onDelete, onClose }) => {
               e.stopPropagation()
               onEdit()
             }}
-            className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2 ${
+              isCompleted ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            disabled={isCompleted}
           >
             <Edit size={14} />
             Edit
           </button>
         </li>
-
-        {/* <li>
-          <button className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2">
-            <Copy size={14} />
-            Duplicate
+        <li>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onAddSubtask()
+            }}
+            className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+          >
+            <Plus size={14} />
+            Add Subtask
           </button>
-        </li> */}
+        </li>
         <li>
           <button
             onClick={(e) => {

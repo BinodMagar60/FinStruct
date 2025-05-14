@@ -1,27 +1,48 @@
 import { useState, useEffect } from "react"
-import { X, Calendar, Paperclip, ChevronDown } from "lucide-react"
+import { X, ChevronDown } from "lucide-react"
+import { useTaskContext } from "../../context/taskContext"
 
-const StaticTaskModal = ({ isOpen, onClose, onSubmit, task, mode, columns, users}) => {
+const StaticTaskModal = () => {
+  const {
+    isModalOpen,
+    currentTask,
+    modalMode,
+    columns,
+    users,
+    handleAddTask,
+    handleUpdateTask,
+    setIsModalOpen,
+  } = useTaskContext()
+
   const [formData, setFormData] = useState({
     title: "",
     assignees: [],
     stage: "todo",
     dueDate: "",
+    startingDate: "",
     priority: "normal",
   })
 
   const [showAssigneeDropdown, setShowAssigneeDropdown] = useState(false)
 
+  const formatDate = (dateString) => {
+    if (!dateString) return ""
+    const date = new Date(dateString)
+    return date.toISOString().split("T")[0]
+  }
+
   useEffect(() => {
-    if (task) {
+    if (currentTask) {
       setFormData({
-        id: task.id,
-        title: task.title || "",
-        assignees: task.assignees || [],
-        stage: task.columnId || "todo",
-        dueDate: task.dueDate || "",
-        priority: task.priority || "normal",
-        columnId: task.columnId,
+        id: currentTask.id,
+        title: currentTask.title || "",
+        assignees: currentTask.assignees || [],
+        stage: currentTask.columnId || "todo",
+        dueDate: formatDate(currentTask.dueDate),
+        startingDate: formatDate(currentTask.startingDate),
+        priority: currentTask.priority || "normal",
+        columnId: currentTask.columnId,
+        subtasks: currentTask.subtasks || [],
       })
     } else {
       setFormData({
@@ -29,10 +50,11 @@ const StaticTaskModal = ({ isOpen, onClose, onSubmit, task, mode, columns, users
         assignees: [],
         stage: "todo",
         dueDate: "",
+        startingDate: "",
         priority: "normal",
       })
     }
-  }, [task])
+  }, [currentTask])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -60,17 +82,43 @@ const StaticTaskModal = ({ isOpen, onClose, onSubmit, task, mode, columns, users
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onSubmit(formData)
+
+    // convert dates to ISO before sending
+    const taskToSubmit = {
+      ...formData,
+      startingDate: new Date(formData.startingDate).toISOString(),
+      dueDate: new Date(formData.dueDate).toISOString(),
+    }
+
+    if (modalMode === "add") {
+      handleAddTask(taskToSubmit)
+    } else {
+      if (currentTask && currentTask.subtasks) {
+        const mainSubtask = currentTask.subtasks.find((s) => s.isMainSubtask)
+        if (mainSubtask) {
+          const updatedSubtasks = currentTask.subtasks.map((s) =>
+            s.isMainSubtask ? { ...s, title: formData.title } : s,
+          )
+
+          handleUpdateTask({
+            ...taskToSubmit,
+            subtasks: updatedSubtasks,
+          })
+          return
+        }
+      }
+      handleUpdateTask(taskToSubmit)
+    }
   }
 
-  if (!isOpen) return null
+  if (!isModalOpen) return null
 
   return (
     <div className="fixed inset-0 bg-[#7e7e7e50] bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg w-full max-w-md mx-4">
-        <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-lg font-semibold">{mode === "add" ? "ADD TASK" : "EDIT TASK"}</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+        <div className="flex justify-between items-center p-4 border-b border-gray-300">
+          <h2 className="text-lg font-semibold">{modalMode === "add" ? "ADD TASK" : "EDIT TASK"}</h2>
+          <button onClick={() => setIsModalOpen(false)} className="text-gray-500 hover:text-gray-700">
             <X size={20} />
           </button>
         </div>
@@ -83,7 +131,8 @@ const StaticTaskModal = ({ isOpen, onClose, onSubmit, task, mode, columns, users
               name="title"
               value={formData.title}
               onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={modalMode === "edit"}
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
               placeholder="Task Title"
               required
             />
@@ -134,62 +183,61 @@ const StaticTaskModal = ({ isOpen, onClose, onSubmit, task, mode, columns, users
                 name="stage"
                 value={formData.stage}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
               >
                 {columns.map((column) => (
-                  <option key={column.id} value={column.id}>
-                    {column.title}
-                  </option>
+                  column.title !== "COMPLETED" && (
+                    <option key={column.id} value={column.id}>
+                      {column.title}
+                    </option>
+                  )
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Task Date</label>
-              <div className="relative">
-                <input
-                  type="date"
-                  name="dueDate"
-                  value={formData.dueDate}
-                  onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <Calendar size={16} className="absolute right-3 top-3 text-gray-400" />
-              </div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Starting Date</label>
+              <input
+                type="date"
+                name="startingDate"
+                value={formData.startingDate}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+              <input
+                type="date"
+                name="dueDate"
+                value={formData.dueDate}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
+              />
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Priority Level</label>
               <select
                 name="priority"
                 value={formData.priority}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
               >
                 <option value="normal">NORMAL</option>
                 <option value="high">HIGH</option>
                 <option value="low">LOW</option>
               </select>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Add Assets</label>
-              <button
-                type="button"
-                className="w-full p-2 border border-gray-300 rounded-md flex items-center justify-center gap-2"
-              >
-                <Paperclip size={16} />
-                Add Assets
-              </button>
-            </div>
           </div>
 
           <div className="flex justify-end gap-2 mt-6">
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => setIsModalOpen(false)}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
               Cancel
@@ -205,4 +253,3 @@ const StaticTaskModal = ({ isOpen, onClose, onSubmit, task, mode, columns, users
 }
 
 export default StaticTaskModal
-
