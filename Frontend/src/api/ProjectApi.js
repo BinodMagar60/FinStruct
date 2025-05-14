@@ -242,3 +242,65 @@ export const deleteAssetsBackend = async (route) => {
 
 //************************ END ************************
 
+
+
+
+
+
+
+//======================== Transaction ========================
+
+
+//add new transaction
+export const addNewTransaction = async(data) => {
+  try{
+    const response = await axios.post(`${BackendURI}projects/transactions/new`, data)
+  }
+  catch(err){
+    return err.response.data
+  }
+}
+
+
+
+//get transaction
+export const getAllTransactions = async(route) => {
+  try{
+    const response = await axios.get(`${BackendURI}projects/transactions/get/${route}`)
+    return response.data
+  }
+  catch(err){
+    return err.response.data
+  }
+}
+
+
+//approve the transaction
+export const approveTheTransaction = async(route, data) => {
+  try{
+    const response = await axios.put(`${BackendURI}projects/transactions/approve/${route}`, data)
+    // console.log(response)
+    return response
+  }
+  catch(err){
+    return err.response.data
+  }
+}
+
+
+//approve the transaction
+export const rejectTheTransaction = async(route, data) => {
+  try{
+    const response = await axios.put(`${BackendURI}projects/transactions/reject/${route}`, data)
+    // console.log(response)
+    return response
+  }
+  catch(err){
+    return err.response.data
+  }
+}
+
+
+//************************ END ************************
+
+

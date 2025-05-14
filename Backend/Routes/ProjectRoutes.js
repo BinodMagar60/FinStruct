@@ -5,6 +5,7 @@ const Company = require("../models/Company");
 const Project = require("../models/Project");
 const User = require("../models/User");
 const Task = require("../models/Task");
+const Transaction = require("../models/Transactions");
 
 
 
@@ -338,17 +339,33 @@ router.delete("/tasks/task/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const task = await Task.findByIdAndDelete(id);
+    // Find the task to be deleted
+    const task = await Task.findById(id);
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    return res.status(200).json({ message: `${task.title} deleted` });
+    // Remove this task's ID from dependencies in other tasks in the same project
+    await Task.updateMany(
+      {
+        projectId: task.projectId,
+        dependencies: id
+      },
+      {
+        $pull: { dependencies: id }
+      }
+    );
+
+    // Delete the task
+    await Task.findByIdAndDelete(id);
+
+    return res.status(200).json({ message: `${task.title} deleted and removed from dependent tasks` });
   } catch (error) {
     console.error("Delete Error:", error);
     return res.status(500).json({ message: "Server Error" });
   }
 });
+
 
 
 
@@ -753,6 +770,113 @@ router.delete('/tasks/:taskId/delete-asset/:assetId', async (req, res) => {
 
 
 // ---------------------- Tasks End ---------------
+
+
+
+// ---------------------- Transaction ---------------
+
+
+router.post('/transactions/new', async (req, res) => {
+  try {
+    const {
+      companyId,
+      projectId,
+      type,
+      category,
+      amount,
+      description,
+      requestedBy,
+    } = req.body;
+
+    
+    if (!companyId || !projectId || !type || !category || !amount) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const newTransaction = new Transaction({
+      companyId,
+      projectId,
+      type,
+      category,
+      amount: Number(amount),
+      createdDate: new Date(),
+      description,
+      requestedBy,
+      status: 'pending',          
+    });
+
+    const savedTransaction = await newTransaction.save();
+    res.status(201).json(savedTransaction);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+
+// Get all transactions
+router.get('/transactions/get/:pid', async (req, res) => {
+  try {
+    const { pid } = req.params;
+    
+    const transactions = await Transaction.find({ projectId: pid }).sort({ createddate: -1 });
+
+    const newTransaction = transactions.map(transactiondata => {
+      const data = transactiondata.toObject();
+      return {
+        ...data,
+        id: data._id
+      };
+    });
+
+    res.json(newTransaction);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// Approve a transaction 
+router.put('/transactions/approve/:id', async (req, res) => {
+  try {
+    const {id} = req.params
+
+    const {status, approvedBy} = req.body
+
+    const existingTransacton = await Transaction.findByIdAndUpdate(id, {status, approvedBy,approvedDate: new Date()}, {new: true})
+
+    if(!existingTransacton){
+      return res.status(404)._construct({message: "Something went wrong"})
+    }
+
+    res.status(200).json({message: "successfully approved", newdata: existingTransacton})
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Reject a transaction (PATCH /api/transactions/:id/reject)
+router.put('/transactions/reject/:id', async (req, res) => {
+  try {
+    const {id} = req.params
+
+    const {status, approvedBy} = req.body
+
+    const existingTransacton = await Transaction.findByIdAndUpdate(id, {status, approvedBy, approvedDate: new Date()}, {new: true})
+
+    if(!existingTransacton){
+      return res.status(404)._construct({message: "Something went wrong"})
+    }
+
+    res.status(200).json({message: "successfully approved", newdata: existingTransacton})
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ---------------------- Transactions End ---------------
 
 
 
