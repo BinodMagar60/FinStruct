@@ -45,6 +45,9 @@ const EmployeeSidebar = () => {
 
         setActiveTab("Overview");
         navigate("/employee/overview");
+      }else{
+        setActiveTab("Users");
+        navigate('/employee/user')
       }
     } catch (err) {
       console.log(err);

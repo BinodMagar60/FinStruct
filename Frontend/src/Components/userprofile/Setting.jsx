@@ -106,7 +106,7 @@ const Setting = () => {
       }
 
       try{
-        const response = await changePassword(`admin/user/password/${userData._id}`, data)
+        const response = await changePassword(`admin/user/password/${userData.id}`, data)
         // console.log(response)
         toast.success(response.message,{
           autoClose: 1000,

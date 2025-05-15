@@ -73,7 +73,7 @@ export default function User() {
   const handleDeleteUser = async(userId) => {
     // console.log(userId)
     try{
-      const response = await deleteUserDetails(`admin/user/users/${userId}`)
+      const response = await deleteUserDetails(`admin/user/users/${userId}/${userSave.id}`)
       // console.log(response)
     }catch(err){
       console.log(err)
@@ -100,7 +100,7 @@ export default function User() {
     } else {
       
       try{
-        const response = await addUserFromCompany(`admin/user/users/${userSave.companyId}`, userData)
+        const response = await addUserFromCompany(`admin/user/users/${userSave.companyId}/${userSave.id}`, userData)
         // console.log(response)
       }catch(err){
         console.log(err)

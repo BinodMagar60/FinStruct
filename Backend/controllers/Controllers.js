@@ -14,6 +14,8 @@ const {
   xorEncrypt,
   xorDecrypt,
 } = require("../utils/passwordUtils");
+const UserActivity = require("../models/UserActivity");
+const { capitalizeName } = require("../utils/capitalizeName");
 
 
 
@@ -191,6 +193,14 @@ const updateProfileDetails = async (req, res) => {
       return res.status(404).json({ message: "User not found." });
     }
 
+    const updateActivity = new UserActivity({
+      uid: updatedUser._id,
+      type: 'profile_update',
+      description: "User profile updated"
+    })
+    await updateActivity.save()
+
+
     res.json({ message: "User Updated successfully", user: updatedUser });
   } catch (err) {
     console.log(err);
@@ -236,16 +246,27 @@ const updateProfilePassword = async (req, res) => {
       { new: true }
     ).select("password salt");
 
+
+    const updateActivity = new UserActivity({
+      uid: id,
+      type: 'profile_update',
+      description: "User password change"
+    })
+    await updateActivity.save()
+
+
     res.status(200).json({
       show: "success",
       message: "Password Updated Successfully",
       updatedFields: updatedUser,
     });
   } catch (error) {
+    const {id} = req.params
     res.status(500).json({
       error: error.message,
       show: "error",
       message: "Server Error",
+      id: id
     });
   }
 };
@@ -436,7 +457,7 @@ const getAllJobTitles = async (req, res) => {
 //Add users within the company
 const addNewUsers = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id, uid } = req.params;
     const { username, personalEmail, role, jobTitleId, phoneNumber } = req.body;
 
     const jobTitleDoc = await JobTitle.findOne({
@@ -502,7 +523,22 @@ const addNewUsers = async (req, res) => {
     }
 
     const newUser = new User(newUserData);
-    await newUser.save();
+    const response = await newUser.save();
+
+    const creator = new UserActivity({
+      uid: uid,
+      type: 'user',
+      description:  `Added a new User - ${capitalizeName(newUser.username)}`
+    })
+
+    await creator.save()
+
+    const createdUser = new UserActivity({
+      uid: response._id,
+      type: 'user',
+      description:  `Welcome new user - ${capitalizeName(newUser.username)}`
+    })
+    await createdUser.save()
 
     res
       .status(201)
@@ -591,7 +627,7 @@ const updateTheUsersInUserSection = async (req, res) => {
 //delete the user detial in user section.
 const deleteUserDetailUserSection = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id, uid } = req.params;
     const existingUser = await User.findById(id);
     if (!existingUser) {
       return res.status(404).json({ message: "User not found" });
@@ -603,7 +639,16 @@ const deleteUserDetailUserSection = async (req, res) => {
         .json({ message: "Owners details cannot be deleted" });
     }
 
+    const deletedUser = new UserActivity({
+      uid: uid,
+      type: "user",
+      description: `Account deleted - ${capitalizeName(existingUser.username)}`
+    })
+    await deletedUser.save()
+
+
     await User.findByIdAndDelete(id);
+
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
@@ -855,6 +900,14 @@ const uploadFileDocs = async (req, res) => {
 
     await newDoc.save();
 
+    const newActivity = new UserActivity({
+      uid: uid,
+      type: 'document',
+      description: `A file has been added - ${originalname}`
+    })
+
+    await newActivity.save()
+
     res.status(201).json({ filePath, fileType, size: readableSize });
   } catch (err) {
     console.error("Upload error:", err);
@@ -908,6 +961,12 @@ const deleteFileDocs = async (req, res) => {
       }
     });
 
+    const newActivity = new UserActivity({
+      uid: doc.userId,
+      type: 'document',
+      description: `A file has been deleted - ${doc.name}`
+    })
+    await newActivity.save()
     await doc.deleteOne();
 
     res.status(200).json({ message: "Document deleted successfully" });

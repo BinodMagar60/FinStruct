@@ -6,6 +6,7 @@ const Project = require("../models/Project");
 const User = require("../models/User");
 const Task = require("../models/Task");
 const Transaction = require("../models/Transactions");
+const UserActivity = require("../models/UserActivity");
 
 
 
@@ -785,6 +786,7 @@ router.post('/transactions/new', async (req, res) => {
       category,
       amount,
       description,
+      requestedById,
       requestedBy,
     } = req.body;
 
@@ -801,10 +803,18 @@ router.post('/transactions/new', async (req, res) => {
       amount: Number(amount),
       createdDate: new Date(),
       description,
+      requestedById,
       requestedBy,
       status: 'pending',          
     });
 
+    const newActivity = new UserActivity({
+      uid: requestedById,
+      type: 'transaction',
+      description: `Requested for ${category} (${type}) approval`
+    })
+
+    await newActivity.save()
     const savedTransaction = await newTransaction.save();
     res.status(201).json(savedTransaction);
   } catch (err) {
@@ -838,42 +848,104 @@ router.get('/transactions/get/:pid', async (req, res) => {
 // Approve a transaction 
 router.put('/transactions/approve/:id', async (req, res) => {
   try {
-    const {id} = req.params
+    const { id } = req.params;
+    const { status, approvedBy, approvedById } = req.body;
 
-    const {status, approvedBy} = req.body
+    const existingTransacton = await Transaction.findByIdAndUpdate(
+      id,
+      {
+        status,
+        approvedBy,
+        approvedById,
+        approvedDate: new Date()
+      },
+      { new: true }
+    );
 
-    const existingTransacton = await Transaction.findByIdAndUpdate(id, {status, approvedBy,approvedDate: new Date()}, {new: true})
-
-    if(!existingTransacton){
-      return res.status(404)._construct({message: "Something went wrong"})
+    if (!existingTransacton) {
+      return res.status(404).json({ message: "Something went wrong" }); 
     }
 
-    res.status(200).json({message: "successfully approved", newdata: existingTransacton})
+    const approvedActivities = new UserActivity({
+      uid: existingTransacton.requestedById,
+      type: "transaction",
+      description: `${existingTransacton.category} (${existingTransacton.type}) transaction has been Approved by ${approvedBy}`
+    });
+
+    const approverActivities = new UserActivity({
+      uid: approvedById,
+      type: "transaction",
+      description: `${existingTransacton.category} (${existingTransacton.type}) transaction has been Approved by you`
+    });
+
+    if (approvedById.toString() !== existingTransacton.requestedById.toString()) {
+      await approvedActivities.save();
+    }
+
+    await approverActivities.save();
+
+    res.status(200).json({
+      message: "Successfully approved",
+      newdata: existingTransacton
+    });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
+
 
 // Reject a transaction (PATCH /api/transactions/:id/reject)
 router.put('/transactions/reject/:id', async (req, res) => {
   try {
-    const {id} = req.params
+    const { id } = req.params;
+    const { status, approvedBy, approvedById } = req.body;
 
-    const {status, approvedBy} = req.body
+    const existingTransacton = await Transaction.findByIdAndUpdate(
+      id,
+      {
+        status,
+        approvedBy,
+        approvedById,
+        approvedDate: new Date()
+      },
+      { new: true }
+    );
 
-    const existingTransacton = await Transaction.findByIdAndUpdate(id, {status, approvedBy, approvedDate: new Date()}, {new: true})
-
-    if(!existingTransacton){
-      return res.status(404)._construct({message: "Something went wrong"})
+    if (!existingTransacton) {
+      return res.status(404).json({ message: "Something went wrong" });
     }
 
-    res.status(200).json({message: "successfully approved", newdata: existingTransacton})
+    const rejectedActivities = new UserActivity({
+      uid: existingTransacton.requestedById,
+      type: "transaction",
+      description: `${existingTransacton.category} (${existingTransacton.type}) transaction has been Rejected by ${approvedBy}`
+    });
+
+    const rejecterActivities = new UserActivity({
+      uid: approvedById,
+      type: "transaction",
+      description: `${existingTransacton.category} (${existingTransacton.type}) transaction has been Rejected by you`
+    });
+
+    if (approvedById.toString() !== existingTransacton.requestedById.toString()) {
+      await rejectedActivities.save();
+    }
+
+    await rejecterActivities.save();
+
+    res.status(200).json({
+      message: "Successfully rejected",
+      newdata: existingTransacton
+    });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
+
 
 
 // ---------------------- Transactions End ---------------

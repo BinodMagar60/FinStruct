@@ -78,6 +78,10 @@ const Sidebar = () => {
         setActiveTab("Overview");
         navigate("/admin/overview");
       }
+      else{
+        setActiveTab("Dashboard");
+        navigate('/admin/dashboard')
+      }
     } catch (err) {
       console.log(err);
     }

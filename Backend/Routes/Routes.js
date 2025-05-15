@@ -107,7 +107,7 @@ router.delete("/roles-salaries/:id", deleteRolesAndSalaries);
 router.get("/usersroles/:id", getAllJobTitles);
 
 //Add users within the company
-router.post("/users/:id", addNewUsers);
+router.post("/users/:id/:uid", addNewUsers);
 
 // get all users under a company
 router.get("/users/:id", getAllUserForUser);
@@ -116,7 +116,7 @@ router.get("/users/:id", getAllUserForUser);
 router.put("/users/:id", updateTheUsersInUserSection);
 
 //delete the user detial in user section.
-router.delete("/users/:id", deleteUserDetailUserSection);
+router.delete("/users/:id/:uid", deleteUserDetailUserSection);
 
 // ----------------------  User Section End ---------------
 
@@ -150,7 +150,7 @@ router.delete("/mail/:id", deleteMail);
 
 // ----------------------  Document Section ---------------
 
-//Uploading the file
+
 
 //checking if the folder exists
 const uploadDir = path.join(__dirname, "../uploads");
@@ -170,7 +170,7 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage });
-
+//Uploading the file
 router.post("/document/data", upload.single("file"), uploadFileDocs);
 
 //getting the files in the UI

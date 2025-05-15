@@ -28,6 +28,8 @@ const transactionSchema = new mongoose.Schema(
       default: "pending",
     },
     requestedBy: { type: String, required: true },
+    requestedById: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    approvedById: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     approvedBy: { type: String },
     approvedDate: {type: Date, default: null}
   },

@@ -10,6 +10,7 @@ const {
   xorEncrypt,
   xorDecrypt,
 } = require("../utils/passwordUtils");
+const UserActivity = require("../models/UserActivity");
 const router = express.Router();
 const secretKey = process.env.JWT_SECRET;
 
@@ -83,9 +84,9 @@ router.post("/signup", validateSignup, async (req, res) => {
       lastLogin: null,
       lastLogout: null,
     });
-    await user.save();
+    const userDetail = await user.save();
 
-    res.status(201).json({ show: "success", message: "Signup Successful" });
+    res.status(201).json({ show: "success", message: "Signup Successful", userDetail: userDetail });
   } catch (err) {
     console.error(err);
     res.status(500).json({ show: "error", message: "Server Error", error: err.message });
@@ -125,6 +126,15 @@ router.post("/login", validateLogin, async (req, res) => {
       secretKey,
       { expiresIn: "30d" }
     );
+
+    //saving user activity
+    const newActivity = new UserActivity({
+      uid: user._id,
+      type: 'login',
+      description: "Logged In"
+    })
+
+    await newActivity.save()
 
     // Prepare safe user info
     const safeUser = {

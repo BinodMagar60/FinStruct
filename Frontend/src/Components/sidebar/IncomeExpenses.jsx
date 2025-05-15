@@ -77,6 +77,7 @@ const IncomeExpenses = () => {
       description: formData.description,
       status: 'pending',
       requestedBy: user.username,
+      requestedById: user.id,
       approvedBy: ''
     };
 
@@ -139,7 +140,8 @@ const IncomeExpenses = () => {
   const approveTransaction = async(id) => {
     const newData = {
       status: 'approved',
-      approvedBy: user.username
+      approvedBy: user.username,
+      approvedById: user.id,
     }
     try{
       const response = await approveTheTransaction(id, newData)
@@ -154,7 +156,8 @@ const IncomeExpenses = () => {
   const rejectTransaction = async(id) => {
     const rejectData = {
       status: 'rejected',
-      approvedBy: user.username
+      approvedBy: user.username,
+      approvedById: user.id,
     }
     try{
       const response = await rejectTheTransaction(id, rejectData)

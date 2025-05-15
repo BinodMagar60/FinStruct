@@ -30,9 +30,11 @@ app.get("/", (req, res) => {
 const authRoutes = require("./Routes/LoginSignupRoutes");
 const AdminRoutes = require('./Routes/Routes')
 const ProjectRoutes = require('./Routes/ProjectRoutes')
+const UserActivity = require('./Routes/UserActivityRoutes')
 app.use("/auth", authRoutes);
 app.use('/admin/user', AdminRoutes)
 app.use('/projects', ProjectRoutes)
+app.use('/useractivity', UserActivity)
 
 
 
