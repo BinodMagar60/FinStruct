@@ -5,11 +5,11 @@ import { useTaskContext } from "../../context/taskContext"
 const ListView = () => {
   const { columns, handleEditTask, handleDeleteTask, users, openTaskDetail } = useTaskContext()
   
-  // Add sorting state
+  
   const [sortField, setSortField] = useState("createdAt")
   const [sortDirection, setSortDirection] = useState("desc")
 
-  // Flatten all tasks from all columns
+
   const allTasks = columns.reduce((acc, column) => {
     return [
       ...acc,
@@ -21,16 +21,15 @@ const ListView = () => {
     ]
   }, [])
 
-  // Apply sorting
+  
   const sortedTasks = [...allTasks].sort((a, b) => {
-    // Sort by title (case insensitive)
     if (sortField === "title") {
       return sortDirection === "asc"
         ? a.title.toLowerCase().localeCompare(b.title.toLowerCase())
         : b.title.toLowerCase().localeCompare(a.title.toLowerCase())
     }
     
-    // Sort by priority
+    
     if (sortField === "priority") {
       const priorityValues = { high: 3, normal: 2, low: 1 }
       const aValue = priorityValues[a.priority] || 0
@@ -38,7 +37,7 @@ const ListView = () => {
       return sortDirection === "asc" ? aValue - bValue : bValue - aValue
     }
     
-    // Sort by creation date
+    
     if (sortField === "createdAt") {
       return sortDirection === "asc" 
         ? new Date(a.createdAt) - new Date(b.createdAt)
@@ -48,7 +47,7 @@ const ListView = () => {
     return 0
   })
 
-  // Helper function to toggle sort
+  
   const toggleSort = (field) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc")
@@ -58,10 +57,10 @@ const ListView = () => {
     }
   }
 
-  // Check if there are no tasks to display
+  
   const noTasksToShow = sortedTasks.length === 0
 
-  // Helper to render sort icon
+  
   const renderSortIcon = (field) => {
     if (sortField !== field) return <ChevronDown size={14} className="text-gray-300" />
     return sortDirection === "asc" ? <ChevronUp size={14} /> : <ChevronDown size={14} />

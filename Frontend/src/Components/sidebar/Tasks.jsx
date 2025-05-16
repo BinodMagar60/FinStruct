@@ -8,6 +8,7 @@ import TaskModal from "../Tasks/TaskModal"
 import ChartView from "../Tasks/ChartView"
 import TaskDetail from "../TaskDetails/TaskDetail"
 import { TaskProvider, useTaskContext } from "../../context/taskContext"
+import NextView from "../Tasks/NextView"
 
 // Main component
 const TasksContent = () => {
@@ -77,6 +78,12 @@ const TasksContent = () => {
                     List View
                   </button>
                   <button
+                    className={`py-2 px-6 font-medium ${viewMode === "next" ? "border-b-2 border-black shadow-inner" : ""}`}
+                    onClick={() => setViewMode("next")}
+                  >
+                    Next View
+                  </button>
+                  <button
                     className={`py-2 px-6 font-medium ${viewMode === "chart" ? "border-b-2 border-black shadow-inner" : ""}`}
                     onClick={() => setViewMode("chart")}
                   >
@@ -85,7 +92,7 @@ const TasksContent = () => {
                 </div>
               </div>
 
-              {viewMode === "board" ? <BoardView /> : viewMode === "list" ? <ListView /> : <ChartView />}
+              {viewMode === "board" ? <BoardView /> : viewMode === "list" ? <ListView /> : viewMode === "chart"? <ChartView /> : <NextView/>}
             </div>
           </>
         )}

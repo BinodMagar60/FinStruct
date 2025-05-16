@@ -7,7 +7,7 @@ const User = require("../models/User");
 const Task = require("../models/Task");
 const Transaction = require("../models/Transactions");
 const UserActivity = require("../models/UserActivity");
-
+const scheduleTasksWithPriority = require('../utils/taskScheduler')
 
 
 // ---------------------- Project ---------------
@@ -21,14 +21,14 @@ router.post("/project/:id", async(req, res) => {
             return res.status(404).json({message: "Company not found"})
         }
 
-        const {uid, projectName, description} = req.body
+        const {uid, projectName, description, dueDate} = req.body
 
         const data = new Project({
             companyId: id,
             projectName: projectName,
             creatorId: uid,
             description: description,
-            dueDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
+            dueDate: dueDate
         });
 
 
@@ -58,6 +58,10 @@ router.get("/project/:id", async(req, res)=> {
         return res.status(500).json({message: "Server Error"})
     }
 })
+
+
+
+
 
 // ---------------------- Project End ---------------
 
@@ -949,6 +953,316 @@ router.put('/transactions/reject/:id', async (req, res) => {
 
 
 // ---------------------- Transactions End ---------------
+
+
+
+
+
+
+
+
+
+
+
+
+// ---------------------- PrioritySchudeling Algorithm  ---------------
+
+
+router.get('/project/:projectId/sorted-tasks', async (req, res) => {
+  try {
+    const tasks = await Task.find({ projectId: req.params.projectId }).lean();
+
+
+    const activeTasks = tasks.filter(task => task.status !== 'COMPLETED');
+
+    const orderedTasks = scheduleTasksWithPriority(activeTasks);
+
+    const now = new Date();
+
+    // Build "blocked by" map
+    const blockedByMap = new Map();
+    for (const task of activeTasks) {
+      for (const depId of task.dependencies || []) {
+        const depStr = depId.toString();
+        if (!blockedByMap.has(depStr)) blockedByMap.set(depStr, []);
+        blockedByMap.get(depStr).push(task._id.toString());
+      }
+    }
+
+    const messages = orderedTasks.map((task) => {
+      const dueDate = new Date(task.dueDate);
+      const timeDiff = dueDate - now;
+      const daysUntilDue = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+      const taskId = task._id.toString();
+      const blockedTasks = blockedByMap.get(taskId) || [];
+
+      const parts = [];
+
+      if (daysUntilDue < 0) {
+        parts.push(`Overdue by ${Math.abs(daysUntilDue)} day(s)`);
+      } else if (daysUntilDue === 0) {
+        parts.push('Due today');
+      } else if (daysUntilDue <= 5) {
+        parts.push(`Due in ${daysUntilDue} day(s)`);
+      }
+
+      if (blockedTasks.length > 0) {
+        parts.push(`Blocking ${blockedTasks.length} task(s)`);
+      }
+
+      if (task.priority === 'high') {
+        parts.push('High priority');
+      }
+
+      return {
+        ...task,
+        message: parts.length ? parts.join(' | ') : 'No urgent conditions',
+        id: task._id
+      };
+    });
+
+    res.json(messages);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+// ---------------------- PrioritySchudeling Algorithm End ---------------
+
+
+
+
+
+// ---------------------- Overview ---------------
+
+
+
+// Group transactions by month
+function groupMonthlyData(transactions) {
+  const monthlyData = {};
+  transactions.forEach(tx => {
+    const month = new Date(tx.createdDate).toLocaleString('default', { month: 'short' });
+    if (!monthlyData[month]) monthlyData[month] = { income: 0, expenses: 0 };
+
+    if (tx.type === 'income') monthlyData[month].income += tx.amount;
+    if (tx.type === 'expense') monthlyData[month].expenses += tx.amount;
+  });
+
+  return Object.entries(monthlyData).map(([month, { income, expenses }]) => ({
+    month, income, expenses
+  }));
+}
+
+//  Group transactions by category and assign color
+function groupByCategory(transactions) {
+  const map = new Map();
+  transactions.forEach(tx => {
+    if (!map.has(tx.category)) {
+      map.set(tx.category, { name: tx.category, value: 0 });
+    }
+    map.get(tx.category).value += tx.amount;
+  });
+
+  const colors = [
+    "#4285F4", "#FF6D01", "#EA4335", "#9C27B0", "#34A853",
+    "#FF9800", "#AB47BC", "#5E97F6", "#00ACC1", "#9E9E9E",
+  ];
+
+  return Array.from(map.entries()).map(([name, data], idx) => ({
+    ...data,
+    color: colors[idx % colors.length],
+  }));
+}
+
+// Calculate % growth safely
+function calcGrowth(current, previous) {
+  if (previous === 0 && current > 0) return 100;
+  if (previous === 0) return 0;
+  return Math.round(((current - previous) / previous) * 100);
+}
+
+// GET overview data for a project
+router.get('/overview/:projectId', async (req, res) => {
+  try {
+    const { projectId } = req.params;
+
+    const tasks = await Task.find({ projectId });
+    const project = await Project.findById(projectId);
+    const transactions = await Transaction.find({ projectId, status: 'approved' });
+
+  
+    const taskStats = {
+      total: tasks.length,
+      completed: tasks.filter(t => t.status === 'COMPLETED').length,
+      inProgress: tasks.filter(t => t.status === 'IN PROGRESS').length,
+      onHold: tasks.filter(t => t.status === 'ON HOLD').length,
+      toDo: tasks.filter(t => t.status === 'TO DO').length,
+      priority: {
+        high: tasks.filter(t => t.priority === 'high').length,
+        medium: tasks.filter(t => t.priority === 'normal').length,
+        low: tasks.filter(t => t.priority === 'low').length,
+      },
+    };
+
+    
+    let totalSubtasks = 0;
+    let completedSubtasks = 0;
+
+    tasks.forEach(task => {
+      task.subtasks.forEach(sub => {
+        totalSubtasks++;
+        if (sub.completed) completedSubtasks++;
+      });
+    });
+
+    const completion = totalSubtasks > 0
+      ? Math.round((completedSubtasks / totalSubtasks) * 100)
+      : 0;
+
+    const deadline = project.dueDate;
+    const daysLeft = Math.ceil((new Date(deadline) - new Date()) / (1000 * 60 * 60 * 24));
+
+    const projects = {
+      status: completion >= 100 ? "Completed" : "In Progress",
+      completion,
+      deadline,
+      daysLeft,
+    };
+
+    // --- Finance Summary ---
+    const incomes = transactions.filter(tx => tx.type === 'income');
+    const expenses = transactions.filter(tx => tx.type === 'expense');
+
+    const totalIncome = incomes.reduce((acc, cur) => acc + cur.amount, 0);
+    const totalExpenses = expenses.reduce((acc, cur) => acc + cur.amount, 0);
+    const balance = totalIncome - totalExpenses;
+    const profitMargin = totalIncome > 0 ? Math.round((balance / totalIncome) * 100) : 0;
+
+    // --- Monthly Trends ---
+    const sortedTransactions = [...transactions].sort((a, b) => new Date(a.createdDate) - new Date(b.createdDate));
+    const monthlyData = groupMonthlyData(sortedTransactions);
+
+    // Get last two months
+    const lastMonth = monthlyData[monthlyData.length - 1] || { income: 0, expenses: 0 };
+    const prevMonth = monthlyData[monthlyData.length - 2] || { income: 0, expenses: 0 };
+
+    const incomeGrowth = calcGrowth(lastMonth.income, prevMonth.income);
+    const expensesGrowth = calcGrowth(lastMonth.expenses, prevMonth.expenses);
+    const balanceGrowth = calcGrowth(
+      lastMonth.income - lastMonth.expenses,
+      prevMonth.income - prevMonth.expenses
+    );
+
+    const profitMarginGrowth = calcGrowth(
+      lastMonth.income > 0 ? ((lastMonth.income - lastMonth.expenses) / lastMonth.income) * 100 : 0,
+      prevMonth.income > 0 ? ((prevMonth.income - prevMonth.expenses) / prevMonth.income) * 100 : 0
+    );
+
+    const finances = {
+      totalIncome,
+      totalExpenses,
+      balance,
+      profitMargin,
+      incomeGrowth,
+      expensesGrowth,
+      balanceGrowth,
+      profitMarginGrowth,
+      monthlyData,
+      incomeExpensesTrend: monthlyData,
+      expenseCategories: groupByCategory(expenses),
+      incomeCategories: groupByCategory(incomes),
+    };
+
+    res.json({ tasks: taskStats, projects, finances });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error.' });
+  }
+});
+
+
+
+
+
+//get project detail overview
+router.get('/overview/projectdetail/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const projectDetails = await Project.findById(id)
+  
+    return res.status(200).json(projectDetails);
+  } catch (error) {
+    console.error("Deletion error:", error);
+    return res.status(500).json({ message: "Server Error" });
+  }
+});
+
+
+
+//edit project details
+router.put('/overview/projectdetail/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { description, dueDate } = req.body;
+
+    if (!description || !dueDate) {
+      return res.status(400).json({ message: "Description and due date are required." });
+    }
+
+    const projectDetails = await Project.findByIdAndUpdate(
+      id,
+      { description, dueDate },
+      { new: true }
+    );
+
+    if (!projectDetails) {
+      return res.status(404).json({ message: "Project not found." });
+    }
+
+    return res.status(200).json(projectDetails);
+  } catch (error) {
+    return res.status(500).json({ message: "Server Error" });
+  }
+});
+
+
+
+
+//delete project
+router.delete('/overview/projectdetail/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const tasksToDelete = await Task.find({ projectId: id });
+
+   
+    await Promise.all(tasksToDelete.map(task => Task.findByIdAndDelete(task._id)));
+
+    await Project.findByIdAndDelete(id);
+
+    return res.status(200).json({ message: "Deleted" });
+  } catch (error) {
+    console.error("Deletion error:", error);
+    return res.status(500).json({ message: "Server Error" });
+  }
+});
+
+
+
+
+
+// ---------------------- Overview End ---------------
+
+
+
+
+
+
+
+
+
 
 
 

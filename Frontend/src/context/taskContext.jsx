@@ -347,7 +347,7 @@ export function TaskProvider({ children }) {
     return taskFound
   }
 
-  // Update the context value to include the new updateTask function
+  
   const value = {
     columns,
     users,
@@ -381,7 +381,7 @@ export function TaskProvider({ children }) {
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>
 }
 
-// Custom hook to use the task context
+
 export function useTaskContext() {
   const context = useContext(TaskContext)
   if (!context) {

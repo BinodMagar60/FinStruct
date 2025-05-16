@@ -34,6 +34,11 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
+
+
+
+
+
 // ---------------------- Navbar---------------
 
 //save notes in navbar
@@ -52,6 +57,7 @@ router.delete("/navbar/:id", deleteNotes);
 router.get("/navbarNotfication/:id", getNavbarNotification);
 
 // ---------------------- Navbar End ---------------
+
 
 
 
@@ -101,6 +107,8 @@ router.delete("/roles-salaries/:id", deleteRolesAndSalaries);
 
 
 
+
+
 // ----------------------  User Section ---------------
 
 //requesting job list from jobTitles for selecting roles
@@ -119,6 +127,8 @@ router.put("/users/:id", updateTheUsersInUserSection);
 router.delete("/users/:id/:uid", deleteUserDetailUserSection);
 
 // ----------------------  User Section End ---------------
+
+
 
 
 
@@ -148,9 +158,8 @@ router.delete("/mail/:id", deleteMail);
 
 
 
+
 // ----------------------  Document Section ---------------
-
-
 
 //checking if the folder exists
 const uploadDir = path.join(__dirname, "../uploads");
@@ -183,7 +192,6 @@ router.delete("/document/data/:id", deleteFileDocs);
 router.get("/document/data/download/:id", downloadFileDoc);
 
 // ----------------------  Document Section End ---------------
-
 
 
 

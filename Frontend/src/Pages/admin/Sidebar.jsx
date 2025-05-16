@@ -155,7 +155,7 @@ const Sidebar = () => {
             {dummyData.length > 0 && selectedTask && (
               <div className="relative w-full py-3 mt-1 hover:bg-[#e4e4e488] transition-all">
                 <select
-                  className="pl-9 pr-7 w-full appearance-none bg-transparent cursor-pointer"
+                  className="pl-9 pr-7 w-full appearance-none bg-transparent cursor-pointer capitalize"
                   value={selectedTask.projectName || ""}
                   onChange={(e) => {
                     const selected = dummyData.find(
@@ -170,7 +170,7 @@ const Sidebar = () => {
                   }}
                 >
                   {dummyData.map((item) => (
-                    <option key={item._id} value={item.projectName}>
+                    <option key={item._id} value={item.projectName} >
                       {item.projectName}
                     </option>
                   ))}
