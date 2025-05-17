@@ -73,7 +73,8 @@ export default function AddUserForm({ onClose, onSubmit, userData = null }) {
     }
     
     // Validate phone number
-    if (!formData.phoneNumber.trim()) {
+    // console.log(formData.phoneNumber)
+    if (!formData.phoneNumber) {
       newErrors.phoneNumber = "Phone number cannot be empty"
     } else if (!/^(98|97)\d{8}$/.test(formData.phoneNumber)) {
       newErrors.phoneNumber = "Please enter a valid phone number"

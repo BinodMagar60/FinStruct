@@ -55,6 +55,9 @@ router.post('/logout/:uid', async(req, res)=> {
     })
     await newData.save()
 
+    await User.findByIdAndUpdate(uid, { lastLogout: new Date() }, { new: true });
+
+
     return res.status(200).json({message: "Activity added"})
   } catch (error) {
     return res.status(500).json({ message: "Server Error" });

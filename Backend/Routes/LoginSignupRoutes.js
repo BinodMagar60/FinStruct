@@ -153,6 +153,8 @@ router.post("/login", validateLogin, async (req, res) => {
       isOwner: user.isOwner,
     };
 
+    await User.findOneAndUpdate({ email }, { lastLogin: new Date() }, { new: true });
+
     res.status(200).json({
       show: "success",
       message: "Login successful",
