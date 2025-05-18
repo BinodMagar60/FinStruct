@@ -9,12 +9,7 @@ const IncomeExpenses = () => {
   const locallySavedProject = localStorage.getItem("projectId")
 
 
-  const [transactions, setTransactions] = useState([
-    { id: 1, type: 'income', category: 'Client Payment', amount: 25000, date: '2025-03-15', description: 'First milestone payment', status: 'approved', requestedBy: 'Default User', approvedBy: 'Default Admin' },
-    { id: 2, type: 'expense', category: 'Materials', amount: 8750, date: '2025-03-18', description: 'Concrete and steel', status: 'approved', requestedBy: 'Default User', approvedBy: 'Default Admin' },
-    { id: 3, type: 'expense', category: 'Labor', amount: 6200, date: '2025-03-25', description: 'Weekly labor costs', status: 'pending', requestedBy: 'Default User', approvedBy: '' },
-    { id: 4, type: 'expense', category: 'Equipment Rental', amount: 3500, date: '2025-03-22', description: 'Excavator - 1 week', status: 'pending', requestedBy: 'Default User', approvedBy: '' }
-  ]);
+  const [transactions, setTransactions] = useState([]);
   const [change, setChange] = useState(false)
 
   useEffect(()=> {
@@ -379,7 +374,7 @@ const IncomeExpenses = () => {
                         {transaction.category}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">{transaction.description}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{transaction.description.length > 50? transaction.description.slice(0, 50) + "...": transaction.description}</td>
                     <td className={`px-4 py-3 text-sm font-medium text-right ${
                       transaction.type === 'income' ? 'text-blue-600' : 'text-red-600'
                     }`}>

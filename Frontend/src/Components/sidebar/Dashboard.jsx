@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Bar,
   XAxis,
@@ -16,232 +16,83 @@ import {
   AreaChart,
   Area,
 } from "recharts";
+import { getFinancialPart, getProjectParts, getTopPartData, getUserParts } from "../../api/DashbaordApi";
+import Loading from '../sidebar/Loading'
+import { getInitials } from "../../utils/getInitials";
 
 export default function Dashboard() {
+  const locallySavedUser = JSON.parse(localStorage.getItem("userDetails"));
+
   const [showExpenseDetails, setShowExpenseDetails] = useState(false);
   const [showMonthlyDetails, setShowMonthlyDetails] = useState(false);
   const [activeProjectView, setActiveProjectView] = useState(false);
   const [activeTeamView, setActiveTeamView] = useState(false);
   const [showIncomeDetails, setShowIncomeDetails] = useState(false);
+  const [isLoading, setLoading] = useState(true)
+  const [dashboardData, setDashboardData] = useState(null);
+  const [projectCompletionData, setProjectCompletionData] = useState([]);
+  const [totalFinancialData, setTotalFinancialData] = useState([]);
+  const [incomeData, setIncomeData] = useState([])
+  const [expenseData, setExpenseData] = useState([])
+  const [monthlyData, setMonthlyData] = useState([])
+  const [trendData, setTrendData] = useState([])
+  const [activeProjects, setActiveProject] = useState([])
+  const [teamMembers, setTeamMembers] = useState([])
+  useEffect(() => {
+    const getFirstData = async () => {
+      try {
+        const response = await getTopPartData(locallySavedUser.companyId);
+        const financialResponse = await getFinancialPart(locallySavedUser.companyId)
+        const projectResponse = await getProjectParts(locallySavedUser.companyId)
+        const usersResponse = await getUserParts(locallySavedUser.companyId)
+        setTeamMembers(usersResponse)
+        setActiveProject(projectResponse)
+        setDashboardData(response);
+        setProjectCompletionData([
+          {
+            name: "Completed",
+            value: response.completedProjects,
+            color: "#4C51BF",
+          },
+          {
+            name: "Incomplete",
+            value: response.incompleteProjects,
+            color: "#F56565",
+          },
+        ]);
+        setTotalFinancialData([
+          {
+            name: "Income",
+            value: response.totalIncome,
+            color: "#4C51BF",
+          },
+          {
+            name: "Expenses",
+            value: response.totalExpenses,
+            color: "#F56565",
+          },
+        ]);
+        setIncomeData(financialResponse.incomeData)
+        setExpenseData(financialResponse.expenseData)
+        setMonthlyData(financialResponse.monthlyData)
+        setTrendData(financialResponse.trendData)
+        
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+      finally{
+        setLoading(false)
+      }
+    };
 
-  // Construction-specific dashboard data
-  const dashboardData = {
-    totalProjects: 24,
-    totalBudget: 1250000,
-    revenue: 1450000,
-    teamMembers: 48,
-    progress: 25,
-    spent: 62,
-    roi: 86,
-    managers: 8,
-    workers: 32,
-    engineers: 8,
-    completedProjects: 15,
-    incompleteProjects: 9,
-    totalIncome: 830000,
-    totalExpenses: 580000,
-  };
+    getFirstData();
+  }, []);
 
-  // Project completion data
-  const projectCompletionData = [
-    {
-      name: "Completed",
-      value: dashboardData.completedProjects,
-      color: "#4C51BF",
-    },
-    {
-      name: "Incomplete",
-      value: dashboardData.incompleteProjects,
-      color: "#F56565",
-    },
-  ];
 
-  // Total income vs expenses data
-  const totalFinancialData = [
-    { name: "Income", value: dashboardData.totalIncome, color: "#4C51BF" },
-    { name: "Expenses", value: dashboardData.totalExpenses, color: "#F56565" },
-  ];
+  
 
-  // Construction income data
-  const incomeData = [
-    {
-      name: "Commercial Projects",
-      value: 650000,
-      percentage: 45,
-      color: "#4C51BF",
-    },
-    {
-      name: "Residential Projects",
-      value: 420000,
-      percentage: 29,
-      color: "#48BB78",
-    },
-    {
-      name: "Government Contracts",
-      value: 230000,
-      percentage: 16,
-      color: "#F6AD55",
-    },
-    { name: "Renovations", value: 150000, percentage: 10, color: "#F56565" },
-  ];
+  
 
-  // Construction-specific expense data
-  const expenseData = [
-    { name: "Labor", value: 450000, percentage: 58, color: "#8884d8" },
-    { name: "Materials", value: 320000, percentage: 25, color: "#82ca9d" },
-    { name: "Equipment", value: 120000, percentage: 10, color: "#ffc658" },
-    { name: "Permits", value: 90000, percentage: 7, color: "#ff8042" },
-  ];
-
-  // Monthly data with both expenses and income
-  const monthlyData = [
-    { name: "Jan", Income: 5000, Expenses: 1200 },
-    { name: "Feb", Income: 5500, Expenses: 1600 },
-    { name: "Mar", Income: 6000, Expenses: 1100 },
-    { name: "Apr", Income: 7000, Expenses: 2000 },
-    { name: "May", Income: 7800, Expenses: 1800 },
-    { name: "Jun", Income: 8100, Expenses: 1300 },
-    { name: "Jul", Income: 8100, Expenses: 1300 },
-    { name: "Aug", Income: 8100, Expenses: 1300 },
-    { name: "Sep", Income: 8100, Expenses: 1300 },
-    { name: "Oct", Income: 8100, Expenses: 1300 },
-    { name: "Nov", Income: 8100, Expenses: 1300 },
-    { name: "Dec", Income: 8100, Expenses: 1300 },
-  ];
-
-  // Income & Expenses Trend data
-  const trendData = [
-    { name: "Jan", Income: 12000, Expenses: 8000 },
-    { name: "Feb", Income: 15000, Expenses: 9000 },
-    { name: "Mar", Income: 20000, Expenses: 11000 },
-    { name: "Apr", Income: 25000, Expenses: 12000 },
-  ];
-
-  const activeProjects = [
-    {
-      name: "Downtown Office Tower",
-      progress: 75,
-      status: "On Track",
-      statusColor: "bg-green-500",
-    },
-    {
-      name: "Riverside Apartments",
-      progress: 45,
-      status: "At Risk",
-      statusColor: "bg-yellow-500",
-    },
-    {
-      name: "Highway Bridge Repair",
-      progress: 90,
-      status: "On Track",
-      statusColor: "bg-green-500",
-    },
-    {
-      name: "Shopping Mall Renovation",
-      progress: 30,
-      status: "Delayed",
-      statusColor: "bg-red-500",
-    },
-    {
-      name: "Downtown Office Tower",
-      progress: 75,
-      status: "On Track",
-      statusColor: "bg-green-500",
-    },
-    {
-      name: "Riverside Apartments",
-      progress: 45,
-      status: "At Risk",
-      statusColor: "bg-yellow-500",
-    },
-    {
-      name: "Highway Bridge Repair",
-      progress: 90,
-      status: "On Track",
-      statusColor: "bg-green-500",
-    },
-    {
-      name: "Shopping Mall Renovation",
-      progress: 30,
-      status: "Delayed",
-      statusColor: "bg-red-500",
-    },
-  ];
-
-  const teamMembers = [
-    {
-      name: "Sarah Johnson",
-      role: "Project Manager",
-      projects: 8,
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      name: "Michael Chen",
-      role: "Civil Engineer",
-      projects: 5,
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      name: "Emily Rodriguez",
-      role: "Architect",
-      projects: 6,
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      name: "David Kim",
-      role: "Site Supervisor",
-      projects: 4,
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      name: "Sarah Johnson",
-      role: "Project Manager",
-      projects: 8,
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      name: "Michael Chen",
-      role: "Civil Engineer",
-      projects: 5,
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      name: "Emily Rodriguez",
-      role: "Architect",
-      projects: 6,
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      name: "David Kim",
-      role: "Site Supervisor",
-      projects: 4,
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      name: "Sarah Johnson",
-      role: "Project Manager",
-      projects: 8,
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      name: "Michael Chen",
-      role: "Civil Engineer",
-      projects: 5,
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      name: "Emily Rodriguez",
-      role: "Architect",
-      projects: 6,
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      name: "David Kim",
-      role: "Site Supervisor",
-      projects: 4,
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-  ];
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-US", {
@@ -275,7 +126,10 @@ export default function Dashboard() {
   return (
     <div className="p-6">
       <div className="bg-white rounded shadow-md p-4 pb-8">
-        {/* Header */}
+        {
+          isLoading? <Loading/> : (
+            <>
+            {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
         </div>
@@ -328,7 +182,7 @@ export default function Dashboard() {
               <div>
                 <p className="text-sm text-gray-500">Total Income</p>
                 <h2 className="text-3xl font-bold text-gray-800">
-                  {formatCurrency(dashboardData.totalBudget)}
+                  {formatCurrency(dashboardData.totalIncome)}
                 </h2>
               </div>
               <div className="bg-green-100 p-3 rounded-lg">
@@ -366,7 +220,7 @@ export default function Dashboard() {
           <div className="bg-white rounded-xl shadow p-6">
             <div className="flex justify-between items-start mb-4">
               <div>
-                <p className="text-sm text-gray-500">Revenue</p>
+                <p className="text-sm text-gray-500">Total Profit</p>
                 <h2 className="text-3xl font-bold text-gray-800">
                   {formatCurrency(dashboardData.revenue)}
                 </h2>
@@ -388,16 +242,16 @@ export default function Dashboard() {
                 </svg>
               </div>
             </div>
-            <p className="text-sm text-gray-500 mb-2">ROI</p>
+            <p className="text-sm text-gray-500 mb-2">{dashboardData.roi < 0? "Loss" : "Profit"}</p>
             <div className="w-full bg-gray-200 rounded-full h-2.5">
               <div
                 className="bg-purple-600 h-2.5 rounded-full"
-                style={{ width: `${dashboardData.roi}%` }}
+                style={{ width: `${Math.abs(dashboardData.roi)}%` }}
               ></div>
             </div>
             <div className="flex justify-end mt-1">
               <span className="text-sm text-gray-500">
-                {dashboardData.roi}%
+                {Math.abs(dashboardData.roi)}%
               </span>
             </div>
           </div>
@@ -635,7 +489,7 @@ export default function Dashboard() {
                             {formatCurrency(item.value)}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                            {item.percentage}%
+                            {((item.value/dashboardData.totalExpenses)*100).toFixed(2)}%
                           </td>
                         </tr>
                       ))}
@@ -713,7 +567,7 @@ export default function Dashboard() {
                             {formatCurrency(item.value)}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                            {item.percentage}%
+                            {((item.value/dashboardData.totalIncome)*100).toFixed(2)}%
                           </td>
                         </tr>
                       ))}
@@ -886,12 +740,7 @@ export default function Dashboard() {
                   <div className="w-full bg-gray-200 rounded-full h-2.5">
                     <div
                       className={`h-2.5 rounded-full ${
-                        project.status === "On Track"
-                          ? "bg-green-500"
-                          : project.status === "At Risk"
-                          ? "bg-yellow-500"
-                          : "bg-red-500"
-                      }`}
+                        project.statusColor}`}
                       style={{ width: `${project.progress}%` }}
                     ></div>
                   </div>
@@ -920,17 +769,23 @@ export default function Dashboard() {
             </div>
             <div className="space-y-4">
               {(activeTeamView ? teamMembers : teamMembers.slice(0, 7)).map(
-                (member, index) => (
+                (member) => (
                   <div
-                    key={index}
+                    key={member.id}
                     className="flex items-center justify-between border-b border-gray-200 pb-4"
                   >
                     <div className="flex items-center">
-                      <img
+                      {
+                        member.avatar? (<img
                         src={member.avatar || "/placeholder.svg"}
                         alt={member.name}
                         className="w-10 h-10 rounded-full bg-gray-200 mr-3"
-                      />
+                      /> ) : (
+                        <div className="w-10 h-10 rounded-full bg-blue-500 mr-3 text-white flex justify-center items-center">
+                          <span>{getInitials(member.name)}</span>
+                        </div>
+                      )
+                      }
                       <div>
                         <h4 className="font-medium text-gray-800">
                           {member.name}
@@ -939,9 +794,9 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <div className="flex items-center">
-                      <button className="text-sm text-blue-600 hover:text-blue-800">
-                        View
-                      </button>
+                      <div className="capitalize text-gray-700">
+                        {member.userrole}
+                      </div>
                     </div>
                   </div>
                 )
@@ -949,6 +804,9 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+            </>
+          )
+        }
       </div>
     </div>
   );

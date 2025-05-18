@@ -75,7 +75,6 @@ export default function Overview() {
     getDatasOverview();
   }, [change]);
 
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setProjectDetails((prev) => ({
@@ -84,14 +83,12 @@ export default function Overview() {
     }));
   };
 
-  
   const toggleEdit = () => {
     setIsEditing(!isEditing);
   };
 
   // Save project details
   const saveProjectDetails = async () => {
-  
     try {
       const response = await updateProjectDetailInOverview(
         locallySavedProject,
@@ -127,12 +124,10 @@ export default function Overview() {
   // State for delete confirmation modal
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
- 
   const toggleDeleteConfirm = () => {
     setShowDeleteConfirm(!showDeleteConfirm);
   };
 
- 
   const handleDeleteProject = () => {
     toggleDeleteConfirm();
   };
@@ -151,7 +146,6 @@ export default function Overview() {
     }
   };
 
-  
   const formatDateForInput = (dateString) => {
     if (!dateString) return "";
 
@@ -163,7 +157,6 @@ export default function Overview() {
       return "";
     }
   };
-
 
   if (isLoading || !data) {
     return (
@@ -190,7 +183,6 @@ export default function Overview() {
     { priority: "Low", tasks: data.tasks.priority.low, color: "#34A853" },
   ];
 
-  
   const renderCustomLegend = (props) => {
     const { payload } = props;
 
@@ -370,12 +362,16 @@ export default function Overview() {
                       {data.projects.status}
                     </p>
                   </div>
-                  <div className="border border-gray-200 rounded-lg p-4">
-                    <p className="text-gray-500 text-sm">Days Left</p>
-                    <p className="font-semibold text-black">
-                      {data.projects.daysLeft}
-                    </p>
-                  </div>
+                  {data.projects.status !== "Completed" && (
+                    <>
+                      <div className="border border-gray-200 rounded-lg p-4">
+                        <p className="text-gray-500 text-sm">{data.projects.daysLeft < 0? "Overdue By": "Days Left"}</p>
+                        <p className={`font-semibold text-black ${data.projects.daysLeft <= 5? "text-red-500" : ""}`}>
+                          {Math.abs(data.projects.daysLeft)}
+                        </p>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
