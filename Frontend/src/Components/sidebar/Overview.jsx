@@ -306,7 +306,6 @@ export default function Overview() {
                           outerRadius={80}
                           fill="#8884d8"
                           dataKey="value"
-                          isAnimationActive={false}
                           onClick={null}
                           activeIndex={[]}
                           activeShape={null}

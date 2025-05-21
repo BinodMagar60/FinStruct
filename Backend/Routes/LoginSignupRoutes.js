@@ -105,7 +105,6 @@ router.post("/login", validateLogin, async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user and populate company name
     const user = await User.findOne({ email }).populate("companyId", "name ownerName").populate("jobTitleId");
 
     if (!user) {
@@ -113,21 +112,22 @@ router.post("/login", validateLogin, async (req, res) => {
     }
 
     // Verify password
-    const inputHash = customHash(password, user.salt);
+    const plainPassword = xorDecrypt(password);
+    const inputHash = customHash(plainPassword, user.salt)
     const originalHash = xorDecrypt(user.password);
-
+ 
     if (!originalHash || originalHash !== inputHash) {
       return res.status(401).json({ show: "error", message: "Invalid Email or Password" });
     }
 
-    // Generate JWT Token
+    
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role, companyId: user.companyId._id },
       secretKey,
       { expiresIn: "30d" }
     );
 
-    //saving user activity
+    
     const newActivity = new UserActivity({
       uid: user._id,
       type: 'login',
@@ -136,7 +136,7 @@ router.post("/login", validateLogin, async (req, res) => {
 
     await newActivity.save()
 
-    // Prepare safe user info
+
     const safeUser = {
       id: user._id,
       username: user.username,

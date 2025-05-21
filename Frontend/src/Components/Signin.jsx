@@ -5,6 +5,7 @@ import { toast, Flip } from "react-toastify";
 import { loginUser } from "../api/LoginSignup";
 
 import { useNavigate } from "react-router-dom";
+import { xorEncrypt } from "../utils/passwordEncryption";
 
 const Signin = () => {
   const [formData, setFormData] = useState({
@@ -51,7 +52,8 @@ const Signin = () => {
     setLoginError(errors);
     if (!errors.e1 && !errors.e2) {
       try {
-        const data = { email: formData.email, password: formData.password };
+        const data = { email: formData.email, password: xorEncrypt(formData.password) };
+        // console.log(data)
         const response = await loginUser("auth/login", data);
   
         if (response.status === 200) {

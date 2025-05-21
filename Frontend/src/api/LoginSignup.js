@@ -19,15 +19,7 @@ export const signupUser = async(route, data) => {
 }
 
 
-// export const loginUser = async (route, data) => {
-//     const URL = BackendURI + route;
-//     const response = await axios.post(URL, data, {
-//       withCredentials: true
-//     });
-//     // console.log(response.data)
-//     return response;
-//   };
-  
+
 
 export const loginUser = async (route, data) => {
   const URL = BackendURI + route
