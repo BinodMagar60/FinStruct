@@ -33,7 +33,6 @@ module.exports = function scheduleTasksWithPriority(tasks) {
     const daysUntilDue = Math.ceil((new Date(task.dueDate) - now) / (1000 * 60 * 60 * 24));
     const dueScore = daysUntilDue <= 0 ? 20 : Math.max(0, 10 - daysUntilDue); 
     const blockingScore = dependentsCount * 5;
-
     return priorityScore * 10 + dueScore + blockingScore;
   };
 
@@ -48,12 +47,14 @@ module.exports = function scheduleTasksWithPriority(tasks) {
   }
 
   const sortedTasks = [];
+  const visited = new Set();
 
   while (readyQueue.length > 0) {
     readyQueue.sort((a, b) => b.weight - a.weight);
     const { id } = readyQueue.shift();
     const task = taskMap.get(id);
     sortedTasks.push(task);
+    visited.add(id);
 
     for (const neighbor of graph.get(id)) {
       inDegree.set(neighbor, inDegree.get(neighbor) - 1);
@@ -68,8 +69,12 @@ module.exports = function scheduleTasksWithPriority(tasks) {
     }
   }
 
-  if (sortedTasks.length !== activeTasks.length) {
-    throw new Error('Cycle detected in task dependencies');
+  // Include remaining (cyclic) tasks with special flag
+  for (const [id, task] of taskMap.entries()) {
+    if (!visited.has(id)) {
+      task._cycleError = true;
+      sortedTasks.push(task);
+    }
   }
 
   return sortedTasks;

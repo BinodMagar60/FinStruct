@@ -56,7 +56,7 @@ const TaskDetail = ({ tasks, columnId }) => {
         const response = await getTaskDetailsForDetailsSection(
           `projects/tasks/taskdetails/${tasks.id}`
         );
-        // console.log(response)
+        
         setTask(response);
         setAssets(response.assets);
         setTeam(response.team);

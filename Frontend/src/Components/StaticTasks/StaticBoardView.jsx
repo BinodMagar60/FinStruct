@@ -7,22 +7,39 @@ const StaticBoardView = ({ taskType }) => {
   let selectedTasks = [];
   let selectedColumnId = null;
 
-  if (taskType === "todo") {
-    const selectedColumns = columns.filter((column) =>
-      ["todo", "onhold"].includes(column.id)
-    );
-    selectedTasks = selectedColumns.flatMap((column) => {
-      return column.tasks.map((task) => ({ ...task, columnId: column.id }));
-    });
-  } else {
-    const selectedColumn = columns.find((column) => column.id === taskType);
-    selectedTasks = selectedColumn
-      ? selectedColumn.tasks.map((task) => ({
-          ...task,
-          columnId: selectedColumn.id,
-        }))
-      : [];
-  }
+
+  // console.log(columns)
+
+const locallySavedUser = JSON.parse(localStorage.getItem("userDetails"));
+
+
+if (taskType === "userAssigned") {
+  const allTask = columns.flatMap((column) =>
+    column.tasks.map((task) => ({ ...task, columnId: column.id }))
+  );
+
+  selectedTasks = allTask.filter((task) =>
+    task.assignees.includes(locallySavedUser.id)
+  );
+} else if (taskType === "todo") {
+  const selectedColumns = columns.filter((column) =>
+    ["todo", "onhold"].includes(column.id)
+  );
+
+  selectedTasks = selectedColumns.flatMap((column) =>
+    column.tasks.map((task) => ({ ...task, columnId: column.id }))
+  );
+} else {
+  const selectedColumn = columns.find((column) => column.id === taskType);
+
+  selectedTasks = selectedColumn
+    ? selectedColumn.tasks.map((task) => ({
+        ...task,
+        columnId: selectedColumn.id,
+      }))
+    : [];
+}
+
 
   const noTasksToShow = selectedTasks.length === 0;
 

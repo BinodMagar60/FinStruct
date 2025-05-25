@@ -13,8 +13,10 @@ const TasksContent = () => {
   const [viewMode, setViewMode] = useState("board")
   const { isModalOpen, showTaskDetail, selectedTaskId, closeTaskDetail, columns } = useTaskContext()
 
-  const taskType = 'completed'
-  // Find the selected task for task detail view
+
+
+  const taskType = 'userAssigned'
+  
   const findSelectedTask = () => {
     if (!selectedTaskId) return null
 
@@ -51,7 +53,7 @@ const TasksContent = () => {
         ) : (
           <>
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-bold">Task Board</h1>
+              <h1 className="text-2xl font-bold">For You Board</h1>
             </div>
 
             <div className="bg-white rounded-lg mb-6">

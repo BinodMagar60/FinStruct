@@ -96,7 +96,7 @@ const EmployeeSidebar = () => {
       { name: "Tasks", url: "/employee/tasks", logo: <ClipboardList /> },
       { name: "To Do", url: "/employee/todo", logo: <ListTodo /> },
       { name: "In Progress", url: "/employee/inprogress", logo: <Loader /> },
-      { name: "Completed", url: "/employee/completed", logo: <ClipboardCheck /> },
+      { name: "For You", url: "/employee/completed", logo: <ClipboardCheck /> },
       {
         name: "Income/Expense",
         url: "/employee/transaction",

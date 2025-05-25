@@ -48,7 +48,7 @@ const Sidebar = () => {
       { name: "Tasks", url: "/admin/tasks", logo: <ClipboardList /> },
       { name: "To Do", url: "/admin/todo", logo: <ListTodo /> },
       { name: "In Progress", url: "/admin/inprogress", logo: <Loader /> },
-      { name: "Completed", url: "/admin/completed", logo: <ClipboardCheck /> },
+      { name: "For You", url: "/admin/completed", logo: <ClipboardCheck /> },
       {
         name: "Transaction",
         url: "/admin/transaction",

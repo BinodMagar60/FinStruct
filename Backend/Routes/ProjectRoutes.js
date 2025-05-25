@@ -968,10 +968,10 @@ router.put('/transactions/reject/:id', async (req, res) => {
 // ---------------------- PrioritySchudeling Algorithm  ---------------
 
 
+
 router.get('/project/:projectId/sorted-tasks', async (req, res) => {
   try {
     const tasks = await Task.find({ projectId: req.params.projectId }).lean();
-
 
     const activeTasks = tasks.filter(task => task.status !== 'COMPLETED');
 
@@ -998,20 +998,24 @@ router.get('/project/:projectId/sorted-tasks', async (req, res) => {
 
       const parts = [];
 
-      if (daysUntilDue < 0) {
-        parts.push(`Overdue by ${Math.abs(daysUntilDue)} day(s)`);
-      } else if (daysUntilDue === 0) {
-        parts.push('Due today');
-      } else if (daysUntilDue <= 5) {
-        parts.push(`Due in ${daysUntilDue} day(s)`);
-      }
+      if (task._cycleError) {
+        parts.push('Tasks are linked in a loop. Please fix.');
+      } else {
+        if (daysUntilDue < 0) {
+          parts.push(`Overdue by ${Math.abs(daysUntilDue)} day(s)`);
+        } else if (daysUntilDue === 0) {
+          parts.push('Due today');
+        } else if (daysUntilDue <= 5) {
+          parts.push(`Due in ${daysUntilDue} day(s)`);
+        }
 
-      if (blockedTasks.length > 0) {
-        parts.push(`Blocking ${blockedTasks.length} task(s)`);
-      }
+        if (blockedTasks.length > 0) {
+          parts.push(`Blocking ${blockedTasks.length} task(s)`);
+        }
 
-      if (task.priority === 'high') {
-        parts.push('High priority');
+        if (task.priority === 'high') {
+          parts.push('High priority');
+        }
       }
 
       return {
@@ -1027,6 +1031,8 @@ router.get('/project/:projectId/sorted-tasks', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+
 // ---------------------- PrioritySchudeling Algorithm End ---------------
 
 

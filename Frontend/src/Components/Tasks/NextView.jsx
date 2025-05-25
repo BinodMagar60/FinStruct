@@ -19,6 +19,7 @@ const NextView = () => {
     const getDatas = async () => {
       try {
         const response = await sortedTasksByWeight(locallySavedProject);
+        // console.log(response)
         setSortedTasks(response);
       } catch (err) {
         console.log(err);

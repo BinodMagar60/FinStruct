@@ -51,7 +51,7 @@ const TasksContent = () => {
         ) : (
           <>
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-bold">Task Board</h1>
+              <h1 className="text-2xl font-bold">To Do Board</h1>
             </div>
 
             <div className="bg-white rounded-lg mb-6">
