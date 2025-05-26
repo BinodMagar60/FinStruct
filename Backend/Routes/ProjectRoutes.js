@@ -8,6 +8,7 @@ const Task = require("../models/Task");
 const Transaction = require("../models/Transactions");
 const UserActivity = require("../models/UserActivity");
 const scheduleTasksWithPriority = require('../utils/taskScheduler')
+const weightedLinearRegression = require('../utils/forecasting')
 
 
 // ---------------------- Project ---------------
@@ -1042,8 +1043,6 @@ router.get('/project/:projectId/sorted-tasks', async (req, res) => {
 // ---------------------- Overview ---------------
 
 
-
-// Group transactions by month
 function groupMonthlyData(transactions) {
   const monthlyData = {};
   transactions.forEach(tx => {
@@ -1059,7 +1058,6 @@ function groupMonthlyData(transactions) {
   }));
 }
 
-//  Group transactions by category and assign color
 function groupByCategory(transactions) {
   const map = new Map();
   transactions.forEach(tx => {
@@ -1080,14 +1078,12 @@ function groupByCategory(transactions) {
   }));
 }
 
-// Calculate % growth safely
 function calcGrowth(current, previous) {
   if (previous === 0 && current > 0) return 100;
   if (previous === 0) return 0;
   return Math.round(((current - previous) / previous) * 100);
 }
 
-// GET overview data for a project
 router.get('/overview/:projectId', async (req, res) => {
   try {
     const { projectId } = req.params;
@@ -1096,7 +1092,6 @@ router.get('/overview/:projectId', async (req, res) => {
     const project = await Project.findById(projectId);
     const transactions = await Transaction.find({ projectId, status: 'approved' });
 
-  
     const taskStats = {
       total: tasks.length,
       completed: tasks.filter(t => t.status === 'COMPLETED').length,
@@ -1110,7 +1105,6 @@ router.get('/overview/:projectId', async (req, res) => {
       },
     };
 
-    
     let totalSubtasks = 0;
     let completedSubtasks = 0;
 
@@ -1135,7 +1129,7 @@ router.get('/overview/:projectId', async (req, res) => {
       daysLeft,
     };
 
-    // --- Finance Summary ---
+    // Finance Summary
     const incomes = transactions.filter(tx => tx.type === 'income');
     const expenses = transactions.filter(tx => tx.type === 'expense');
 
@@ -1144,11 +1138,11 @@ router.get('/overview/:projectId', async (req, res) => {
     const balance = totalIncome - totalExpenses;
     const profitMargin = totalIncome > 0 ? Math.round((balance / totalIncome) * 100) : 0;
 
-    // --- Monthly Trends ---
+    // Monthly Trends
     const sortedTransactions = [...transactions].sort((a, b) => new Date(a.createdDate) - new Date(b.createdDate));
     const monthlyData = groupMonthlyData(sortedTransactions);
 
-    // Get last two months
+    // Growth Calculations
     const lastMonth = monthlyData[monthlyData.length - 1] || { income: 0, expenses: 0 };
     const prevMonth = monthlyData[monthlyData.length - 2] || { income: 0, expenses: 0 };
 
@@ -1163,6 +1157,26 @@ router.get('/overview/:projectId', async (req, res) => {
       lastMonth.income > 0 ? ((lastMonth.income - lastMonth.expenses) / lastMonth.income) * 100 : 0,
       prevMonth.income > 0 ? ((prevMonth.income - prevMonth.expenses) / prevMonth.income) * 100 : 0
     );
+
+    // Add prediction only if 2 or more months of data
+    let predicted = null;
+    if (monthlyData.length >= 2) {
+      const predictedIncome = weightedLinearRegression(monthlyData, 'income');
+      const predictedExpenses = weightedLinearRegression(monthlyData, 'expenses');
+
+      const lastMonthDate = new Date();
+      lastMonthDate.setMonth(lastMonthDate.getMonth() + 1);
+      const nextMonth = lastMonthDate.toLocaleString('default', { month: 'short' });
+
+      predicted = {
+        month: nextMonth,
+        income: predictedIncome,
+        expenses: predictedExpenses,
+        predicted: true,
+      };
+
+      monthlyData.push(predicted);
+    }
 
     const finances = {
       totalIncome,
@@ -1186,7 +1200,6 @@ router.get('/overview/:projectId', async (req, res) => {
     res.status(500).json({ message: 'Server error.' });
   }
 });
-
 
 
 

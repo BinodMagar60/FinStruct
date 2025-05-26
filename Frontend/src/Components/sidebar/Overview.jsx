@@ -364,8 +364,16 @@ export default function Overview() {
                   {data.projects.status !== "Completed" && (
                     <>
                       <div className="border border-gray-200 rounded-lg p-4">
-                        <p className="text-gray-500 text-sm">{data.projects.daysLeft < 0? "Overdue By": "Days Left"}</p>
-                        <p className={`font-semibold text-black ${data.projects.daysLeft <= 5? "text-red-500" : ""}`}>
+                        <p className="text-gray-500 text-sm">
+                          {data.projects.daysLeft < 0
+                            ? "Overdue By"
+                            : "Days Left"}
+                        </p>
+                        <p
+                          className={`font-semibold text-black ${
+                            data.projects.daysLeft <= 5 ? "text-red-500" : ""
+                          }`}
+                        >
                           {Math.abs(data.projects.daysLeft)}
                         </p>
                       </div>
@@ -591,96 +599,113 @@ export default function Overview() {
                   </div>
                 </div>
 
-                {/* Monthly Income/Expenses bargraph*/}
                 <div className="bg-white rounded-lg shadow p-6">
                   <h2 className="text-lg font-semibold mb-4">
                     Monthly Income & Expenses
                   </h2>
                   <div className="h-64">
-                    <div style={chartContainerStyle}>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                          data={data.finances.monthlyData}
-                          margin={{
-                            top: 5,
-                            right: 30,
-                            left: 20,
-                            bottom: 5,
-                          }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="month" />
-                          <YAxis />
-                          <Tooltip
-                            formatter={(value) => `${value}`}
-                            position={{ x: 0, y: 0 }}
-                            wrapperStyle={{ pointerEvents: "none" }}
-                            cursor={{ strokeDasharray: "3 3" }}
-                          />
-                          <Legend />
-                          <Bar dataKey="income" fill="#4285F4" name="Income" />
-                          <Bar
-                            dataKey="expenses"
-                            fill="#EA4335"
-                            name="Expenses"
-                          />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Income/expense graph chart*/}
-            {user.role === "admin" && (
-              <div className="bg-white rounded-lg shadow p-6 mb-6">
-                <h2 className="text-lg font-semibold mb-4">
-                  Income & Expenses Trend
-                </h2>
-                <div className="h-64">
-                  <div style={chartContainerStyle}>
                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart
-                        data={data.finances.incomeExpensesTrend}
-                        margin={{
-                          top: 10,
-                          right: 30,
-                          left: 0,
-                          bottom: 0,
-                        }}
+                      <BarChart
+                        data={data.finances.monthlyData}
+                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="month" />
                         <YAxis />
                         <Tooltip
                           formatter={(value) => `${value}`}
-                          position={{ x: 0, y: 0 }}
                           wrapperStyle={{ pointerEvents: "none" }}
                           cursor={{ strokeDasharray: "3 3" }}
                         />
-                        <Legend />
-                        <Area
-                          type="monotone"
+                        <Legend
+                          payload={[
+                            {
+                              value: "Income",
+                              type: "square",
+                              color: "#4285F4",
+                            },
+                            {
+                              value: "Expenses",
+                              type: "square",
+                              color: "#EA4335",
+                            },
+                          ]}
+                        />
+                        <Bar
                           dataKey="income"
-                          stackId="1"
-                          stroke="#4285F4"
-                          fill="#4285F4"
-                          fillOpacity={0.6}
                           name="Income"
-                        />
-                        <Area
-                          type="monotone"
+                          isAnimationActive={true}
+                        >
+                          {data.finances.monthlyData.map((entry, index) => (
+                            <Cell
+                              key={`cell-income-${index}`}
+                              fill={entry.predicted ? "#a3c9f8" : "#4285F4"}
+                            />
+                          ))}
+                        </Bar>
+                        <Bar
                           dataKey="expenses"
-                          stackId="1"
-                          stroke="#EA4335"
-                          fill="#EA4335"
-                          fillOpacity={0.6}
                           name="Expenses"
-                        />
-                      </AreaChart>
+                          isAnimationActive={true}
+                        >
+                          {data.finances.monthlyData.map((entry, index) => (
+                            <Cell
+                              key={`cell-expense-${index}`}
+                              fill={entry.predicted ? "#f7a9a0" : "#EA4335"}
+                            />
+                          ))}
+                        </Bar>
+                      </BarChart>
                     </ResponsiveContainer>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* Income/Expenses Trend Area Chart */}
+            {user.role === "admin" && (
+              <div className="bg-white rounded-lg shadow p-6 mb-6">
+                <h2 className="text-lg font-semibold mb-4">
+                  Income & Expenses Trend
+                </h2>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart
+                      data={data.finances.incomeExpensesTrend}
+                      margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip
+                        formatter={(value) => `${value}`}
+                        wrapperStyle={{ pointerEvents: "none" }}
+                        cursor={{ strokeDasharray: "3 3" }}
+                      />
+                      <Legend
+                        payload={[
+                          { value: "Income", type: "line", color: "#4285F4" },
+                          { value: "Expenses", type: "line", color: "#EA4335" },
+                        ]}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="income"
+                        stroke="#4285F4"
+                        fill="#4285F4"
+                        fillOpacity={0.3}
+                        name="Income"
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="expenses"
+                        stroke="#EA4335"
+                        fill="#EA4335"
+                        fillOpacity={0.3}
+                        name="Expenses"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
             )}
