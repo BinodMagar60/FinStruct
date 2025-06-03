@@ -63,19 +63,23 @@ export default function TeamMembers(props) {
       .toUpperCase();
 
   const getRandomColor = (id) => {
-    const colors = [
-      "bg-blue-600",
-    ];
+    const colors = ["bg-blue-600"];
     return colors[Number.parseInt(id, 16) % colors.length];
   };
 
   const getSortedAndFilteredData = (data) => {
-    const filtered = data.filter(
-      (item) =>
-        item.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.phoneNumber?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filtered = data.filter((item) => {
+      const username = String(item.username || "").toLowerCase();
+      const email = String(item.email || "").toLowerCase();
+      const phoneNumber = String(item.phoneNumber || "").toLowerCase();
+      const query = searchQuery.toLowerCase();
+
+      return (
+        username.includes(query) ||
+        email.includes(query) ||
+        phoneNumber.includes(query)
+      );
+    });
 
     return filtered.sort((a, b) => {
       let aVal = a[sortField];
@@ -240,7 +244,11 @@ export default function TeamMembers(props) {
                         )}`}
                       >
                         {item.photo ? (
-                          <img src={item.photo} alt={item.username} className="rounded-full"/>
+                          <img
+                            src={item.photo}
+                            alt={item.username}
+                            className="rounded-full"
+                          />
                         ) : (
                           getInitials(item.username)
                         )}

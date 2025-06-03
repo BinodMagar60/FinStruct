@@ -139,7 +139,6 @@ router.get("/first/:companyId", async (req, res) => {
 const monthName = (i) =>
   new Date(2000, i, 1).toLocaleString("default", { month: "short" });
 
-
 const getRandomColor = () => {
   const colors = [
     "#4C51BF",
@@ -157,79 +156,91 @@ const getRandomColor = () => {
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
-
 router.get("/financialsummary/:companyId", async (req, res) => {
   try {
     const companyId = new mongoose.Types.ObjectId(req.params.companyId);
     const now = new Date();
     const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth(); 
+    const currentMonth = now.getMonth();
 
-    
     const company = await Company.findById(companyId);
-    if (!company) return res.status(404).json({ message: "Company not found" });
+    if (!company)
+      return res.status(404).json({ message: "Company not found" });
 
-    const companyCreatedAt = new Date(company.createdAt);
-    const companyStartMonth =
-      companyCreatedAt.getFullYear() === currentYear
-        ? companyCreatedAt.getMonth()
-        : 0;
-
-    
     const [transactions, users] = await Promise.all([
       Transaction.find({ companyId }),
       User.find({ companyId }),
     ]);
 
-    
-    const fullMonthlyData = Array.from({ length: 12 }, (_, i) => ({
-      name: monthName(i),
-      Income: 0,
-      Expenses: 0,
-    }));
+    // 🟢 Determine earliest date from company creation, transactions, or users
+    const allDates = [
+      new Date(company.createdAt),
+      ...transactions.map((t) => new Date(t.createdDate)),
+      ...users.map((u) => new Date(u.createdAt)),
+    ];
+    const earliestDate = new Date(Math.min(...allDates.map((d) => d.getTime())));
+    const startYear = earliestDate.getFullYear();
+    const startMonth = earliestDate.getMonth();
+    const totalMonths =
+      (currentYear - startYear) * 12 + (currentMonth - startMonth + 1);
+
+    // 🟢 Create full dynamic monthly array
+    const fullMonthlyData = Array.from({ length: totalMonths }, (_, i) => {
+      const date = new Date(startYear, startMonth + i, 1);
+      return {
+        name: date.toLocaleString("default", { month: "short", year: "numeric" }),
+        Income: 0,
+        Expenses: 0,
+      };
+    });
 
     const incomeByCategory = {};
     const expenseByCategory = {};
 
-    
+    // 🟢 Populate income/expense transactions into correct month
     transactions.forEach((tx) => {
       const txDate = new Date(tx.createdDate);
+      const txYear = txDate.getFullYear();
       const txMonth = txDate.getMonth();
+      const index =
+        (txYear - startYear) * 12 + (txMonth - startMonth);
+      if (index < 0 || index >= fullMonthlyData.length) return;
 
       if (tx.type === "income") {
-        fullMonthlyData[txMonth].Income += tx.amount;
+        fullMonthlyData[index].Income += tx.amount;
         incomeByCategory[tx.category] =
           (incomeByCategory[tx.category] || 0) + tx.amount;
       } else if (tx.type === "expense") {
-        fullMonthlyData[txMonth].Expenses += tx.amount;
+        fullMonthlyData[index].Expenses += tx.amount;
         expenseByCategory[tx.category] =
           (expenseByCategory[tx.category] || 0) + tx.amount;
       }
     });
 
-    // Add salaries to each month
+    // 🟢 Add salaries as monthly expenses
     users.forEach((user) => {
       if (!user.salary) return;
 
       const createdAt = new Date(user.createdAt);
-      const startMonth =
-        createdAt.getFullYear() === currentYear
-          ? createdAt.getMonth()
-          : 0;
+      const userStartYear = createdAt.getFullYear();
+      const userStartMonth = createdAt.getMonth();
 
-      for (let i = startMonth; i <= currentMonth; i++) {
-        fullMonthlyData[i].Expenses += user.salary;
+      const salaryStartIndex =
+        (userStartYear - startYear) * 12 + (userStartMonth - startMonth);
+      const salaryEndIndex = totalMonths - 1;
+
+      for (let i = salaryStartIndex; i <= salaryEndIndex; i++) {
+        if (i >= 0 && i < fullMonthlyData.length) {
+          fullMonthlyData[i].Expenses += user.salary;
+        }
       }
 
-      const salaryMonths = Math.max(0, currentMonth - startMonth + 1);
+      const salaryMonths = Math.max(0, salaryEndIndex - salaryStartIndex + 1);
       expenseByCategory["Salary"] =
         (expenseByCategory["Salary"] || 0) + user.salary * salaryMonths;
     });
 
-    // Slice the data only from company creation month to current
-    const monthlyData = fullMonthlyData.slice(companyStartMonth, currentMonth + 1);
-
-    // Format income/expense 
+    // 🟢 Format data for charts
     const incomeData = Object.entries(incomeByCategory).map(
       ([name, value]) => ({
         name,
@@ -246,19 +257,17 @@ router.get("/financialsummary/:companyId", async (req, res) => {
       })
     );
 
-    
+    // 🟢 Return data
     res.json({
       incomeData,
       expenseData,
-      monthlyData,
-      trendData: monthlyData, 
+      monthlyData: fullMonthlyData,
+      trendData: fullMonthlyData,
     });
-
   } catch (err) {
-    res.status(500).json({err});
+    res.status(500).json({ error: err.message || err });
   }
 });
-
 
 
 

@@ -664,43 +664,41 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Income & Expenses Trend */}
-        <div className="mb-8">
-          <div className="bg-white rounded-xl shadow p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-gray-800">
-                Income & Expenses Trend
-              </h3>
-            </div>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={trendData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => formatCurrency(value)} />
-                  <Legend />
-                  <Area
-                    type="monotone"
-                    dataKey="Income"
-                    stackId="1"
-                    stroke="#4C51BF"
-                    fill="#4C51BF"
-                    fillOpacity={0.6}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="Expenses"
-                    stackId="1"
-                    stroke="#F56565"
-                    fill="#F56565"
-                    fillOpacity={0.6}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
+       {/* Income & Expenses Trend */}
+<div className="mb-8">
+  <div className="bg-white rounded-xl shadow p-6">
+    <div className="flex justify-between items-center mb-4">
+      <h3 className="font-semibold text-gray-800">
+        Income & Expenses Trend
+      </h3>
+    </div>
+    <div className="h-80">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={trendData}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip formatter={(value) => formatCurrency(value)} />
+          <Legend />
+          <Area
+            type="monotone"
+            dataKey="Income"
+            stroke="#4C51BF"
+            fill="#4C51BF"
+            fillOpacity={0.3}
+          />
+          <Area
+            type="monotone"
+            dataKey="Expenses"
+            stroke="#F56565"
+            fill="#F56565"
+            fillOpacity={0.3}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  </div>
+</div>
 
         {/* Projects and Team Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

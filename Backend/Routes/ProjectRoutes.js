@@ -832,8 +832,9 @@ router.post('/transactions/new', async (req, res) => {
 router.get('/transactions/get/:pid', async (req, res) => {
   try {
     const { pid } = req.params;
-    
-    const transactions = await Transaction.find({ projectId: pid }).sort({ createddate: -1 });
+
+    // Sort by 'createdDate' in descending order (latest on top)
+    const transactions = await Transaction.find({ projectId: pid }).sort({ createdDate: -1 });
 
     const newTransaction = transactions.map(transactiondata => {
       const data = transactiondata.toObject();
@@ -848,6 +849,7 @@ router.get('/transactions/get/:pid', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 
 // Approve a transaction 
@@ -1041,12 +1043,11 @@ router.get('/project/:projectId/sorted-tasks', async (req, res) => {
 
 
 // ---------------------- Overview ---------------
-
-
 function groupMonthlyData(transactions) {
   const monthlyData = {};
   transactions.forEach(tx => {
-    const month = new Date(tx.createdDate).toLocaleString('default', { month: 'short' });
+    const date = new Date(tx.createdDate);
+    const month = date.toLocaleString('default', { month: 'short', year: 'numeric' });
     if (!monthlyData[month]) monthlyData[month] = { income: 0, expenses: 0 };
 
     if (tx.type === 'income') monthlyData[month].income += tx.amount;
@@ -1107,7 +1108,6 @@ router.get('/overview/:projectId', async (req, res) => {
 
     let totalSubtasks = 0;
     let completedSubtasks = 0;
-
     tasks.forEach(task => {
       task.subtasks.forEach(sub => {
         totalSubtasks++;
@@ -1158,7 +1158,7 @@ router.get('/overview/:projectId', async (req, res) => {
       prevMonth.income > 0 ? ((prevMonth.income - prevMonth.expenses) / prevMonth.income) * 100 : 0
     );
 
-    // Add prediction only if 2 or more months of data
+    // Prediction
     let predicted = null;
     if (monthlyData.length >= 2) {
       const predictedIncome = weightedLinearRegression(monthlyData, 'income');
@@ -1166,7 +1166,7 @@ router.get('/overview/:projectId', async (req, res) => {
 
       const lastMonthDate = new Date();
       lastMonthDate.setMonth(lastMonthDate.getMonth() + 1);
-      const nextMonth = lastMonthDate.toLocaleString('default', { month: 'short' });
+      const nextMonth = lastMonthDate.toLocaleString('default', { month: 'short', year: 'numeric' });
 
       predicted = {
         month: nextMonth,
