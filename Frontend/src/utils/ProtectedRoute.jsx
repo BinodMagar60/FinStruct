@@ -5,15 +5,6 @@ import { IoMdReturnRight } from "react-icons/io";
 
 
 
-// Fake role-checking utility (replace or expand based on your auth system)
-// const getUserFromToken = (token) => {
-//   try {
-//     const decoded = jwtDecode(token);
-//     return decoded; // { id, username, role, ... }
-//   } catch (err) {
-//     return null;
-//   }
-// };
 
 const ProtectedRoute = ({ allowedRoles }) => {
 

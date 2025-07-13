@@ -205,7 +205,8 @@ const router = createBrowserRouter([
         ]
       }
     ]
-  },{
+  },
+  {
     path: "/unauthorized",
     element: <Unauthorized/>
   }
