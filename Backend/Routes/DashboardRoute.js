@@ -136,8 +136,8 @@ router.get("/first/:companyId", async (req, res) => {
 
 
 //Finance part
-const monthName = (i) =>
-  new Date(2000, i, 1).toLocaleString("default", { month: "short" });
+// const monthName = (i) =>
+//   new Date(2000, i, 1).toLocaleString("default", { month: "short" });
 
 const getRandomColor = () => {
   const colors = [
@@ -172,7 +172,7 @@ router.get("/financialsummary/:companyId", async (req, res) => {
       User.find({ companyId }),
     ]);
 
-    // 🟢 Determine earliest date from company creation, transactions, or users
+    // Determine earliest date from company creation, transactions, or users
     const allDates = [
       new Date(company.createdAt),
       ...transactions.map((t) => new Date(t.createdDate)),
@@ -184,7 +184,7 @@ router.get("/financialsummary/:companyId", async (req, res) => {
     const totalMonths =
       (currentYear - startYear) * 12 + (currentMonth - startMonth + 1);
 
-    // 🟢 Create full dynamic monthly array
+    // Create full dynamic monthly array
     const fullMonthlyData = Array.from({ length: totalMonths }, (_, i) => {
       const date = new Date(startYear, startMonth + i, 1);
       return {
@@ -197,7 +197,7 @@ router.get("/financialsummary/:companyId", async (req, res) => {
     const incomeByCategory = {};
     const expenseByCategory = {};
 
-    // 🟢 Populate income/expense transactions into correct month
+    // Populate income/expense transactions into correct month
     transactions.forEach((tx) => {
       const txDate = new Date(tx.createdDate);
       const txYear = txDate.getFullYear();
@@ -217,7 +217,7 @@ router.get("/financialsummary/:companyId", async (req, res) => {
       }
     });
 
-    // 🟢 Add salaries as monthly expenses
+    // Add salaries as monthly expenses
     users.forEach((user) => {
       if (!user.salary) return;
 
@@ -240,7 +240,7 @@ router.get("/financialsummary/:companyId", async (req, res) => {
         (expenseByCategory["Salary"] || 0) + user.salary * salaryMonths;
     });
 
-    // 🟢 Format data for charts
+    // Format data for charts
     const incomeData = Object.entries(incomeByCategory).map(
       ([name, value]) => ({
         name,
@@ -257,7 +257,7 @@ router.get("/financialsummary/:companyId", async (req, res) => {
       })
     );
 
-    // 🟢 Return data
+    // Return data
     res.json({
       incomeData,
       expenseData,

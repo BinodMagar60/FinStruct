@@ -2,10 +2,6 @@
 const dotenv = require('dotenv')
 dotenv.config()
 
-
-
-
-
 //salt
 function generateCustomSalt(length = 16, seed = Date.now().toString()) {
     let salt = "";
@@ -19,7 +15,6 @@ function generateCustomSalt(length = 16, seed = Date.now().toString()) {
 
     return salt;
 }
-
 
 //hashing
 function customHash(password, salt, iterations = 1000) {
@@ -37,11 +32,6 @@ function customHash(password, salt, iterations = 1000) {
 
     return hash;
 }
-
-
-
-
-
 
 //Encryption
 function xorEncrypt(text, key = process.env.KEY) {

@@ -53,7 +53,7 @@ const Signin = () => {
     if (!errors.e1 && !errors.e2) {
       try {
         const data = { email: formData.email, password: xorEncrypt(formData.password) };
-        // console.log(data)
+
         const response = await loginUser("auth/login", data);
   
         if (response.status === 200) {

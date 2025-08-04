@@ -69,7 +69,6 @@ module.exports = function scheduleTasksWithPriority(tasks) {
     }
   }
 
-  // Include remaining (cyclic) tasks with special flag
   for (const [id, task] of taskMap.entries()) {
     if (!visited.has(id)) {
       task._cycleError = true;

@@ -13,32 +13,41 @@ const CreateProject = ({ isCreateOpen, setIsCreateOpen }) => {
     setIsCreateOpen(!isCreateOpen);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!projectName) {
-      return;
-    }
+  const trimmedName = projectName.trim();
 
-    const newProject = {
-      uid: locallySavedUser.id,
-      projectName: projectName,
-      description: description,
-      dueDate: dueDate, 
-    };
+  const validNameRegex = /^[A-Za-z][A-Za-z0-9\s\-_,.()]*$/;
 
-    try {
-      const response = await addProject(`projects/project/${locallySavedUser.companyId}`, newProject);
-      console.log(response);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setProjectName('');
-      setDescription('');
-      setDueDate('');
-      onClose();
-    }
+  if (!trimmedName || !validNameRegex.test(trimmedName)) {
+    alert("Project name must start with a letter and contain only letters, numbers, spaces or basic punctuation.");
+    return;
+  }
+
+  const newProject = {
+    uid: locallySavedUser.id,
+    projectName: trimmedName,
+    description: description,
+    dueDate: dueDate,
   };
+
+  try {
+    const response = await addProject(
+      `projects/project/${locallySavedUser.companyId}`,
+      newProject
+    );
+    console.log(response);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    setProjectName('');
+    setDescription('');
+    setDueDate('');
+    onClose();
+  }
+};
+
 
   return (
     <div className="fixed inset-0 bg-[#7e7e7e50] bg-opacity-50 flex items-center justify-center z-50">
