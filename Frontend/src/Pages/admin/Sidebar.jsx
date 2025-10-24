@@ -15,7 +15,7 @@ import {
 import { RiMoneyDollarCircleLine } from "react-icons/ri";
 import { PiMoneyWavyBold } from "react-icons/pi";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import CreateProject from "../../Components/sidebar/CreateProject";
+import CreateProject from "./createproject/CreateProject";
 import { getAllProjects } from "../../api/ProjectApi";
 
 const Sidebar = () => {
@@ -123,6 +123,7 @@ const Sidebar = () => {
       style={{ scrollbarWidth: "none" }}
     >
       <div className="h-full">
+        <div className="w-full text-sm text-center mb-1 text-gray-500">General</div>
         {admin && (
           <ul className="flex flex-col select-none text-gray-900 text-xl">
             {adminLists[0].map((item) => (
@@ -139,10 +140,10 @@ const Sidebar = () => {
               </Link>
             ))}
 
-            <div className="h-[3px] w-full bg-[#efefef] my-3"></div>
+            <div className="w-full text-sm text-center  text-gray-500">Project Management</div>
             <div className="flex justify-center">
               <button
-                className="flex shadow-md py-3 px-4 rounded-md border-r border-b border-gray-300 cursor-pointer transition-all hover:bg-[#e4e4e488]"
+                className="flex py-3 px-4 rounded-md bg-gray-600 text-white border border-gray-300 cursor-pointer transition-all hover:bg-gray-700"
                 onClick={() => setIsCreateOpen(!isCreateOpen)}
               >
                 <span className="mr-1 flex items-center">

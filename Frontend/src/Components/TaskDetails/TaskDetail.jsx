@@ -21,7 +21,7 @@ import {
   deleteAssetsBackend,
   getTaskDetailsForDetailsSection,
 } from "../../api/ProjectApi";
-import Loading from "../sidebar/Loading";
+import Loading from "../Loading";
 import { formatDateToReadable } from "../../utils/formateDates";
 
 const TaskDetail = ({ tasks, columnId }) => {

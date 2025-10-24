@@ -1,0 +1,174 @@
+import React, { useState } from 'react';
+import { X, Plus } from 'lucide-react';
+import { addProject } from '../../../api/ProjectApi';
+
+const CreateProject = ({ isCreateOpen, setIsCreateOpen }) => {
+  const locallySavedUser = JSON.parse(localStorage.getItem("userDetails"));
+
+  const [projectName, setProjectName] = useState('');
+  const [description, setDescription] = useState('');
+  const [dueDate, setDueDate] = useState('');
+  const [errors, setErrors] = useState({});
+
+  const onClose = () => {
+    setIsCreateOpen(!isCreateOpen);
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    const trimmedName = projectName.trim();
+    const validNameRegex = /^[A-Za-z][A-Za-z0-9\s\-_,.()]*$/;
+
+    if (!trimmedName) {
+      newErrors.projectName = 'Project name cannot be empty.';
+    } else if (!validNameRegex.test(trimmedName)) {
+      newErrors.projectName =
+        'Project name must start with a letter and contain only letters, numbers, spaces, or basic punctuation.';
+    }
+
+    if (!description.trim()) {
+      newErrors.description = 'Project description cannot be empty.';
+    }
+
+    if (!dueDate) {
+      newErrors.dueDate = 'Due date is required.';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    const newProject = {
+      uid: locallySavedUser.id,
+      projectName: projectName.trim(),
+      description: description.trim(),
+      dueDate,
+    };
+
+    try {
+      const response = await addProject(
+        `projects/project/${locallySavedUser.companyId}`,
+        newProject
+      );
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setProjectName('');
+      setDescription('');
+      setDueDate('');
+      onClose();
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-[#7e7e7e50] bg-opacity-50 flex items-center justify-center z-50">
+      <div className="relative max-w-md w-full bg-white rounded-lg shadow-md p-6">
+        <button
+          onClick={() => onClose()}
+          className="absolute top-4 right-4 text-gray-600 hover:text-gray-900"
+        >
+          <X className="h-6 w-6" />
+        </button>
+
+        <h2 className="text-2xl font-bold mb-6 text-center">Create New Project</h2>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Project Name */}
+          <div>
+            <label
+              htmlFor="projectName"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Project Name
+            </label>
+            <input
+              type="text"
+              id="projectName"
+              value={projectName}
+              onChange={(e) => {
+                setProjectName(e.target.value);
+                setErrors((prev) => ({ ...prev, projectName: '' }));
+              }}
+              placeholder="Enter project name"
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none ${
+                errors.projectName ? 'border-red-500' : 'border-gray-300'
+              }`}
+            />
+            {errors.projectName && (
+              <p className="text-red-500 text-sm mt-1">{errors.projectName}</p>
+            )}
+          </div>
+
+          {/* Description */}
+          <div>
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Project Description
+            </label>
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                setErrors((prev) => ({ ...prev, description: '' }));
+              }}
+              placeholder="Enter project description"
+              rows="4"
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none ${
+                errors.description ? 'border-red-500' : 'border-gray-300'
+              }`}
+            ></textarea>
+            {errors.description && (
+              <p className="text-red-500 text-sm mt-1">{errors.description}</p>
+            )}
+          </div>
+
+          {/* Due Date */}
+          <div>
+            <label
+              htmlFor="dueDate"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Due Date
+            </label>
+            <input
+              type="date"
+              id="dueDate"
+              value={dueDate}
+              onChange={(e) => {
+                setDueDate(e.target.value);
+                setErrors((prev) => ({ ...prev, dueDate: '' }));
+              }}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none ${
+                errors.dueDate ? 'border-red-500' : 'border-gray-300'
+              }`}
+            />
+            {errors.dueDate && (
+              <p className="text-red-500 text-sm mt-1">{errors.dueDate}</p>
+            )}
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center"
+          >
+            <Plus className="mr-2 h-5 w-5" />
+            Create Project
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default CreateProject;
