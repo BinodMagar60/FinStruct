@@ -23,6 +23,7 @@ const TaskModal = () => {
     priority: "normal",
   })
 
+  const [errors, setErrors] = useState({})
   const [showAssigneeDropdown, setShowAssigneeDropdown] = useState(false)
 
   const formatDate = (dateString) => {
@@ -54,6 +55,7 @@ const TaskModal = () => {
         priority: "normal",
       })
     }
+    setErrors({})
   }, [currentTask])
 
   const handleChange = (e) => {
@@ -62,52 +64,84 @@ const TaskModal = () => {
       ...formData,
       [name]: value,
     })
+    setErrors((prev) => ({ ...prev, [name]: "" })) // clear field error on change
   }
 
   const toggleAssignee = (userId) => {
     setFormData((prev) => {
-      if (prev.assignees.includes(userId)) {
-        return {
-          ...prev,
-          assignees: prev.assignees.filter((id) => id !== userId),
-        }
-      } else {
-        return {
-          ...prev,
-          assignees: [...prev.assignees, userId],
-        }
-      }
+      const updatedAssignees = prev.assignees.includes(userId)
+        ? prev.assignees.filter((id) => id !== userId)
+        : [...prev.assignees, userId]
+      return { ...prev, assignees: updatedAssignees }
     })
+    setErrors((prev) => ({ ...prev, assignees: "" }))
   }
 
-  const handleSubmit = (e) => {
+  const validateForm = () => {
+    const newErrors = {}
+    if (!formData.title.trim()) newErrors.title = "Task title is required."
+    if (formData.assignees.length === 0)
+      newErrors.assignees = "Please assign at least one user."
+    if (!formData.startingDate)
+      newErrors.startingDate = "Starting date is required."
+    if (!formData.dueDate) newErrors.dueDate = "Due date is required."
+    if (
+      formData.dueDate &&
+      formData.startingDate &&
+      new Date(formData.dueDate) < new Date(formData.startingDate)
+    ) {
+      newErrors.dueDate = "Due date cannot be before starting date."
+    }
+    return newErrors
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // convert dates to ISO before sending
+    const validationErrors = validateForm()
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors)
+      return
+    }
+
     const taskToSubmit = {
       ...formData,
       startingDate: new Date(formData.startingDate).toISOString(),
       dueDate: new Date(formData.dueDate).toISOString(),
     }
 
-    if (modalMode === "add") {
-      handleAddTask(taskToSubmit)
-    } else {
-      if (currentTask && currentTask.subtasks) {
-        const mainSubtask = currentTask.subtasks.find((s) => s.isMainSubtask)
-        if (mainSubtask) {
-          const updatedSubtasks = currentTask.subtasks.map((s) =>
-            s.isMainSubtask ? { ...s, title: formData.title } : s,
-          )
-
-          handleUpdateTask({
-            ...taskToSubmit,
-            subtasks: updatedSubtasks,
-          })
-          return
+    try {
+      if (modalMode === "add") {
+        await handleAddTask(taskToSubmit)
+        setIsModalOpen(false)
+        setFormData({
+          title: "",
+          assignees: [],
+          stage: "todo",
+          dueDate: "",
+          startingDate: "",
+          priority: "normal",
+        })
+      } else {
+        if (currentTask && currentTask.subtasks) {
+          const mainSubtask = currentTask.subtasks.find((s) => s.isMainSubtask)
+          if (mainSubtask) {
+            const updatedSubtasks = currentTask.subtasks.map((s) =>
+              s.isMainSubtask ? { ...s, title: formData.title } : s
+            )
+            await handleUpdateTask({
+              ...taskToSubmit,
+              subtasks: updatedSubtasks,
+            })
+            setIsModalOpen(false)
+            return
+          }
         }
+        await handleUpdateTask(taskToSubmit)
+        setIsModalOpen(false)
       }
-      handleUpdateTask(taskToSubmit)
+    } catch (error) {
+      console.error("Error adding/updating task:", error)
     }
   }
 
@@ -116,35 +150,56 @@ const TaskModal = () => {
   return (
     <div className="fixed inset-0 bg-[#7e7e7e50] bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg w-full max-w-md mx-4">
+        {/* HEADER */}
         <div className="flex justify-between items-center p-4 border-b border-gray-300">
-          <h2 className="text-lg font-semibold">{modalMode === "add" ? "ADD TASK" : "EDIT TASK"}</h2>
-          <button onClick={() => setIsModalOpen(false)} className="text-gray-500 hover:text-gray-700">
+          <h2 className="text-lg font-semibold">
+            {modalMode === "add" ? "ADD TASK" : "EDIT TASK"}
+          </h2>
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className="text-gray-500 hover:text-gray-700"
+          >
             <X size={20} />
           </button>
         </div>
 
+        {/* FORM */}
         <form onSubmit={handleSubmit} className="p-4">
+          {/* TASK TITLE */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Task Title</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Task Title
+            </label>
             <input
               type="text"
               name="title"
               value={formData.title}
               onChange={handleChange}
               disabled={modalMode === "edit"}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
+              className={`w-full p-2 border rounded-md focus:outline-none ${
+                errors.title ? "border-red-500" : "border-gray-300"
+              }`}
               placeholder="Task Title"
-              required
             />
+            {errors.title && (
+              <p className="text-red-500 text-xs mt-1">{errors.title}</p>
+            )}
           </div>
 
+          {/* ASSIGNEES */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Assign Task To:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Assign Task To:
+            </label>
             <div className="relative">
               <button
                 type="button"
-                onClick={() => setShowAssigneeDropdown(!showAssigneeDropdown)}
-                className="w-full p-2 border border-gray-300 rounded-md flex justify-between items-center"
+                onClick={() =>
+                  setShowAssigneeDropdown(!showAssigneeDropdown)
+                }
+                className={`w-full p-2 border rounded-md flex justify-between items-center ${
+                  errors.assignees ? "border-red-500" : "border-gray-300"
+                }`}
               >
                 {formData.assignees.length === 0 ? (
                   <span className="text-gray-500">Select assignees</span>
@@ -174,53 +229,79 @@ const TaskModal = () => {
                 </div>
               )}
             </div>
+            {errors.assignees && (
+              <p className="text-red-500 text-xs mt-1">{errors.assignees}</p>
+            )}
           </div>
 
+          {/* STAGE + START DATE */}
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Task Stage</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Task Stage
+              </label>
               <select
                 name="stage"
                 value={formData.stage}
                 onChange={handleChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
               >
-                {columns.map((column) => (
-                  column.title !== "COMPLETED" && (
-                    <option key={column.id} value={column.id}>
-                      {column.title}
-                    </option>
-                  )
-                ))}
+                {columns.map(
+                  (column) =>
+                    column.title !== "COMPLETED" && (
+                      <option key={column.id} value={column.id}>
+                        {column.title}
+                      </option>
+                    )
+                )}
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Starting Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Starting Date
+              </label>
               <input
                 type="date"
                 name="startingDate"
                 value={formData.startingDate}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
+                className={`w-full p-2 border rounded-md focus:outline-none ${
+                  errors.startingDate ? "border-red-500" : "border-gray-300"
+                }`}
               />
+              {errors.startingDate && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.startingDate}
+                </p>
+              )}
             </div>
           </div>
 
+          {/* DUE DATE + PRIORITY */}
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Due Date
+              </label>
               <input
                 type="date"
                 name="dueDate"
                 value={formData.dueDate}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
+                className={`w-full p-2 border rounded-md focus:outline-none ${
+                  errors.dueDate ? "border-red-500" : "border-gray-300"
+                }`}
               />
+              {errors.dueDate && (
+                <p className="text-red-500 text-xs mt-1">{errors.dueDate}</p>
+              )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Priority Level</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Priority Level
+              </label>
               <select
                 name="priority"
                 value={formData.priority}
@@ -234,6 +315,7 @@ const TaskModal = () => {
             </div>
           </div>
 
+          {/* BUTTONS */}
           <div className="flex justify-end gap-2 mt-6">
             <button
               type="button"
@@ -242,7 +324,10 @@ const TaskModal = () => {
             >
               Cancel
             </button>
-            <button type="submit" className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800">
+            <button
+              type="submit"
+              className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+            >
               Submit
             </button>
           </div>
