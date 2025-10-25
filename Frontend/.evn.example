@@ -1,0 +1,3 @@
+VITE_KEY=
+# same as KEY in Backend/.env
+VITE_BACKEND_URL=

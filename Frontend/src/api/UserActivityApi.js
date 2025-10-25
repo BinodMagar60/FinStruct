@@ -1,8 +1,6 @@
 import axios from "axios"
 
-
-const BackendURI="http://localhost:5000/useractivity";
-
+const BackendURI = import.meta.env.VITE_BACKEND_URL + "/useractivity";
 
 
 

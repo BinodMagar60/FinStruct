@@ -1,6 +1,7 @@
 import axios from "axios"
 
-const BackendURI="http://localhost:5000/";
+const BackendURI = import.meta.env.VITE_BACKEND_URL + "/";
+
 
 
 
