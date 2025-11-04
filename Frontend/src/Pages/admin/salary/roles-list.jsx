@@ -87,7 +87,7 @@ export default function RolesList({ roles, searchTerm, onEdit, onDelete, onAddRo
               <tr key={role._id}>
                 <td className="px-6 py-4 whitespace-nowrap capitalize">{role.titleName}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  ${role.defaultSalary.toLocaleString()}
+                  Rs. {role.defaultSalary.toLocaleString()}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">{role.role}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">

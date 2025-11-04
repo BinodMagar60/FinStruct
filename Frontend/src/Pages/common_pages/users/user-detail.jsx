@@ -7,21 +7,21 @@ export default function UserDetail({ userId, users = [], onBack }) {
 
   // Find the user by ID
   const user = users.find((u) => u._id === userId) || {
-    _id: "1",
-    username: "Alex Johnson",
-    personalEmail: "alex.personal@email.com",
-    email: "alex@email.com",
-    phoneNumber: "123-456-7890",
-    location: "New York, USA",
-    bio: "Experienced designer with a passion for creating beautiful and functional user interfaces.",
+    _id: "",
+    username: "",
+    personalEmail: "",
+    email: "",
+    phoneNumber: "",
+    location: "",
+    bio: "",
     isOwner: false,
-    role: "admin",
-    companyId: { name: "Acme Inc." },
-    jobTitleId: { name: "Senior Designer" },
+    role: "",
+    companyId: { name: "" },
+    jobTitleId: { name: "" },
     photo: "",
-    lastLogin: "2023-10-15T14:30:00",
-    createdAt: "2023-01-10",
-    salary: 75000,
+    lastLogin: "",
+    createdAt: "",
+    salary: 0,
   }
 
   const getInitials = (name) => {
@@ -43,7 +43,7 @@ export default function UserDetail({ userId, users = [], onBack }) {
   const formatSalary = (salary) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "NPR",
       maximumFractionDigits: 0,
     }).format(salary)
   }

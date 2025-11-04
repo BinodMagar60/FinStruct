@@ -195,7 +195,7 @@ export default function Overview() {
               style={{ backgroundColor: entry.color }}
             />
             <span className="text-sm">
-              {entry.payload.name}: ${entry.payload.value}
+              {entry.payload.name}: Rs. {entry.payload.value}
             </span>
           </li>
         ))}
@@ -434,7 +434,7 @@ export default function Overview() {
                         Total Income
                       </p>
                       <p className="text-3xl font-bold text-gray-800 mt-1">
-                        ${data.finances.totalIncome.toLocaleString()}
+                        Rs. {data.finances.totalIncome.toLocaleString()}
                       </p>
                     </div>
 
@@ -443,7 +443,7 @@ export default function Overview() {
                         Total Expenses
                       </p>
                       <p className="text-3xl font-bold text-gray-800 mt-1">
-                        ${data.finances.totalExpenses.toLocaleString()}
+                        Rs. {data.finances.totalExpenses.toLocaleString()}
                       </p>
                     </div>
 
@@ -452,7 +452,7 @@ export default function Overview() {
                         Balance
                       </p>
                       <p className="text-3xl font-bold text-gray-800 mt-1">
-                        ${data.finances.balance.toLocaleString()}
+                        Rs. {data.finances.balance.toLocaleString()}
                       </p>
                     </div>
 
@@ -488,7 +488,7 @@ export default function Overview() {
                                     100
                                   ).toFixed(1);
                                   return [
-                                    `$${value.toLocaleString()} (${percentage}%)`,
+                                    `Rs. ${value.toLocaleString()} (${percentage}%)`,
                                     name,
                                   ];
                                 }}

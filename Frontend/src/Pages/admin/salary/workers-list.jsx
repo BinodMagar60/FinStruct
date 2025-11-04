@@ -94,7 +94,7 @@ export default function WorkersList({ workers, searchTerm, onEdit, onDelete }) {
                 {worker.username}</td>
               <td className="px-6 py-4 whitespace-nowrap">{worker.jobTitleId.titleName}</td>
               <td className="px-6 py-4 whitespace-nowrap">
-                ${worker.salary.toLocaleString()}
+                Rs. {worker.salary.toLocaleString()}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <button onClick={() => onEdit(worker)} className="text-blue-600 hover:text-blue-900 mr-4">

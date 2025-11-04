@@ -97,7 +97,7 @@ export default function Dashboard() {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "npr",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);

@@ -11,7 +11,7 @@ export default function User() {
 
   
 
-  const [view, setView] = useState("list") // 'list', 'detail', 'add', 'edit'
+  const [view, setView] = useState("list") 
   const [selectedUserId, setSelectedUserId] = useState(null)
   const [editingUser, setEditingUser] = useState(null)
   const [isLoading, setLoading] = useState(true)

@@ -9,6 +9,7 @@ const Logout = ({ isLogout, setLogout }) => {
 
   const modalRef = useRef(null);
   const navigate = useNavigate();
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -18,16 +19,15 @@ const Logout = ({ isLogout, setLogout }) => {
 
     if (isLogout) {
       document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
     }
 
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, [isLogout]);
 
   const handleLogout = async () => {
     try {
-      const response = await loggoutActivity(locallySavedUser.id)
+      await loggoutActivity(locallySavedUser.id);
     } catch (error) {
       console.log(error);
     } finally {
@@ -42,43 +42,36 @@ const Logout = ({ isLogout, setLogout }) => {
     }
   };
 
-  const handleCancel = () => {
-    setLogout(!isLogout);
-  };
-
   return (
-    <>
-      <div className="w-full h-screen absolute top-0 z-[998] bg-[#00000042]">
-        <div
-          ref={modalRef}
-          className="absolute z-[999] top-[40%] left-[50%] translate-x-[-50%] translate-y-[-50%]  text-2xl  shadow-inner border border-gray-300 rounded-xl "
-        >
-          <div className="w-full flex flex-col rounded-xl  gap-3 justify-center items-center bg-white px-15 py-10">
-            <div className="p-5 rounded-full bg-[#FEF9C3] ">
-              <IoIosWarning size={50} color="#EAB308" />
-            </div>
-            <div className="font-extrabold text-3xl">Logout</div>
-            <div className="text-center text-xl font-light">
-              Are you sure you would like to logout of your account?
-            </div>
-            <div className="text-[16px] flex gap-5">
-              <button
-                className="border px-3 py-2 rounded cursor-pointer  hover:bg-gray-200 transition-all border-black"
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
-              <button
-                className="bg-black text-white px-3 py-2 rounded cursor-pointer hover:bg-gray-800 transition-all border-black"
-                onClick={handleCancel}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-[998]">
+      <div
+        ref={modalRef}
+        className="bg-white rounded-2xl shadow-xl w-[380px] sm:w-[420px] p-8 text-center animate-fadeIn"
+      >
+        <div className="mx-auto mb-4 p-4 rounded-full bg-yellow-100 shadow-sm w-fit">
+          <IoIosWarning size={60} className="text-yellow-500" />
+        </div>
+        <h2 className="text-3xl font-bold text-gray-800">Logout</h2>
+
+        <p className="text-gray-600 mt-3">
+          Are you sure you want to log out of your account?
+        </p>
+        <div className="flex justify-center gap-4 mt-6">
+          <button
+            onClick={handleLogout}
+            className="px-5 py-2 text-white bg-red-500 hover:bg-red-600 rounded-lg font-medium transition-all duration-200 shadow-sm"
+          >
+            Logout
+          </button>
+          <button
+            onClick={() => setLogout(false)}
+            className="px-5 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg font-medium transition-all duration-200"
+          >
+            Cancel
+          </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

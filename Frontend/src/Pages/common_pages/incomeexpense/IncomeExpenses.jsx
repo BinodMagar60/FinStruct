@@ -149,7 +149,7 @@ const IncomeExpenses = () => {
 
   const formatCurrency = (amount) => new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD'
+    currency: 'NPR'
   }).format(amount);
 
   return (

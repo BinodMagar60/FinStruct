@@ -114,7 +114,7 @@ export default function UsersList({ users, searchTerm, onEdit, onDelete }) {
                 {user.jobTitleId.titleName}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                ${user.salary.toLocaleString()}
+                Rs. {user.salary.toLocaleString()}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 {userSavedDetail?.isOwner ||
